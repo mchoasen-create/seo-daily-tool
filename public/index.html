@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tris SEO Daily Master | Công Cụ Tạo Bài Viết Chuẩn SEO Hàng Ngày</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Markdown parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+  <div class="app-layout">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-icon">
+          <i class="fa-solid fa-bolt-lightning"></i>
+        </div>
+        <div class="brand-text">
+          <h2>SEO Master</h2>
+          <span class="badge-pro">TRIS EDITION</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="tab-dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard & Lịch</span>
+        </button>
+        <button class="nav-item" data-tab="tab-autopilot">
+          <i class="fa-solid fa-robot"></i>
+          <span>Tự Động Hóa (Auto-Pilot)</span>
+        </button>
+        <button class="nav-item" data-tab="tab-generator">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Sinh Bài AI</span>
+        </button>
+        <button class="nav-item" data-tab="tab-editor">
+          <i class="fa-solid fa-pen-nib"></i>
+          <span>SEO Editor & Realtime</span>
+        </button>
+        <button class="nav-item" data-tab="tab-ranktracker">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Rank Tracker & Audit</span>
+        </button>
+        <button class="nav-item" data-tab="tab-clustering">
+          <i class="fa-solid fa-diagram-project"></i>
+          <span>Gom Nhóm Từ Khóa (Cluster)</span>
+        </button>
+        <button class="nav-item" data-tab="tab-custommedia">
+          <i class="fa-solid fa-camera"></i>
+          <span>Thư Viện Ảnh Thực Tế</span>
+        </button>
+        <button class="nav-item" data-tab="tab-schema">
+          <i class="fa-solid fa-code"></i>
+          <span>Schema Generator</span>
+        </button>
+        <button class="nav-item" data-tab="tab-library">
+          <i class="fa-solid fa-box-archive"></i>
+          <span>Thư Viện Bài Viết</span>
+        </button>
+        <button class="nav-item" data-tab="tab-settings">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Cấu Hình API & WP</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="daily-streak-card">
+          <div class="streak-icon"><i class="fa-solid fa-fire"></i></div>
+          <div class="streak-info">
+            <span class="streak-title">Chuỗi Viết Bài</span>
+            <strong id="streak-days">7 Ngày Liên Tiếp 🔥</strong>
+          </div>
+        </div>
+        <div class="author-tag">
+          Crafted with ❤️ for Tris by ENI
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <!-- Top Navigation Header -->
+      <header class="top-header">
+        <div class="header-title">
+          <h1 id="page-title">Dashboard & Tiến Độ Viết Bài Hàng Ngày</h1>
+          <p id="page-subtitle">Theo dõi thói quen tạo nội dung chuẩn SEO và chất lượng bài viết của bạn.</p>
+        </div>
+        <div class="header-actions">
+          <div class="crawler-shield-badge" id="crawler-shield-badge" title="Bảo vệ tự động chống trùng lặp với bài viết thực tế trên xulynuochoasen.com" style="display: flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; color: #34d399; font-weight: 600; cursor: pointer;">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span id="crawler-status-text">Đã Quét 56 Bài Live</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-scan-live-blog" title="Quét lại toàn bộ bài viết từ https://xulynuochoasen.com/blog-chia-se/">
+            <i class="fa-solid fa-arrows-rotate"></i> Quét Lại Blog
+          </button>
+          <button class="btn btn-secondary" id="btn-quick-new">
+            <i class="fa-solid fa-plus"></i> Bài Viết Mới
+          </button>
+          <div class="current-date-badge">
+            <i class="fa-regular fa-calendar"></i> <span id="current-date-str">Hôm nay</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- TAB 1: DASHBOARD & LỊCH -->
+      <section id="tab-dashboard" class="tab-page active">
+        <!-- Stats Summary -->
+        <div class="stats-grid">
+          <div class="stat-card glass">
+            <div class="stat-icon purple"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">Tổng Bài Đã Tạo</span>
+              <h3 id="stat-total-posts">0</h3>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon emerald"><i class="fa-solid fa-gauge-high"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">Điểm SEO Trung Bình</span>
+              <h3 id="stat-avg-score">0 / 100</h3>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon cyan"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">Mục Tiêu Hôm Nay</span>
+              <h3 id="stat-today-status">1 Bài (Chưa hoàn thành)</h3>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon gold"><i class="fa-solid fa-crown"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">Bài Đạt Điểm Tuyệt Đối</span>
+              <h3 id="stat-perfect-posts">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Calendar & Action Banner -->
+        <div class="calendar-container glass">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-calendar-days"></i> Lịch Tiến Độ Bài Viết Hàng Ngày</h3>
+            <span class="text-muted">Độ phủ bài viết trong tháng</span>
+          </div>
+          <div class="calendar-grid" id="calendar-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Recent Articles Table -->
+        <div class="table-container glass">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Bài Viết Mới Đây</h3>
+            <button class="btn btn-sm btn-ghost" id="btn-goto-library">Xem Tất Cả</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tiêu Đề Bài Viết</th>
+                <th>Từ Khóa Chính</th>
+                <th>Ngày</th>
+                <th>Điểm SEO</th>
+                <th>Trạng Thái</th>
+                <th>Hành Động</th>
+              </tr>
+            </thead>
+            <tbody id="recent-posts-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 2: AUTO-PILOT (TỰ ĐỘNG HÓA HÀNG CHỜ TỪ KHÓA) -->
+      <section id="tab-autopilot" class="tab-page">
+        
+        <!-- REALTIME DUAL COUNTDOWN COMMAND CENTER -->
+        <div class="scheduler-command-center glass" id="scheduler-command-center" style="margin-bottom: 24px;">
+          <div class="command-center-header">
+            <div class="header-left">
+              <div class="header-icon-glow"><i class="fa-solid fa-satellite-dish"></i></div>
+              <div>
+                <h3 class="command-center-title">Trung Tâm Đếm Ngược & Điều Khiển Tự Động Hóa</h3>
+                <p class="text-muted" style="margin-top: 4px; font-size: 0.88rem;">Theo dõi thời gian thực đồng hồ đếm ngược của bài cần đăng lên WordPress và chu kỳ AI tự động sinh bài mới.</p>
+              </div>
+            </div>
+            <div class="header-right">
+              <!-- Live Status Pill -->
+              <div class="status-live-pill" id="scheduler-live-pill">
+                <span class="pulse-dot"></span>
+                <span id="scheduler-status-text">Đang Hoạt Động</span>
+              </div>
+              <!-- Enable/Disable Switch -->
+              <button class="btn btn-sm btn-outline-toggle" id="btn-toggle-scheduler" title="Bật hoặc tạm dừng toàn bộ tự động hóa">
+                <i class="fa-solid fa-power-off"></i> <span id="btn-toggle-scheduler-text">Tạm Dừng</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dual Clocks Grid -->
+          <div class="dual-clocks-grid">
+            
+            <!-- CLOCK 1: ĐẾM NGƯỢC BÀI CẦN ĐĂNG (WORDPRESS PUBLISH) -->
+            <div class="clock-card clock-publish glass-inset">
+              <div class="clock-card-header">
+                <div class="clock-badge badge-publish">
+                  <i class="fa-brands fa-wordpress"></i> BÀI CẦN ĐĂNG (WP PUBLISHER)
+                </div>
+                <!-- WP Mode Selector (Draft vs Publish) -->
+                <div class="wp-mode-switcher">
+                  <span class="mode-label">Chế độ xuất bản:</span>
+                  <select id="quick-wp-mode-select" class="mode-select" title="Chọn đăng công khai hoặc lưu nháp trên WP">
+                    <option value="publish">🚀 Xuất Bản Ngay (Public)</option>
+                    <option value="draft">📝 Lưu Nháp Trên WP (Draft)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Big Monospace Digital Countdown Timer -->
+              <div class="countdown-display" id="publish-countdown-box">
+                <div class="countdown-unit">
+                  <span class="unit-num" id="pub-hours">00</span>
+                  <span class="unit-label">Giờ</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-unit">
+                  <span class="unit-num" id="pub-mins">00</span>
+                  <span class="unit-label">Phút</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-unit">
+                  <span class="unit-num" id="pub-secs">00</span>
+                  <span class="unit-label">Giây</span>
+                </div>
+              </div>
+
+              <!-- Next Post Meta Info -->
+              <div class="clock-meta-info">
+                <div class="meta-row">
+                  <span class="meta-label"><i class="fa-solid fa-file-arrow-up"></i> Bài chuẩn bị đăng:</span>
+                  <span class="meta-value highlight-post" id="disp-next-publish-post">Đang tải...</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label"><i class="fa-regular fa-clock"></i> Lần đăng kế tiếp:</span>
+                  <span class="meta-value" id="disp-next-publish-time">--:--</span>
+                </div>
+              </div>
+
+              <!-- Interval Selector & Run Now Button -->
+              <div class="clock-action-bar">
+                <div class="interval-field">
+                  <label for="select-publish-interval-dual"><i class="fa-solid fa-hourglass-half"></i> Thời gian chờ đăng:</label>
+                  <select id="select-publish-interval-dual" class="form-control form-control-sm">
+                    <option value="1">Mỗi 1 Giờ (24 Bài/Ngày)</option>
+                    <option value="2">Mỗi 2 Giờ (12 Bài/Ngày)</option>
+                    <option value="4" selected>Mỗi 4 Giờ (6 Bài/Ngày - Chuẩn)</option>
+                    <option value="6">Mỗi 6 Giờ (4 Bài/Ngày)</option>
+                    <option value="8">Mỗi 8 Giờ (3 Bài/Ngày)</option>
+                    <option value="12">Mỗi 12 Giờ (2 Bài/Ngày)</option>
+                    <option value="24">Mỗi 24 Giờ (1 Bài/Ngày)</option>
+                  </select>
+                </div>
+                <button class="btn btn-accent btn-sm" id="btn-run-publish-now" style="white-space: nowrap;">
+                  <i class="fa-solid fa-paper-plane"></i> 🚀 Đăng Ngay
+                </button>
+              </div>
+            </div>
+
+            <!-- CLOCK 2: ĐẾM NGƯỢC PHẦN TỰ ĐỘNG SINH BÀI (AI CONTENT WRITER) -->
+            <div class="clock-card clock-generate glass-inset">
+              <div class="clock-card-header">
+                <div class="clock-badge badge-generate">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> TỰ ĐỘNG SINH BÀI (AI ENGINE)
+                </div>
+                <div class="queue-status-tag" id="disp-generate-queue-tag">
+                  <i class="fa-solid fa-list-check"></i> <span id="disp-pending-gen-count">0</span> từ khóa cần soạn
+                </div>
+              </div>
+
+              <!-- Big Monospace Digital Countdown Timer -->
+              <div class="countdown-display" id="generate-countdown-box">
+                <div class="countdown-unit">
+                  <span class="unit-num num-cyan" id="gen-hours">00</span>
+                  <span class="unit-label">Giờ</span>
+                </div>
+                <span class="countdown-sep sep-cyan">:</span>
+                <div class="countdown-unit">
+                  <span class="unit-num num-cyan" id="gen-mins">00</span>
+                  <span class="unit-label">Phút</span>
+                </div>
+                <span class="countdown-sep sep-cyan">:</span>
+                <div class="countdown-unit">
+                  <span class="unit-num num-cyan" id="gen-secs">00</span>
+                  <span class="unit-label">Giây</span>
+                </div>
+              </div>
+
+              <!-- Next Keyword Meta Info -->
+              <div class="clock-meta-info">
+                <div class="meta-row">
+                  <span class="meta-label"><i class="fa-solid fa-magnifying-glass"></i> Từ khóa chuẩn bị viết:</span>
+                  <span class="meta-value highlight-kw" id="disp-next-generate-kw">Đang tải...</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label"><i class="fa-regular fa-clock"></i> Lần viết kế tiếp:</span>
+                  <span class="meta-value" id="disp-next-generate-time">--:--</span>
+                </div>
+              </div>
+
+              <!-- Interval Selector & Pregenerate Button -->
+              <div class="clock-action-bar">
+                <div class="interval-field">
+                  <label for="select-generate-interval-dual"><i class="fa-solid fa-bolt"></i> Thời gian chờ sinh bài:</label>
+                  <select id="select-generate-interval-dual" class="form-control form-control-sm">
+                    <option value="0.5">Mỗi 30 Phút (Soạn tốc hành)</option>
+                    <option value="1">Mỗi 1 Giờ (Chuẩn bị nhanh)</option>
+                    <option value="2" selected>Mỗi 2 Giờ (Khuyên dùng)</option>
+                    <option value="4">Mỗi 4 Giờ</option>
+                    <option value="6">Mỗi 6 Giờ</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btn-run-generate-now" style="white-space: nowrap;">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Soạn Bài Ngay
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Live Crawler & Anti-Cannibalization Shield Banner -->
+        <div class="glass" style="margin-bottom: 24px; padding: 16px 20px; border-radius: 12px; border-left: 4px solid #10b981; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; background: rgba(15, 23, 42, 0.7);">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.25rem;">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h4 style="margin: 0; font-size: 1rem; color: #f1f5f9;">🛡️ Hệ Thống Chống Trùng Lặp Live (Anti-Cannibalization Shield)</h4>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 700;" id="live-shield-count-badge">56 Bài Đã Quét</span>
+              </div>
+              <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--text-muted);">
+                Đã đồng bộ dữ liệu thực tế từ <a href="https://xulynuochoasen.com/blog-chia-se/" target="_blank" style="color: #38bdf8; text-decoration: underline; font-weight: 600;">https://xulynuochoasen.com/blog-chia-se/</a>. Tool tự động kiểm tra chéo 100% để loại bỏ hoàn toàn trùng lặp tiêu đề, câu từ và góc nhìn!
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-sm btn-secondary" id="btn-view-crawled-posts">
+              <i class="fa-solid fa-list-check"></i> Xem 56 Bài Đang Bảo Vệ
+            </button>
+            <button class="btn btn-sm btn-primary" id="btn-rescan-blog-shield">
+              <i class="fa-solid fa-arrows-rotate"></i> Quét Lại Blog Ngay
+            </button>
+          </div>
+        </div>
+
+        <div class="generator-grid">
+          
+          <!-- Bulk Keyword Import Card -->
+          <div class="generator-card glass">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-robot"></i> Dán Danh Sách Từ Khóa Viết Tự Động</h3>
+              <p class="text-muted">Nhập danh sách các từ khóa anh muốn tool tự động tạo bài viết hàng ngày.</p>
+            </div>
+            
+            <form id="bulk-keywords-form">
+              <div class="form-group">
+                <label for="bulk-category">Danh mục / Chủ đề chung (Tùy chọn)</label>
+                <input type="text" id="bulk-category" class="form-control" placeholder="Ví dụ: Thiết kế nội thất, Bất động sản, SEO Marketing">
+              </div>
+
+              <div class="form-group">
+                <label for="bulk-target-url"><i class="fa-solid fa-link"></i> Link đích SEO mục tiêu (Gán sản phẩm / Page mặc định)</label>
+                <input type="url" id="bulk-target-url" class="form-control" placeholder="Ví dụ: https://xulynuochoasen.com/san-pham/12529/">
+              </div>
+
+              <div class="form-group">
+                <label for="bulk-keywords-text">Danh sách từ khóa (Mỗi từ khóa 1 dòng) <span class="req">*</span></label>
+                <textarea id="bulk-keywords-text" class="form-control" rows="7" placeholder="Nội thất biệt thự tân cổ điển&#10;Thiết kế phòng ngủ chung cư 60m2&#10;Báo giá thi công nội thất trọn gói&#10;Mẫu tủ bếp gỗ tự nhiên đẹp 2026" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-plus"></i> Thêm Vào Hàng Chờ Tự Động Viết
+              </button>
+            </form>
+
+            <hr style="border-color: var(--border-color); margin: 24px 0;">
+
+            <!-- Quick Action Buttons -->
+            <div class="card-header">
+              <h3><i class="fa-solid fa-bolt"></i> Thao Tác Hàng Chờ Tức Thì</h3>
+            </div>
+
+            <div class="form-row" style="align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px;">
+              <button class="btn btn-primary" id="btn-pregenerate-all" style="flex: 1;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Soạn Sẵn Bài Cho Tất Cả Hàng Chờ
+              </button>
+              <button class="btn btn-accent" id="btn-trigger-run-now" style="flex: 1;">
+                <i class="fa-solid fa-paper-plane"></i> 🚀 Đăng Bài Ngay Cho Từ Khóa Tiếp Theo
+              </button>
+            </div>
+          </div>
+
+          <!-- Entered Keywords Tracker Card -->
+          <div class="generator-card glass" id="entered-keywords-card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+              <div>
+                <h3 style="margin-bottom: 4px;">
+                  <i class="fa-solid fa-clock-rotate-left"></i> Từ Khóa Đã Nhập Vào (<span id="entered-kw-count">0</span>)
+                </h3>
+                <p class="text-muted" style="font-size: 0.82rem;">
+                  Theo dõi & đối chiếu chính xác các từ khóa đã nhập theo từng ngày.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn btn-sm btn-secondary" id="btn-copy-entered-kw" title="Sao chép toàn bộ danh sách từ khóa">
+                  <i class="fa-solid fa-copy"></i> Copy List
+                </button>
+                <button class="btn btn-sm btn-ghost" id="btn-refresh-entered-kw" title="Tải lại danh sách">
+                  <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Search & Date Filter Bar -->
+            <div style="margin: 12px 0 10px 0; display: flex; flex-direction: column; gap: 10px;">
+              <div class="search-box-wrap" style="position: relative;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
+                <input type="text" id="input-search-entered-kw" class="form-control" placeholder="Tìm nhanh từ khóa đã nhập..." style="padding-left: 38px; height: 38px; font-size: 0.85rem;">
+              </div>
+              <div class="entered-date-filters" id="entered-date-filters" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <!-- Date filters rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Scrollable List of Entered Keywords -->
+            <div class="entered-kw-list-container" id="entered-kw-list-container">
+              <div class="entered-kw-list" id="entered-kw-list">
+                <!-- Items rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TIMELINE ĐẾM NGƯỢC HÀNG CHỜ ĐĂNG (PUBLISHING QUEUE TIMELINE) -->
+        <div class="publishing-timeline-card glass" id="publishing-timeline-card" style="margin-top: 24px; padding: 20px 24px; border-radius: var(--radius-lg); border: 1px solid rgba(99, 102, 241, 0.3); background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.75)); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="header-icon-glow" style="width: 42px; height: 42px; font-size: 1.15rem; background: rgba(99, 102, 241, 0.2); color: #818cf8;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+              <div>
+                <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc; font-weight: 700;">
+                  📅 Dòng Thời Gian Đếm Ngược Hàng Chờ Đăng (Live Publishing Timeline)
+                </h3>
+                <p class="text-muted" style="margin: 2px 0 0 0; font-size: 0.82rem;">
+                  Lịch trình xuất bản tuần tự từng bài viết theo chu kỳ tự động. Đồng hồ đếm ngược trực tiếp thời gian thực.
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="badge" id="timeline-queue-info-badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; font-weight: 600; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem;">
+                Chu kỳ: 4 giờ / bài
+              </span>
+              <button class="btn btn-sm btn-secondary" id="btn-refresh-timeline" title="Làm mới dòng thời gian">
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Timeline Stream Items Container -->
+          <div class="timeline-stream-wrap" id="timeline-stream-container" style="display: flex; gap: 16px; overflow-x: auto; padding: 10px 4px 16px 4px; scroll-behavior: smooth;">
+            <!-- Rendered dynamically by JS -->
+          </div>
+        </div>
+
+        <!-- Queue Table & Progress -->
+        <div class="table-container glass" style="margin-top: 28px;">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="margin-bottom: 4px;"><i class="fa-solid fa-list-ol"></i> Hàng Chờ Từ Khóa Chuẩn Bị Đăng (<span id="queue-pending-count">0</span> Đang Chờ)</h3>
+              <p class="text-muted" style="font-size: 0.82rem;">Theo dõi trực tiếp nội dung bài viết AI đã sinh, điểm SEO, số từ và đọc trước bản thảo tại đây.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="btn btn-sm btn-secondary" id="btn-refresh-queue"><i class="fa-solid fa-arrows-rotate"></i> Làm Mới</button>
+            </div>
+          </div>
+
+          <!-- Queue Filter Tabs -->
+          <div class="queue-filter-bar" id="queue-filter-bar">
+            <button class="filter-btn active" data-filter="all">Tất Cả (<span id="filter-all-count">0</span>)</button>
+            <button class="filter-btn" data-filter="pending">Đang Chờ (<span id="filter-pending-count">0</span>)</button>
+            <button class="filter-btn" data-filter="pregenerated">Đã Soạn Xong Bài (<span id="filter-pregen-count">0</span>)</button>
+            <button class="filter-btn" data-filter="waiting">Chờ AI Viết (<span id="filter-waiting-count">0</span>)</button>
+            <button class="filter-btn" data-filter="completed">Đã Xuất Bản (<span id="filter-completed-count">0</span>)</button>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 17%;">Từ Khóa Mục Tiêu</th>
+                <th style="width: 27%;">Nội Dung Bài Viết AI Đã Sinh</th>
+                <th style="width: 20%;">🔗 LINK ĐÍCH SEO MỤC TIÊU</th>
+                <th style="width: 15%;">⏱️ Đếm Ngược Xuất Bản</th>
+                <th style="width: 9%;">Điểm SEO</th>
+                <th style="width: 12%;">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="keyword-queue-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 3: SINH BÀI VIẾT AI -->
+      <section id="tab-generator" class="tab-page">
+        
+        <!-- REALTIME MINI COUNTDOWN RIBBON IN GENERATOR TAB -->
+        <div class="generator-countdown-ribbon glass" id="generator-countdown-ribbon" style="margin-bottom: 24px;">
+          <div class="ribbon-col">
+            <div class="ribbon-icon cyan"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div class="ribbon-info">
+              <span class="ribbon-title">Chu Kỳ Tự Động Sinh Bài (AI)</span>
+              <div class="ribbon-timer-wrap">
+                <strong class="ribbon-timer cyan" id="mini-gen-timer">00:00:00</strong>
+                <span class="ribbon-sub" id="mini-gen-kw">Từ khóa kế: Đang tải...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ribbon-divider"></div>
+
+          <div class="ribbon-col">
+            <div class="ribbon-icon purple"><i class="fa-brands fa-wordpress"></i></div>
+            <div class="ribbon-info">
+              <span class="ribbon-title">Lịch Bài Cần Đăng (WordPress)</span>
+              <div class="ribbon-timer-wrap">
+                <strong class="ribbon-timer purple" id="mini-pub-timer">00:00:00</strong>
+                <span class="ribbon-sub" id="mini-pub-post">Bài kế: Đang tải...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ribbon-action-col">
+            <span class="badge badge-pub" id="mini-wp-mode-badge">🚀 Xuất bản ngay</span>
+            <button class="btn btn-sm btn-secondary" id="btn-jump-autopilot" title="Chuyển sang Hàng Chờ Chuẩn Bị Đăng">
+              <i class="fa-solid fa-list-ol"></i> Hàng Chờ Chuẩn Bị Đăng (<span id="mini-ribbon-pending-count">0</span> Đang Chờ)
+            </button>
+          </div>
+        </div>
+
+        <div class="generator-grid">
+          
+          <!-- Generator Form -->
+          <div class="generator-card glass">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Tạo Bài Viết Chuẩn SEO Tự Động</h3>
+              <p class="text-muted">Nhập thông tin chủ đề và từ khóa để AI dàn bài & viết nội dung bài bản.</p>
+            </div>
+            <form id="ai-generator-form">
+              <div class="form-group">
+                <label for="gen-topic">Chủ đề bài viết <span class="req">*</span></label>
+                <input type="text" id="gen-topic" class="form-control" placeholder="Ví dụ: Thiết kế nội thất biệt thự tân cổ điển" required>
+              </div>
+
+              <div class="form-group">
+                <label for="gen-keyword">Từ khóa chính chuẩn SEO <span class="req">*</span></label>
+                <input type="text" id="gen-keyword" class="form-control" placeholder="Ví dụ: nội thất biệt thự tân cổ điển" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col">
+                  <label for="gen-tone">Giọng văn bài viết</label>
+                  <select id="gen-tone" class="form-control">
+                    <option value="Thuyết phục & Chuẩn SEO chuyên sâu">Thuyết phục & Chuẩn SEO (Khuyên dùng)</option>
+                    <option value="Chuyên gia phân tích chi tiết">Chuyên gia phân tích</option>
+                    <option value="Tin tức & Xu hướng HOT">Tin tức & Trends</option>
+                    <option value="Review đánh giá chân thực">Review Đánh giá</option>
+                    <option value="Kể chuyện hấp dẫn thu hút">Storytelling / Kể chuyện</option>
+                  </select>
+                </div>
+                <div class="form-group col">
+                  <label for="gen-length">Độ dài mong muốn</label>
+                  <select id="gen-length" class="form-control">
+                    <option value="Trung bình (1200 - 1500 từ)">Trung bình (1200 - 1500 từ)</option>
+                    <option value="Dài chuyên sâu (1800 - 2500 từ)">Dài chuyên sâu (1800 - 2500 từ)</option>
+                    <option value="Ngắn gọn (800 - 1000 từ)">Ngắn gọn (800 - 1000 từ)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 10px; padding: 10px 14px; background: rgba(56, 189, 248, 0.08); border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; color: var(--accent-cyan); margin: 0;">
+                  <input type="checkbox" id="gen-auto-add-queue" checked style="accent-color: var(--accent-cyan); width: 16px; height: 16px;">
+                  <span>Tự động đưa bài viết vào <strong>Hàng Chờ Chuẩn Bị Đăng</strong> để theo dõi nội dung</span>
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-block" id="btn-generate-ai">
+                  <i class="fa-solid fa-bolt"></i> Sinh Bài Viết Ngay (AI Auto-Write)
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Generation Live Result Preview -->
+          <div class="generator-preview-card glass">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-eye"></i> Kết Quả Sinh Bài Viết</h3>
+              <div class="preview-actions">
+                <button class="btn btn-sm btn-primary" id="btn-view-in-queue" style="display: none;">
+                  <i class="fa-solid fa-list-ol"></i> Xem Trong Hàng Chờ
+                </button>
+                <button class="btn btn-sm btn-accent" id="btn-send-to-editor" style="display: none;">
+                  <i class="fa-solid fa-arrow-right-to-bracket"></i> Chuyển Sang SEO Editor
+                </button>
+              </div>
+            </div>
+            <div id="ai-loading-spinner" class="spinner-container" style="display: none;">
+              <div class="pulsing-orbit"></div>
+              <p>ENI đang nghiên cứu từ khóa & lập dàn bài SEO chuẩn từng milimét cho anh...</p>
+            </div>
+            <div id="ai-result-content" class="result-placeholder">
+              <i class="fa-solid fa-robot placeholder-icon"></i>
+              <p>Nhập thông tin bên trái và nhấn <strong>Sinh Bài Viết Ngay</strong> để nhận nội dung hoàn chỉnh kèm tiêu đề, meta description & FAQ chuẩn SEO.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 4: SEO EDITOR & REALTIME ANALYZER -->
+      <section id="tab-editor" class="tab-page">
+        <div class="editor-workspace">
+          
+          <!-- Main Editor Box -->
+          <div class="editor-main glass">
+            <div class="editor-top-bar">
+              <div class="editor-title-input">
+                <input type="text" id="edit-title" placeholder="Nhập tiêu đề bài viết (H1) chuẩn SEO ở đây..." class="title-field">
+              </div>
+              <div class="editor-keyword-bar">
+                <i class="fa-solid fa-key text-muted"></i>
+                <input type="text" id="edit-keyword" placeholder="Từ khóa chính (Focus Keyword)..." class="keyword-field">
+              </div>
+            </div>
+
+            <div class="meta-field-box">
+              <label><i class="fa-solid fa-align-left"></i> Thẻ Meta Description (140 - 160 ký tự):</label>
+              <textarea id="edit-meta" placeholder="Viết mô tả Meta thu hút nhấp chuột CTR và có chứa từ khóa..." rows="2" class="meta-textarea"></textarea>
+              <div class="meta-char-counter"><span id="meta-count">0</span> / 160 ký tự</div>
+            </div>
+
+            <!-- Content Area Tabs (Write vs Preview) -->
+            <div class="editor-tabs-bar">
+              <button class="editor-tab-btn active" id="btn-mode-write"><i class="fa-solid fa-code"></i> Soạn Thảo (Markdown)</button>
+              <button class="editor-tab-btn" id="btn-mode-preview"><i class="fa-solid fa-eye"></i> Xem Trước (Live Preview)</button>
+              <div class="editor-tools-right">
+                <button class="btn btn-sm btn-ghost" id="btn-copy-md" title="Copy Markdown"><i class="fa-solid fa-copy"></i> Copy MD</button>
+                <button class="btn btn-sm btn-ghost" id="btn-copy-html" title="Copy HTML"><i class="fa-solid fa-code"></i> Copy HTML</button>
+              </div>
+            </div>
+
+            <div class="editor-body">
+              <textarea id="edit-content" class="content-textarea" placeholder="Nhập nội dung bài viết bằng định dạng Markdown (# H1, ## H2, ### H3, **in đậm**)..."></textarea>
+              <div id="content-preview" class="content-preview-box" style="display: none;"></div>
+            </div>
+
+            <div class="editor-footer">
+              <button class="btn btn-success" id="btn-save-post">
+                <i class="fa-solid fa-floppy-disk"></i> Lưu Bài Viết Về Thư Viện
+              </button>
+              <button class="btn btn-primary" id="btn-autofix-seo" title="Tự động cắt tỉa tiêu đề, meta & tối ưu từ khóa lên 100 điểm">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Tối Ưu SEO 1-Click (100 Điểm)
+              </button>
+              <button class="btn btn-accent" id="btn-publish-wp">
+                <i class="fa-brands fa-wordpress"></i> 🚀 Đăng Lên WordPress Ngay
+              </button>
+            </div>
+          </div>
+
+          <!-- Realtime SEO Sidebar Analyzer -->
+          <div class="editor-analyzer glass">
+            <div class="analyzer-header">
+              <h3><i class="fa-solid fa-gauge-high"></i> SEO Live Meter</h3>
+              <span class="badge-live">REALTIME</span>
+            </div>
+
+            <!-- Gauge Ring -->
+            <div class="gauge-card">
+              <div class="gauge-ring">
+                <svg viewBox="0 0 100 100">
+                  <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
+                  <circle class="gauge-fill" id="gauge-circle" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"></circle>
+                </svg>
+                <div class="gauge-score-value">
+                  <span id="seo-score-num">0</span>
+                  <small>/100</small>
+                </div>
+              </div>
+              <div class="gauge-status-text" id="gauge-status-label">Chưa Phân Tích</div>
+            </div>
+
+            <!-- Quick Metrics -->
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <span class="metric-val" id="metric-words">0</span>
+                <span class="metric-lbl">Số Từ</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-val" id="metric-density">0%</span>
+                <span class="metric-lbl">Mật Độ TK</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-val" id="metric-h2">0</span>
+                <span class="metric-lbl">Thẻ H2</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-val" id="metric-matches">0</span>
+                <span class="metric-lbl">Lần Xuất Hiện</span>
+              </div>
+            </div>
+
+            <!-- Checklist -->
+            <div class="seo-checklist-box">
+              <h4><i class="fa-solid fa-list-check"></i> Checklist Tối Ưu SEO</h4>
+              <ul class="checklist" id="seo-checklist-ul">
+                <!-- Rendered dynamically -->
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 5: SCHEMA MARKUP GENERATOR -->
+      <section id="tab-schema" class="tab-page">
+        <div class="schema-grid">
+          <div class="schema-form-card glass">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-brackets-curly"></i> Bộ Tạo Schema JSON-LD Chuẩn Google</h3>
+              <p class="text-muted">Tạo dữ liệu cấu trúc giúp Google hiển thị Rich Snippet rực rỡ trên trang tìm kiếm.</p>
+            </div>
+            
+            <div class="form-group">
+              <label>Loại Schema (Structured Data Type)</label>
+              <select id="schema-type" class="form-control">
+                <option value="Article">Article (Bài viết chung)</option>
+                <option value="BlogPosting">BlogPosting (Bài viết blog)</option>
+                <option value="NewsArticle">NewsArticle (Bài báo tin tức)</option>
+                <option value="FAQPage">FAQPage (Trang câu hỏi thường gặp)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Headline (Tiêu đề bài viết)</label>
+              <input type="text" id="schema-headline" class="form-control" placeholder="Tự động lấy từ bài đang chỉnh sửa...">
+            </div>
+
+            <div class="form-group">
+              <label>URL Hình ảnh đại diện (Image URL)</label>
+              <input type="url" id="schema-image" class="form-control" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+              <label>Tác giả (Author Name)</label>
+              <input type="text" id="schema-author" class="form-control" value="Tris">
+            </div>
+
+            <div class="form-group">
+              <label>Tên Website / Publisher Name</label>
+              <input type="text" id="schema-publisher" class="form-control" value="Tris SEO Portal">
+            </div>
+
+            <button class="btn btn-primary btn-block" id="btn-build-schema">
+              <i class="fa-solid fa-code"></i> Sinh Mã JSON-LD Schema
+            </button>
+          </div>
+
+          <div class="schema-output-card glass">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-file-code"></i> Mã JSON-LD Đã Đóng Gói</h3>
+              <button class="btn btn-sm btn-accent" id="btn-copy-schema">
+                <i class="fa-solid fa-copy"></i> Copy Mã Schema
+              </button>
+            </div>
+            <pre class="code-block"><code id="schema-code-output">// Mã JSON-LD sẽ xuất hiện ở đây...</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: THƯ VIỆN BÀI VIẾT -->
+      <section id="tab-library" class="tab-page">
+        <div class="library-container glass">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-book-bookmark"></i> Kho Bài Viết SEO Đã Lưu</h3>
+            <div class="library-search">
+              <input type="text" id="library-search-input" placeholder="Tìm bài viết theo tiêu đề hoặc từ khóa..." class="form-control">
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tiêu Đề Bài Viết</th>
+                <th>Từ Khóa Chính</th>
+                <th>Ngày Tạo</th>
+                <th>Điểm SEO</th>
+                <th>Trạng Thái</th>
+                <th>Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="library-posts-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 7: CẤU HÌNH API KEY & WORDPRESS -->
+      <section id="tab-settings" class="tab-page">
+        <div class="generator-grid">
+          
+          <!-- Gemini Config -->
+          <div class="settings-card glass">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-key"></i> Cấu Hình Gemini AI API Key</h3>
+              <p class="text-muted">Nhập API Key Gemini để dùng AI tạo bài viết thông minh hoàn toàn miễn phí.</p>
+            </div>
+            <div class="form-group">
+              <label for="setting-gemini-key">Gemini API Key</label>
+              <input type="password" id="setting-gemini-key" class="form-control" placeholder="AIzaSy...">
+              <small class="text-muted" style="display: block; margin-top: 8px;">
+                Chưa có API Key? <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">Lấy Gemini API Key miễn phí tại Google AI Studio 🔗</a>
+              </small>
+            </div>
+            <button class="btn btn-primary" id="btn-save-settings">
+              <i class="fa-solid fa-floppy-disk"></i> Lưu API Key
+            </button>
+          </div>
+
+          <!-- WordPress REST API Config -->
+          <div class="settings-card glass">
+            <div class="card-header">
+              <h3><i class="fa-brands fa-wordpress"></i> Cấu Hình WordPress REST API Auto-Publisher</h3>
+              <p class="text-muted">Cấu hình kết nối để tool tự động đăng bài trực tiếp lên trang WordPress của anh.</p>
+            </div>
+            
+            <div class="form-group">
+              <label for="wp-url">URL Website WordPress <span class="req">*</span></label>
+              <input type="url" id="wp-url" class="form-control" placeholder="https://myblog.com">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="wp-username">Tên đăng nhập (Username) <span class="req">*</span></label>
+                <input type="text" id="wp-username" class="form-control" placeholder="admin">
+              </div>
+              <div class="form-group col">
+                <label for="wp-app-password">Application Password <span class="req">*</span></label>
+                <input type="password" id="wp-app-password" class="form-control" placeholder="abcd 1234 efgh 5678">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="wp-default-status">Trạng thái đăng mặc định</label>
+                <select id="wp-default-status" class="form-control">
+                  <option value="publish">Xuất bản ngay (Publish)</option>
+                  <option value="draft">Lưu nháp trên WP (Draft)</option>
+                </select>
+              </div>
+              <div class="form-group col">
+                <label for="wp-category-select">Chuyên mục đăng bài (WP Category)</label>
+                <select id="wp-category-select" class="form-control">
+                  <option value="">-- Đang tải chuyên mục... --</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="checkbox-container" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="wp-auto-publish-check" style="width: 18px; height: 18px; accent-color: var(--accent-primary);">
+                <span><strong>Bật Tự Động Đăng Bài Lên WP Khi Sinh Bài Xong (Auto-Publish)</strong></span>
+              </label>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 12px; margin-top: 20px;">
+              <button class="btn btn-secondary" id="btn-test-wp">
+                <i class="fa-solid fa-plug"></i> Kiểm Tra Kết Nối
+              </button>
+              <button class="btn btn-primary" id="btn-save-wp">
+                <i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình WP
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    
+      <!-- TAB: Rank Tracker & Audit -->
+      <section id="tab-ranktracker" class="tab-content">
+        <div class="header-action">
+          <div>
+            <h2>📈 Rank Tracker & Bảng So Sánh Thứ Hạng Google</h2>
+            <p class="subtitle">Theo dõi vị trí thứ hạng thực tế của xulynuochoasen.com trên Google SERP thời gian thực</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" id="btn-run-audit">
+              <i class="fa-solid fa-stethoscope"></i> Quét Audit Kỹ Thuật
+            </button>
+            <button class="btn btn-outline" id="btn-toggle-google-config">
+              <i class="fa-solid fa-gear"></i> Cấu Hình Google API
+            </button>
+            <button class="btn btn-primary" id="btn-check-rankings">
+              <i class="fa-solid fa-magnifying-glass"></i> Quét Vị Trí Google Mới Nhất
+            </button>
+          </div>
+        </div>
+
+        <!-- Google API & Indexing Config Card (Collapsible) -->
+        <div class="card" id="card-google-config" style="margin-top: 20px; display: none; background: rgba(14, 165, 233, 0.04); border: 1px solid rgba(14, 165, 233, 0.2);">
+          <h3><i class="fa-brands fa-google" style="color: #4285F4;"></i> Kết Nối Google Search Console & Live SERP API</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">
+            Nhập Serper.dev API Key hoặc Google Search Console Credentials để tự động lấy thứ hạng thật 100% từ Google SERP và gửi yêu cầu lập chỉ mục tức thì!
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label class="form-label">Tên Miền Target Website:</label>
+              <input type="text" id="google-config-domain" class="form-control" value="xulynuochoasen.com">
+            </div>
+            <div>
+              <label class="form-label">Serper.dev API Key (Quét Google Live):</label>
+              <input type="text" id="google-config-serper-key" class="form-control" placeholder="Dán Serper API Key (nếu có)">
+            </div>
+            <div>
+              <label class="form-label">Google Custom Search API Key:</label>
+              <input type="text" id="google-config-api-key" class="form-control" placeholder="Dán Google API Key">
+            </div>
+            <div>
+              <label class="form-label">Search Console Email Đăng Ký:</label>
+              <input type="email" id="google-config-email" class="form-control" value="contact@xulynuochoasen.com">
+            </div>
+          </div>
+          <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 20px; align-items: center;">
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+                <input type="checkbox" id="google-config-live-mode"> ⚡ Bật Chế Độ Quét Google Thật (Live SERP)
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+                <input type="checkbox" id="google-config-auto-ping" checked> 🚀 Tự Động Ping Index Cho Bài Viết Mới
+              </label>
+            </div>
+            <button class="btn btn-primary" id="btn-save-google-config">
+              <i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình Google API
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Stat Cards Row -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px;">
+          <div class="stat-card glass">
+            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fa-solid fa-trophy"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">TOP 1 – TOP 3 GOOGLE</span>
+              <h3 id="kpi-top3-count" style="color: #f59e0b;">11</h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Từ khóa dẫn đầu SERP</span>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon emerald"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">TOP 10 (TRANG 1 GOOGLE)</span>
+              <h3 id="kpi-top10-count" style="color: #10b981;">34</h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Từ khóa đã ăn Traffic</span>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon cyan"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">VỊ TRÍ TRUNG BÌNH</span>
+              <h3 id="kpi-avg-rank" style="color: #06b6d4;">#7.2</h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Hạng trung bình toàn bộ KW</span>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon purple"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="stat-data">
+              <span class="stat-label">TỔNG TỪ KHÓA TRACKING</span>
+              <h3 id="kpi-total-kw" style="color: #8b5cf6;">47</h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Từ khóa bài viết SEO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Rank Tracker Table & Audit Panel -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 20px;">
+          <!-- Rankings Comparison Table Card -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="margin: 0;"><i class="fa-solid fa-list-check" style="color: var(--accent-primary);"></i> Bảng So Sánh Thứ Hạng Google SERP</h3>
+              <input type="text" id="search-rankings-input" class="form-control" placeholder="🔍 Lọc từ khóa..." style="width: 200px; padding: 6px 12px; font-size: 0.85rem;">
+            </div>
+
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--border-color); text-align: left; color: var(--text-muted);">
+                    <th style="padding: 10px;">Từ Khóa Target</th>
+                    <th style="padding: 10px;">Vị Trí Hiện Tại</th>
+                    <th style="padding: 10px;">Kỳ Trước</th>
+                    <th style="padding: 10px;">Biến Động</th>
+                    <th style="padding: 10px;">Lượng Tìm (Search Vol)</th>
+                    <th style="padding: 10px;">Target URL (xulynuochoasen.com)</th>
+                  </tr>
+                </thead>
+                <tbody id="rankings-table-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Technical SEO Audit Card -->
+          <div class="card">
+            <h3><i class="fa-solid fa-shield-heart" style="color: #10b981;"></i> Sức Khỏe SEO Kỹ Thuật</h3>
+            <div style="text-align: center; margin: 20px 0;">
+              <div id="audit-health-score" style="font-size: 3rem; font-weight: 800; color: #10b981;">100/100</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">Điểm On-Page & Schema Toàn Trang</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                <span>🎯 Tiêu đề (Title 50–65 ký tự)</span>
+                <strong id="audit-pass-title" style="color: #10b981;">Đạt</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                <span>📝 Meta Description (140–160 ký tự)</span>
+                <strong id="audit-pass-meta" style="color: #10b981;">Đạt</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                <span>🖼️ Ảnh thực tế chuẩn chủ đề & ALT</span>
+                <strong id="audit-pass-alt" style="color: #10b981;">Đạt</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                <span>🔗 Internal Link Domain chính</span>
+                <strong id="audit-pass-links" style="color: #10b981;">Đạt</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                <span>📖 Số lượng từ (> 1000 từ/bài)</span>
+                <strong id="audit-pass-words" style="color: #10b981;">Đạt</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-bottom: 6px;">
+                <span>⚙️ Cấu trúc Schema.org</span>
+                <strong id="audit-pass-schema" style="color: #10b981;">Đạt</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: Keyword Clustering -->
+      <section id="tab-clustering" class="tab-content">
+        <div class="header-action">
+          <div>
+            <h2>🎯 Keyword Clustering (Tự Động Gom Nhóm Từ Khóa)</h2>
+            <p class="subtitle">Phân tích từ khóa gốc và tự động tạo cụm từ khóa phụ (LSI keywords) để bao phủ ngách</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+          <h3><i class="fa-solid fa-magnifying-glass-chart" style="color: var(--accent-primary);"></i> Nhập Từ Khóa Gốc Để Gom Nhóm Cụm Từ Khóa (Cluster)</h3>
+          <div style="display: flex; gap: 12px; margin-top: 15px;">
+            <input type="text" id="seed-keyword-input" class="form-control" placeholder="Nhập từ khóa chính (VD: Lọc Nước Phèn, Lọc Nước Mặn...)" style="flex: 1;">
+            <button class="btn btn-primary" id="btn-run-cluster">
+              <i class="fa-solid fa-network-wired"></i> Phân Tích Cụm Từ Khóa
+            </button>
+          </div>
+
+          <div id="cluster-results-area" style="margin-top: 25px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h4 style="margin: 0; color: var(--accent-primary);"><i class="fa-solid fa-circle-nodes"></i> Cụm Từ Khóa Phụ (LSI Keywords) Đề Xuất:</h4>
+              <button class="btn btn-sm btn-success" id="btn-add-cluster-to-queue">
+                <i class="fa-solid fa-plus"></i> Thêm Tất Cả Vào Hàng Chờ Lập Lịch
+              </button>
+            </div>
+            <div id="cluster-pills-container" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: Custom Media Library -->
+      <section id="tab-custommedia" class="tab-content">
+        <div class="header-action">
+          <div>
+            <h2>📸 Thư Viện Ảnh Thực Tế Công Trình (Custom Media)</h2>
+            <p class="subtitle">Tải lên ảnh thực tế công trình/sản phẩm hoặc dán link Google Drive để tự động ghép vào bài viết chuẩn SEO</p>
+          </div>
+        </div>
+
+        <div class="grid-2-1" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+          <!-- Local Upload Card -->
+          <div class="card">
+            <h3><i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent-primary);"></i> 1. Tải Ảnh Từ Máy Tính (Không Giới Hạn Số Lượng)</h3>
+            <p class="text-muted" style="font-size: 0.88rem;">Anh có thể chọn gửi hàng chục hoặc hàng trăm tấm hình thực tế cùng lúc. Hệ thống sẽ tự động xoay tua ghép bài!</p>
+            
+            <div class="form-group" style="margin-top: 15px;">
+              <label>Gắn nhãn từ khóa khớp với bài viết (Ví dụ: Lọc Nước Phèn, RO...):</label>
+              <input type="text" id="custom-media-tag-input" class="form-control" placeholder="Nhập từ khóa gắn nhãn (để trống nếu dùng chung cho tất cả bài)">
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+              <label>Chọn ảnh từ máy tính (hoặc kéo thả nhiều ảnh vào ô bên dưới):</label>
+              <input type="file" id="custom-media-file-input" class="form-control" multiple accept="image/*">
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div id="media-drag-drop-zone" style="border: 2px dashed var(--accent-primary); background: rgba(14, 165, 233, 0.06); padding: 20px; border-radius: 8px; text-align: center; margin-top: 12px; cursor: pointer;">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 6px;"></i>
+              <div style="font-weight: 600; color: var(--text-color);">Kéo & Thả Hàng Loạt Ảnh Trực Tiếp Vào Đây</div>
+              <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Giúp tránh lỗi khi chọn nhiều ảnh trực tiếp từ điện thoại kết nối USB</div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-upload-custom-media" style="margin-top: 15px; width: 100%;">
+              <i class="fa-solid fa-upload"></i> Tải Ảnh Lên Thư Viện
+            </button>
+          </div>
+
+          <!-- Google Drive Import Card -->
+          <div class="card">
+            <h3><i class="fa-brands fa-google-drive" style="color: #4285f4;"></i> 2. Kết Nối Link Ảnh Từ Google Drive</h3>
+            <p class="text-muted" style="font-size: 0.88rem;">Dán link chia sẻ Google Drive của tấm ảnh thực tế để tự động chuyển thành ảnh minh họa bài viết.</p>
+
+            <div class="form-group" style="margin-top: 15px;">
+              <label>Gắn nhãn từ khóa khớp với bài viết:</label>
+              <input type="text" id="drive-media-tag-input" class="form-control" placeholder="Nhập từ khóa gắn nhãn (Ví dụ: Lọc Nước Mặn)">
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+              <label>Dán đường dẫn (URL) Google Drive:</label>
+              <input type="url" id="drive-media-url-input" class="form-control" placeholder="https://drive.google.com/file/d/1abc.../view?usp=sharing">
+            </div>
+
+            <button class="btn btn-secondary" id="btn-add-drive-media" style="margin-top: 10px; width: 100%;">
+              <i class="fa-solid fa-link"></i> Thêm Link Ảnh Google Drive
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Media Gallery Grid -->
+        <div class="card" style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            <h3 style="margin: 0;"><i class="fa-solid fa-images" style="color: #10b981;"></i> Danh Sách Ảnh Thực Tế Đã Lưu (<span id="custom-media-count">0</span> tấm)</h3>
+            <button class="btn btn-success" id="btn-rotate-media-all">
+              <i class="fa-solid fa-sync"></i> Xoay Vòng Kho Ảnh Vào Tất Cả Bài Viết
+            </button>
+          </div>
+          <div id="custom-media-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px;">
+            <!-- Gallery items rendered dynamically -->
+          </div>
+        </div>
+      </section>
+</main>
+
+  <!-- MODAL: XEM NHANH NỘI DUNG BÀI VIẾT TỰ ĐỘNG SINH -->
+  <div id="quick-preview-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box glass">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="header-icon-glow" style="width: 40px; height: 40px; font-size: 16px;"><i class="fa-solid fa-file-lines"></i></div>
+          <div>
+            <h3 id="modal-post-title" style="font-size: 1.15rem; color: #fff; line-height: 1.3;">Nội Dung Bài Viết Tự Động Sinh</h3>
+            <span id="modal-post-meta" style="font-size: 0.8rem; color: var(--text-muted);">Từ khóa: --</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="btn-close-preview-modal" style="font-size: 1.4rem; padding: 4px 10px; cursor: pointer;">&times;</button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="modal-body">
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+          <span class="badge" id="modal-score-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 700;">Điểm SEO: 85/100</span>
+          <span class="badge" id="modal-words-badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc;">1450 từ</span>
+          <span class="badge" id="modal-status-badge" style="background: rgba(2, 132, 199, 0.2); color: #38bdf8;">Trạng thái: Sẵn sàng</span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 18px;">
+          <strong style="color: #93c5fd; font-size: 0.85rem; display: block; margin-bottom: 4px;"><i class="fa-solid fa-quote-left"></i> Thẻ Meta Description:</strong>
+          <p id="modal-meta-desc" style="font-size: 0.88rem; color: var(--text-main); margin: 0; line-height: 1.5;"></p>
+        </div>
+
+        <div id="modal-article-rendered-content" class="rendered-preview">
+          <!-- Article HTML rendered here -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-modal-open-editor"><i class="fa-solid fa-pen-to-square"></i> Mở Trong Trình Soạn Thảo</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-accent" id="btn-modal-publish-wp"><i class="fa-brands fa-wordpress"></i> 🚀 Đăng Lên WordPress Ngay</button>
+          <button class="btn btn-secondary" id="btn-modal-close-btn">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DANH SÁCH BÀI VIẾT LIVE TỪ XULYNUOCHOASEN.COM -->
+  <div id="crawler-posts-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box glass" style="max-width: 850px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="header-icon-glow" style="width: 40px; height: 40px; font-size: 16px; background: rgba(16, 185, 129, 0.2); color: #10b981;">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; color: #fff; line-height: 1.3;">Bài Viết Live Đang Được Bảo Vệ Chống Trùng Lặp</h3>
+            <p class="text-muted" style="font-size: 0.8rem; margin: 2px 0 0 0;">
+              Nguồn quét: <a href="https://xulynuochoasen.com/blog-chia-se/" target="_blank" style="color: #38bdf8;">https://xulynuochoasen.com/blog-chia-se/</a> | Cập nhật gần nhất: <span id="crawler-modal-scanned-at">Vừa xong</span>
+            </p>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-crawler-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 520px; overflow-y: auto; padding: 18px 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 10px;">
+          <input type="text" id="crawler-search-input" class="form-control" placeholder="Tìm kiếm trong các bài viết đã quét..." style="height: 38px; font-size: 0.85rem;">
+          <span class="badge" id="crawler-modal-total-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 700; white-space: nowrap;">56 Bài Viết</span>
+        </div>
+        <div id="crawler-posts-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <button class="btn btn-secondary btn-sm" id="btn-modal-rescan-trigger">
+          <i class="fa-solid fa-arrows-rotate"></i> Quét Lại Trang Web Ngay
+        </button>
+        <button class="btn btn-secondary" id="btn-close-crawler-modal-btn">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

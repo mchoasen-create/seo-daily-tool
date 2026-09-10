@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "intervalHours": 4,
+  "publishIntervalHours": 4,
+  "generateIntervalHours": 2,
+  "lastPublishRun": "2026-09-10T12:17:55.565Z",
+  "lastGenerateRun": "2026-09-10T13:15:35.960Z",
+  "lastRun": "2026-09-10T12:17:55.565Z"
+}

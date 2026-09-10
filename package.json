@@ -1,0 +1,27 @@
+{
+  "name": "seo-daily-tool",
+  "version": "1.0.0",
+  "description": "Daily SEO Article Generator and Optimizer Tool for Tris",
+  "main": "server.js",
+  "bin": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*",
+      "data/**/*",
+      "lib/**/*"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "TrisSeoTool.exe"
+  }
+}

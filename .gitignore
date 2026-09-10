@@ -1,0 +1,6 @@
+node_modules/
+*.exe
+scratch/
+backup_v1/
+.waliseogoogle/
+*.log
