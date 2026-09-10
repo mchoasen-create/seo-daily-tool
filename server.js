@@ -525,14 +525,21 @@ function markdownToHtml(md) {
       const linkedImgMatch = line.match(/^\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)$/);
       if (linkedImgMatch) {
         const alt = linkedImgMatch[1];
-        const imgSrc = linkedImgMatch[2];
+        let imgSrc = linkedImgMatch[2];
         const linkHref = linkedImgMatch[3];
+        if (imgSrc.startsWith('/uploads/')) {
+          imgSrc = 'https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgSrc);
+        }
         result.push(`<p style="text-align:center;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt}"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; margin:15px 0; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
         continue;
       }
       const imgMatch = line.match(/^!\[(.*?)\]\((.*?)\)$/);
       if (imgMatch) {
-        result.push(`<p style="text-align:center;"><img src="${imgMatch[2]}" alt="${imgMatch[1]}" title="${imgMatch[1]}" style="max-width:100%; height:auto; border-radius:8px; margin:15px 0;" /></p>`);
+        let imgSrc = imgMatch[2];
+        if (imgSrc.startsWith('/uploads/')) {
+          imgSrc = 'https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgSrc);
+        }
+        result.push(`<p style="text-align:center;"><img src="${imgSrc}" alt="${imgMatch[1]}" title="${imgMatch[1]}" style="max-width:100%; height:auto; border-radius:8px; margin:15px 0;" /></p>`);
         continue;
       }
     }
@@ -556,7 +563,10 @@ function markdownToHtml(md) {
 function formatInlineMarkdown(text) {
   if (!text) return '';
   let str = text;
-  str = str.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%; height:auto;" />');
+  str = str.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
+    const finalUrl = url.startsWith('/uploads/') ? ('https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(url)) : url;
+    return `<img src="${finalUrl}" alt="${alt}" style="max-width:100%; height:auto;" />`;
+  });
   str = str.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:600;">$1</a>');
   str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
