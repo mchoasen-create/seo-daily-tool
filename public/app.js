@@ -2629,6 +2629,16 @@ function initRankTrackerAndAuditUI() {
     });
   }
 
+  const btnBannerSetup = document.getElementById('btn-banner-setup-google');
+  if (btnBannerSetup && btnToggleGoogleConfig) {
+    btnBannerSetup.addEventListener('click', () => {
+      if (cardGoogleConfig && (cardGoogleConfig.style.display === 'none' || !cardGoogleConfig.style.display)) {
+        btnToggleGoogleConfig.click();
+      }
+      cardGoogleConfig?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
   if (btnSaveGoogleConfig) {
     btnSaveGoogleConfig.addEventListener('click', async () => {
       const domain = document.getElementById('google-config-domain')?.value.trim() || 'xulynuochoasen.com';
