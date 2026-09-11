@@ -326,7 +326,7 @@ app.get('/api/rankings', (req, res) => {
 
 app.post('/api/rankings/check', async (req, res) => {
   try {
-    const updatedRankings = runRankCheck();
+    const updatedRankings = await runRankCheck();
     const stats = getRankingsStats();
     const mappedKeywords = (updatedRankings || []).map(r => {
       const prev = r.previousPosition || r.position || 5;
