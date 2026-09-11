@@ -1224,7 +1224,7 @@ app.get('/api/scheduler/status', (req, res) => {
     }
   }
 
-  // 2. Generate countdown & Queue Readiness calculation
+  // 2. Generate countdown & Queue Readiness calculation (Cơ chế Gối Đầu Tự Động)
   const ungeneratedKeywords = pendingKeywords.filter(k => !k.generatedPostId);
   const ungeneratedCount = ungeneratedKeywords.length;
   const allPregenerated = pendingKeywords.length > 0 && ungeneratedCount === 0;
@@ -1232,11 +1232,41 @@ app.get('/api/scheduler/status', (req, res) => {
   const genIntervalHours = parseFloat(config.generateIntervalHours || 2);
   const genIntervalMs = genIntervalHours * 3600000;
   const lastGenTime = config.lastGenerateRun ? new Date(config.lastGenerateRun).getTime() : 0;
-  const nextGenTimeMs = lastGenTime ? lastGenTime + genIntervalMs : now;
+  let nextGenTimeMs = lastGenTime ? lastGenTime + genIntervalMs : now + genIntervalMs;
+  if (nextGenTimeMs < now) {
+    nextGenTimeMs = now + genIntervalMs;
+  }
   const generateRemainingSec = Math.max(0, Math.round((nextGenTimeMs - now) / 1000));
 
-  // Next item to generate (first pending keyword without generated post)
+  // Determine next item to generate (either pending without post, or next in rotating master cycle)
+  const masterKeywords = [];
+  const seenKw = new Set();
+  keywords.forEach(k => {
+    const lower = k.keyword.toLowerCase().trim();
+    if (!seenKw.has(lower)) {
+      seenKw.add(lower);
+      masterKeywords.push(k);
+    }
+  });
+
   let nextGenObj = ungeneratedKeywords.length > 0 ? ungeneratedKeywords[0] : null;
+  if (!nextGenObj && masterKeywords.length > 0) {
+    const latestPost = posts[0];
+    let nextIdx = 0;
+    if (latestPost && latestPost.targetKeyword) {
+      const foundIdx = masterKeywords.findIndex(k => k.keyword.toLowerCase() === latestPost.targetKeyword.toLowerCase());
+      if (foundIdx !== -1) {
+        nextIdx = (foundIdx + 1) % masterKeywords.length;
+      }
+    }
+    const templateKw = masterKeywords[nextIdx] || masterKeywords[0];
+    nextGenObj = {
+      id: 'buffer_rolling_next',
+      keyword: templateKw.keyword,
+      topic: templateKw.topic || templateKw.keyword,
+      isBufferRolling: true
+    };
+  }
 
   const timeline = pendingKeywords.map((item, idx) => {
     const itemRemainingSec = publishRemainingSec + (idx * pubIntervalMs / 1000);
@@ -1270,7 +1300,7 @@ app.get('/api/scheduler/status', (req, res) => {
       publishRemainingSec,
       lastGenerateRun: config.lastGenerateRun,
       nextGenerateTime: new Date(nextGenTimeMs).toISOString(),
-      generateRemainingSec: allPregenerated ? 0 : generateRemainingSec,
+      generateRemainingSec,
       allPregenerated,
       ungeneratedCount,
       nextPublishItem: nextPublishItem ? {
@@ -1279,18 +1309,15 @@ app.get('/api/scheduler/status', (req, res) => {
         title: nextPublishTitle,
         hasPost: !!nextPublishItem.generatedPostId
       } : null,
-      nextGenerateItem: allPregenerated ? {
-        allReady: true,
-        keyword: 'Tất cả bài trong hàng chờ đã soạn xong 100%',
-        topic: 'Tất cả bài trong hàng chờ đã soạn xong 100%'
-      } : (nextGenObj ? {
+      nextGenerateItem: nextGenObj ? {
         id: nextGenObj.id,
         keyword: nextGenObj.keyword,
         topic: nextGenObj.topic || nextGenObj.keyword,
-        isRotating: false
-      } : null),
+        isBufferRolling: !!nextGenObj.isBufferRolling
+      } : null,
       pendingCount: pendingKeywords.length,
       pregeneratedCount,
+
       timeline,
       wpStatus: {
         enabled: !!wpConfig.enabled,
@@ -1596,7 +1623,24 @@ async function processNextKeywordInQueue(apiKey = '') {
     // Update Keyword item status
     nextItem.status = 'completed';
     nextItem.completedAt = new Date().toISOString();
+
+    // Tự Động Gối Đầu: Xoay tua từ khóa vừa đăng hoàn thành về cuối hàng chờ ở trạng thái pending (chưa có bài)
+    const pendingCountAfter = keywords.filter(k => k.status === 'pending').length;
+    if (pendingCountAfter < 8) {
+      keywords.push({
+        id: 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        keyword: nextItem.keyword,
+        topic: nextItem.topic || nextItem.keyword,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        targetUrl: nextItem.targetUrl || '',
+        generatedPostId: null,
+        pregenerated: false,
+        isRotated: true
+      });
+    }
     saveKeywords(keywords);
+
 
     // Update scheduler last run
     const config = getSchedulerConfig();
@@ -1939,21 +1983,28 @@ async function checkAndRunAutoScheduler() {
   const now = Date.now();
   const wpConfig = getWPConfig();
 
-  // 1. Check Auto-Generation cycle
+  // 1. Check Auto-Generation cycle (Cơ chế Gối Đầu Tự Động)
   const genIntervalHours = parseFloat(config.generateIntervalHours || 2);
   const genIntervalMs = genIntervalHours * 3600000;
   const lastGenTime = config.lastGenerateRun ? new Date(config.lastGenerateRun).getTime() : 0;
   if (!lastGenTime || (now - lastGenTime) >= genIntervalMs) {
     const keywords = getKeywords();
-    const hasUngenerated = keywords.some(k => k.status === 'pending' && !k.generatedPostId);
-    if (hasUngenerated) {
-      console.log('🤖 Auto-Scheduler: Auto-Generating content for next pending keyword...');
+    const pendingKeywords = keywords.filter(k => k.status === 'pending');
+    const hasUngenerated = pendingKeywords.some(k => !k.generatedPostId);
+
+    // Gối đầu: Tự động soạn thêm bài nếu có từ khóa chưa có bài HOẶC hàng chờ chuẩn bị đăng vơi dưới 8 bài
+    if (hasUngenerated || pendingKeywords.length < 8) {
+      console.log('🤖 Auto-Scheduler (Gối Đầu): Đang tự động soạn bài tiếp theo cho hàng chờ...');
       try {
         const genRes = await pregenerateNextKeywordInQueue();
         console.log('🤖 Auto-Generation result:', genRes.message);
       } catch (err) {
         console.error('Error in auto-generation cycle:', err.message);
       }
+    } else {
+      // Hàng chờ đã đủ 8 bài sẵn sàng, cập nhật thời gian để bộ đếm tiếp tục đếm ngược đợt kế tiếp
+      config.lastGenerateRun = new Date().toISOString();
+      saveSchedulerConfig(config);
     }
   }
 

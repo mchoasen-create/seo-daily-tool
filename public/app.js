@@ -787,35 +787,27 @@ async function loadSchedulerStatus() {
         : 'Đang đợi từ khóa mới';
     }
 
-    // 4. Next Keyword To Generate Info
+    // 4. Next Keyword To Generate Info (Gối đầu tự động)
+    const dispGenerateQueueTag = document.getElementById('disp-generate-queue-tag');
     const dispNextGenKw = document.getElementById('disp-next-generate-kw');
     const dispNextGenTime = document.getElementById('disp-next-generate-time');
-    const dispPendingGenCount = document.getElementById('disp-pending-gen-count');
-    const dispGenerateQueueTag = document.getElementById('disp-generate-queue-tag');
     const miniGenKw = document.getElementById('mini-gen-kw');
-    const ungeneratedCount = Math.max(0, schedulerStatusData.pendingCount - schedulerStatusData.pregeneratedCount);
-    const isAllReady = schedulerStatusData.allPregenerated || (schedulerStatusData.pendingCount > 0 && ungeneratedCount === 0);
+    const pregenCount = schedulerStatusData.pregeneratedCount || 0;
+    const pendingCount = schedulerStatusData.pendingCount || 0;
 
     if (dispGenerateQueueTag) {
-      if (isAllReady) {
-        dispGenerateQueueTag.className = 'queue-status-tag tag-success';
-        dispGenerateQueueTag.innerHTML = `<i class="fa-solid fa-circle-check"></i> Đã đủ ${schedulerStatusData.pregeneratedCount}/${schedulerStatusData.pendingCount} bài`;
-      } else {
-        dispGenerateQueueTag.className = 'queue-status-tag';
-        dispGenerateQueueTag.innerHTML = `<i class="fa-solid fa-list-check"></i> <span id="disp-pending-gen-count">${ungeneratedCount}</span> từ khóa cần soạn`;
-      }
+      dispGenerateQueueTag.innerHTML = `<i class="fa-solid fa-arrows-rotate" style="color:#06b6d4;"></i> Gối đầu: <strong style="color:#38bdf8;">${pregenCount}/${pendingCount}</strong> bài sẵn sàng`;
     }
 
     if (dispNextGenKw) {
-      if (isAllReady) {
-        dispNextGenKw.innerHTML = `<span style="color: #34d399; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Đã soạn sẵn toàn bộ hàng chờ (${schedulerStatusData.pendingCount}/${schedulerStatusData.pendingCount} bài)</span>`;
-        dispNextGenKw.title = 'Tất cả từ khóa trong hàng chờ đều đã có bài viết hoàn chỉnh chuẩn SEO, sẵn sàng đăng.';
-        if (miniGenKw) miniGenKw.textContent = `Đã sẵn sàng ${schedulerStatusData.pendingCount}/${schedulerStatusData.pendingCount} bài`;
-      } else if (schedulerStatusData.nextGenerateItem) {
+      if (schedulerStatusData.nextGenerateItem) {
         const kwText = schedulerStatusData.nextGenerateItem.keyword;
-        dispNextGenKw.textContent = kwText;
+        const isRolling = schedulerStatusData.nextGenerateItem.isBufferRolling;
+        dispNextGenKw.innerHTML = isRolling
+          ? `<span style="color: #38bdf8; font-weight: 600;"><i class="fa-solid fa-arrows-rotate fa-spin-pulse"></i> ${escapeHtml(kwText)} <small style="color:var(--text-muted);font-weight:normal;">(Gối đầu xoay tua)</small></span>`
+          : `<span style="color: #38bdf8; font-weight: 600;">${escapeHtml(kwText)}</span>`;
         dispNextGenKw.title = kwText;
-        if (miniGenKw) miniGenKw.textContent = 'Từ khóa: ' + kwText;
+        if (miniGenKw) miniGenKw.textContent = 'Gối đầu: ' + kwText;
       } else {
         dispNextGenKw.textContent = 'Hàng chờ trống';
         dispNextGenKw.title = '';
@@ -823,13 +815,9 @@ async function loadSchedulerStatus() {
       }
     }
     if (dispNextGenTime) {
-      if (isAllReady) {
-        dispNextGenTime.innerHTML = `<span style="color: #94a3b8;"><i class="fa-solid fa-clock-rotate-left" style="color: #34d399;"></i> Sẵn sàng đăng theo lịch (${schedulerStatusData.publishIntervalHours || 4}h / bài)</span>`;
-      } else {
-        dispNextGenTime.textContent = schedulerStatusData.nextGenerateItem
-          ? formatDisplayDateTime(schedulerStatusData.nextGenerateTime)
-          : 'Đang đợi từ khóa mới';
-      }
+      dispNextGenTime.innerHTML = schedulerStatusData.nextGenerateTime
+        ? `<span style="color: var(--text-color); font-weight:600;"><i class="fa-regular fa-clock" style="color:#06b6d4;"></i> ${formatDisplayDateTime(schedulerStatusData.nextGenerateTime)}</span>`
+        : '--:--';
     }
 
     // 5. Sync Interval Dropdowns
@@ -870,50 +858,36 @@ function updateCountdownDOM() {
   if (pubS) pubS.textContent = pubTime.s;
   if (miniPubTimer) miniPubTimer.textContent = pubTime.str;
 
-  // Generate clock
+  // Generate clock - LUÔN HIỂN THỊ ĐỒNG HỒ ĐẾM NGƯỢC GIỜ:PHÚT:GIÂY
   const genBox = document.getElementById('generate-countdown-box');
   const miniGenTimer = document.getElementById('mini-gen-timer');
-  const ungeneratedCount = Math.max(0, (schedulerStatusData?.pendingCount || 0) - (schedulerStatusData?.pregeneratedCount || 0));
-  const isAllReady = schedulerStatusData?.allPregenerated || (schedulerStatusData?.pendingCount > 0 && ungeneratedCount === 0);
 
-  if (isAllReady) {
-    if (genBox) {
-      genBox.innerHTML = `
-        <div class="all-ready-banner">
-          <i class="fa-solid fa-circle-check" style="font-size: 1.4rem;"></i>
-          <span>Đã soạn sẵn toàn bộ hàng chờ (${schedulerStatusData.pregeneratedCount || 9}/${schedulerStatusData.pendingCount || 9} bài)</span>
-        </div>
-      `;
-    }
-    if (miniGenTimer) miniGenTimer.textContent = `✅ Đã đủ ${schedulerStatusData.pendingCount || 9}/${schedulerStatusData.pendingCount || 9} bài`;
-  } else {
-    // If not all ready, render digital units if not already present
-    if (genBox && !genBox.querySelector('.countdown-unit')) {
-      genBox.innerHTML = `
-        <div class="countdown-unit">
-          <span class="unit-num num-cyan" id="gen-hours">00</span>
-          <span class="unit-label">Giờ</span>
-        </div>
-        <span class="countdown-sep sep-cyan">:</span>
-        <div class="countdown-unit">
-          <span class="unit-num num-cyan" id="gen-mins">00</span>
-          <span class="unit-label">Phút</span>
-        </div>
-        <span class="countdown-sep sep-cyan">:</span>
-        <div class="countdown-unit">
-          <span class="unit-num num-cyan" id="gen-secs">00</span>
-          <span class="unit-label">Giây</span>
-        </div>
-      `;
-    }
-    const genH = document.getElementById('gen-hours');
-    const genM = document.getElementById('gen-mins');
-    const genS = document.getElementById('gen-secs');
-    if (genH) genH.textContent = genTime.h;
-    if (genM) genM.textContent = genTime.m;
-    if (genS) genS.textContent = genTime.s;
-    if (miniGenTimer) miniGenTimer.textContent = genTime.str;
+  if (genBox && !genBox.querySelector('.countdown-unit')) {
+    genBox.innerHTML = `
+      <div class="countdown-unit">
+        <span class="unit-num num-cyan" id="gen-hours">00</span>
+        <span class="unit-label">Giờ</span>
+      </div>
+      <span class="countdown-sep sep-cyan">:</span>
+      <div class="countdown-unit">
+        <span class="unit-num num-cyan" id="gen-mins">00</span>
+        <span class="unit-label">Phút</span>
+      </div>
+      <span class="countdown-sep sep-cyan">:</span>
+      <div class="countdown-unit">
+        <span class="unit-num num-cyan" id="gen-secs">00</span>
+        <span class="unit-label">Giây</span>
+      </div>
+    `;
   }
+  const genH = document.getElementById('gen-hours');
+  const genM = document.getElementById('gen-mins');
+  const genS = document.getElementById('gen-secs');
+  if (genH) genH.textContent = genTime.h;
+  if (genM) genM.textContent = genTime.m;
+  if (genS) genS.textContent = genTime.s;
+  if (miniGenTimer) miniGenTimer.textContent = genTime.str;
+
 
   // Live timeline countdown tickers
   const pubIntervalSec = (schedulerStatusData?.publishIntervalHours || 4) * 3600;
