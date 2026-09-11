@@ -650,6 +650,70 @@ function formatInlineMarkdown(text) {
   return str;
 }
 
+async function uploadLocalImageToWordPress(imgUrlOrPath, wpConfig, authHeader, fetchFn) {
+  if (!imgUrlOrPath) return null;
+  const filename = path.basename(imgUrlOrPath).split('?')[0];
+  const localFilePath = path.join(UPLOADS_DIR, filename);
+
+  const VERIFIED_IMAGES_FILE = path.join(DATA_DIR, 'verified_wp_images.json');
+  let verifiedImages = [];
+  if (fs.existsSync(VERIFIED_IMAGES_FILE)) {
+    try {
+      verifiedImages = JSON.parse(fs.readFileSync(VERIFIED_IMAGES_FILE, 'utf-8') || '[]');
+      const matched = verifiedImages.find(img => img.url && (img.url.includes(filename) || path.basename(img.url) === filename));
+      if (matched && matched.id && matched.url) {
+        return { id: matched.id, url: matched.url };
+      }
+    } catch (e) {}
+  }
+
+  // If local file exists, upload it to WordPress Media Library
+  if (fs.existsSync(localFilePath)) {
+    try {
+      const cleanUrl = normalizeWpUrl(wpConfig.siteUrl);
+      const endpoint = `${cleanUrl}/wp-json/wp/v2/media`;
+      const buffer = fs.readFileSync(localFilePath);
+      const ext = path.extname(filename).toLowerCase().replace('.', '');
+      const mimeType = ext === 'png' ? 'image/png' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
+
+      console.log(`🚀 [WP Media Auto-Upload] Đang tự động tải ảnh "${filename}" lên WordPress media library...`);
+      const res = await fetchFn(endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': mimeType,
+          'Content-Disposition': `attachment; filename="${filename}"`
+        },
+        body: buffer
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log(`✅ [WP Media Auto-Upload] Đã tải ảnh thành công lên WP! ID: ${data.id} | Live URL: ${data.source_url}`);
+        const newEntry = {
+          id: data.id,
+          url: data.source_url,
+          title: filename.replace(/\.[^/.]+$/, ''),
+          alt: filename.replace(/\.[^/.]+$/, ''),
+          slug: filename.replace(/\.[^/.]+$/, '')
+        };
+        verifiedImages.unshift(newEntry);
+        try {
+          fs.writeFileSync(VERIFIED_IMAGES_FILE, JSON.stringify(verifiedImages, null, 2), 'utf-8');
+        } catch (e) {}
+        return { id: data.id, url: data.source_url };
+      } else {
+        const errText = await res.text();
+        console.warn(`⚠️ [WP Media Auto-Upload] Lỗi upload ảnh "${filename}" (Status ${res.status}): ${errText.slice(0, 150)}`);
+      }
+    } catch (err) {
+      console.error(`❌ [WP Media Auto-Upload] Lỗi ngoại lệ khi tải ảnh "${filename}": ${err.message}`);
+    }
+  }
+
+  return null;
+}
+
 /* Helper to Publish to WordPress via REST API */
 async function publishToWordPress(postData) {
   const wpConfig = getWPConfig();
@@ -693,7 +757,32 @@ async function publishToWordPress(postData) {
     console.warn('Lỗi kiểm tra trùng lặp trên WordPress:', checkErr.message);
   }
 
-  const htmlContent = markdownToHtml(postData.content);
+  // 2. Ensure Featured Image & Content Images exist on WordPress
+  let mediaId = null;
+  let updatedContent = postData.content || '';
+
+  // Process Featured Image
+  const targetImg = postData.imageUrl || postData.featured_image;
+  if (targetImg) {
+    const uploadRes = await uploadLocalImageToWordPress(targetImg, wpConfig, authHeader, fetchFn);
+    if (uploadRes) {
+      mediaId = uploadRes.id;
+    }
+  }
+
+  // Scan post content for any /uploads/ images and ensure they are uploaded to WP
+  const localImgRegex = /\/uploads\/(media_[a-zA-Z0-9_\.]+\.(?:jpg|jpeg|png|webp))/gi;
+  const matches = [...new Set(updatedContent.match(localImgRegex) || [])];
+  for (const match of matches) {
+    const filename = path.basename(match);
+    const uploaded = await uploadLocalImageToWordPress(filename, wpConfig, authHeader, fetchFn);
+    if (uploaded && uploaded.url) {
+      updatedContent = updatedContent.split(match).join(uploaded.url);
+      if (!mediaId) mediaId = uploaded.id;
+    }
+  }
+
+  const htmlContent = markdownToHtml(updatedContent);
 
   const payload = {
     title: postData.title,
@@ -702,33 +791,6 @@ async function publishToWordPress(postData) {
     status: wpConfig.defaultStatus || 'publish'
   };
 
-  // 2. Attach Featured Image (featured_media) so post thumbnail displays on Blog page
-  let mediaId = null;
-  const VERIFIED_IMAGES_FILE = path.join(DATA_DIR, 'verified_wp_images.json');
-  if (fs.existsSync(VERIFIED_IMAGES_FILE)) {
-    try {
-      const verifiedImages = JSON.parse(fs.readFileSync(VERIFIED_IMAGES_FILE, 'utf-8') || '[]');
-      const targetImgUrl = postData.imageUrl || '';
-      if (targetImgUrl) {
-        const baseFilename = path.basename(targetImgUrl).split('?')[0];
-        const matched = verifiedImages.find(img => img.url === targetImgUrl || path.basename(img.url) === baseFilename);
-        if (matched) mediaId = matched.id;
-      }
-      // If still no mediaId, search content for images
-      if (!mediaId && postData.content) {
-        const cRegex = /!\[.*?\]\((https?:\/\/[^\s\)]+)\)/i;
-        const cMatch = cRegex.exec(postData.content);
-        if (cMatch) {
-          const cUrl = cMatch[1];
-          const cBase = path.basename(cUrl).split('?')[0];
-          const matched = verifiedImages.find(img => img.url === cUrl || path.basename(img.url) === cBase);
-          if (matched) mediaId = matched.id;
-        }
-      }
-    } catch (e) {
-      console.warn('Lỗi phân giải featured_media:', e.message);
-    }
-  }
   if (mediaId) {
     payload.featured_media = mediaId;
   }
