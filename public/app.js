@@ -1472,6 +1472,32 @@ function renderKeywordQueueTable(keywords = []) {
   });
 }
 
+function getPostImages(post) {
+  let img1 = post.imageUrl || post.featured_image || '';
+  let img2 = post.secondaryImageUrl || '';
+  if (!img2 && post.content) {
+    const matches = [...post.content.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)];
+    if (matches.length >= 2) {
+      if (!img1) img1 = matches[0][2];
+      img2 = matches[1][2];
+    } else if (matches.length === 1 && !img1) {
+      img1 = matches[0][2];
+    }
+  }
+  return {
+    img1: img1 || 'https://images.unsplash.com/photo-1548839140-29a749e1cf4e?w=800&auto=format&fit=crop&q=80',
+    img2: img2 || 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=800&auto=format&fit=crop&q=80'
+  };
+}
+
+function updatePreviewModalImages(post) {
+  const { img1, img2 } = getPostImages(post);
+  const img1El = document.getElementById('modal-img1-preview');
+  const img2El = document.getElementById('modal-img2-preview');
+  if (img1El) img1El.src = img1;
+  if (img2El) img2El.src = img2;
+}
+
 function openQuickPreviewModal(post, keywordItem) {
   const modal = document.getElementById('quick-preview-modal');
   if (!modal || !post) return;
@@ -1485,6 +1511,61 @@ function openQuickPreviewModal(post, keywordItem) {
     ? 'Trạng thái: Đã đăng WordPress' 
     : (post.status === 'ready' ? 'Trạng thái: Bản nháp sẵn sàng' : 'Trạng thái: ' + post.status);
   document.getElementById('modal-meta-desc').textContent = post.metaDescription || 'Chưa có thẻ Meta Description.';
+
+  // Update image slots
+  updatePreviewModalImages(post);
+
+  // Wire Randomize Image Pair Button
+  const btnRandomize = document.getElementById('btn-modal-randomize-images');
+  if (btnRandomize) {
+    btnRandomize.onclick = async () => {
+      btnRandomize.disabled = true;
+      btnRandomize.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đổi ảnh...';
+      try {
+        const res = await fetch(`/api/posts/${post.id}/randomize-images`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success && data.post) {
+          Object.assign(post, data.post);
+          const cachedIdx = currentPostsData.findIndex(p => p.id === post.id);
+          if (cachedIdx !== -1) currentPostsData[cachedIdx] = post;
+
+          updatePreviewModalImages(post);
+
+          const contentBox = document.getElementById('modal-article-rendered-content');
+          if (contentBox) {
+            if (window.marked && typeof marked.parse === 'function') {
+              contentBox.innerHTML = marked.parse(post.content || '');
+            } else {
+              contentBox.innerHTML = (post.content || '').replace(/\n\n/g, '<br><br>');
+            }
+          }
+          showToast('Đã đổi cả 2 ảnh mới độc bản từ kho 611 ảnh!', 'success');
+        } else {
+          showToast(data.message || 'Không thể đổi ảnh', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi khi đổi ảnh: ' + err.message, 'error');
+      } finally {
+        btnRandomize.disabled = false;
+        btnRandomize.innerHTML = '<i class="fa-solid fa-shuffle"></i> 🔄 Đổi Cả 2 Ảnh Mới';
+      }
+    };
+  }
+
+  // Wire Hand-Pick Buttons
+  const btnPick1 = document.getElementById('btn-pick-img1');
+  if (btnPick1) {
+    btnPick1.onclick = () => {
+      openMediaGalleryModal(1, post);
+    };
+  }
+
+  const btnPick2 = document.getElementById('btn-pick-img2');
+  if (btnPick2) {
+    btnPick2.onclick = () => {
+      openMediaGalleryModal(2, post);
+    };
+  }
 
   const contentBox = document.getElementById('modal-article-rendered-content');
   if (window.marked && typeof marked.parse === 'function') {
@@ -1518,6 +1599,245 @@ function openQuickPreviewModal(post, keywordItem) {
 
   modal.style.display = 'flex';
 }
+
+/* ==========================================================================
+   MEDIA GALLERY MODAL & IMAGE PICKER LOGIC (611 VERIFIED IMAGES)
+   ========================================================================== */
+let galleryPickingSlot = 1;
+let galleryPickingPost = null;
+let galleryCurrentPage = 1;
+let galleryCurrentCategory = 'all';
+let galleryCurrentSearch = '';
+let gallerySearchDebounce = null;
+let galleryTotalPages = 1;
+
+function openMediaGalleryModal(slot, post) {
+  galleryPickingSlot = slot;
+  galleryPickingPost = post;
+  galleryCurrentPage = 1;
+  galleryCurrentCategory = 'all';
+  galleryCurrentSearch = '';
+
+  const label = document.getElementById('gallery-picking-for-label');
+  if (label) {
+    label.textContent = slot === 1 
+      ? 'Ảnh 1 (Ảnh Đại Diện & Hero)' 
+      : 'Ảnh 2 (Minh Họa Nội Dung)';
+  }
+
+  // Reset category tabs
+  document.querySelectorAll('#gallery-cat-tabs .gallery-cat-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-cat') === 'all');
+  });
+
+  const searchInput = document.getElementById('gallery-search-input');
+  if (searchInput) searchInput.value = '';
+
+  const modal = document.getElementById('media-gallery-modal');
+  if (modal) modal.style.display = 'flex';
+
+  fetchAndRenderGallery();
+}
+
+async function fetchAndRenderGallery() {
+  const grid = document.getElementById('gallery-grid');
+  const loading = document.getElementById('gallery-loading-indicator');
+  const emptyState = document.getElementById('gallery-empty-state');
+  const pageInfo = document.getElementById('gallery-page-info');
+  const btnPrev = document.getElementById('btn-gallery-prev');
+  const btnNext = document.getElementById('btn-gallery-next');
+
+  if (loading) loading.style.display = 'block';
+  if (grid) grid.innerHTML = '';
+  if (emptyState) emptyState.style.display = 'none';
+
+  try {
+    const params = new URLSearchParams({
+      category: galleryCurrentCategory,
+      search: galleryCurrentSearch,
+      page: galleryCurrentPage,
+      limit: 24
+    });
+
+    const res = await fetch(`/api/media/gallery?${params.toString()}`);
+    const data = await res.json();
+
+    if (loading) loading.style.display = 'none';
+
+    if (data.success && Array.isArray(data.items)) {
+      galleryTotalPages = data.totalPages || 1;
+
+      if (pageInfo) {
+        pageInfo.textContent = `Trang ${data.page} / ${data.totalPages} (${data.total} ảnh)`;
+      }
+
+      if (btnPrev) btnPrev.disabled = data.page <= 1;
+      if (btnNext) btnNext.disabled = data.page >= data.totalPages;
+
+      if (data.items.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+      }
+
+      data.items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'gallery-item-card';
+        card.style.cssText = 'background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: all 0.2s ease; position: relative;';
+
+        const categoryLabels = {
+          phen: 'Lọc Phèn',
+          ro: 'Lọc RO',
+          gieng: 'Giếng Khoan',
+          sinh_hoat: 'Sinh Hoạt',
+          cong_nghiep: 'Công Nghiệp',
+          general: 'Chung'
+        };
+
+        const catName = categoryLabels[item.category] || 'Ảnh Thư Viện';
+
+        card.innerHTML = `
+          <div style="width: 100%; height: 120px; background: #0b1329; overflow: hidden; position: relative;">
+            <img src="${item.url}" alt="${escapeHtml(item.title)}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onerror="this.src='https://images.unsplash.com/photo-1548839140-29a749e1cf4e?w=300&q=80'" />
+            <span style="position: absolute; top: 6px; right: 6px; background: rgba(15, 23, 42, 0.85); color: #38bdf8; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">${catName}</span>
+          </div>
+          <div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: space-between;">
+            <div style="font-size: 0.76rem; color: #f1f5f9; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${escapeHtml(item.title)}">
+              ${escapeHtml(item.title)}
+            </div>
+            <button class="btn btn-sm btn-primary btn-pick-this-img" style="width: 100%; font-size: 0.75rem; padding: 4px 6px; margin-top: 4px;">
+              <i class="fa-solid fa-check"></i> Chọn Ảnh Này
+            </button>
+          </div>
+        `;
+
+        card.onmouseenter = () => {
+          card.style.borderColor = 'rgba(56, 189, 248, 0.5)';
+          card.style.transform = 'translateY(-2px)';
+          card.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)';
+        };
+        card.onmouseleave = () => {
+          card.style.borderColor = 'rgba(255,255,255,0.08)';
+          card.style.transform = 'translateY(0)';
+          card.style.boxShadow = 'none';
+        };
+
+        const selectThisImage = async () => {
+          if (!galleryPickingPost) return;
+          const bodyPayload = galleryPickingSlot === 1 
+            ? { img1: item.url } 
+            : { img2: item.url };
+
+          try {
+            const res = await fetch(`/api/posts/${galleryPickingPost.id}/update-images`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(bodyPayload)
+            });
+            const resData = await res.json();
+            if (resData.success && resData.post) {
+              Object.assign(galleryPickingPost, resData.post);
+              const cachedIdx = currentPostsData.findIndex(p => p.id === galleryPickingPost.id);
+              if (cachedIdx !== -1) currentPostsData[cachedIdx] = galleryPickingPost;
+
+              updatePreviewModalImages(galleryPickingPost);
+
+              const contentBox = document.getElementById('modal-article-rendered-content');
+              if (contentBox) {
+                if (window.marked && typeof marked.parse === 'function') {
+                  contentBox.innerHTML = marked.parse(galleryPickingPost.content || '');
+                } else {
+                  contentBox.innerHTML = (galleryPickingPost.content || '').replace(/\n\n/g, '<br><br>');
+                }
+              }
+
+              const modal = document.getElementById('media-gallery-modal');
+              if (modal) modal.style.display = 'none';
+
+              showToast(`Đã gán ảnh thành công cho Ảnh ${galleryPickingSlot}!`, 'success');
+            } else {
+              showToast(resData.message || 'Không thể cập nhật ảnh', 'error');
+            }
+          } catch (err) {
+            showToast('Lỗi khi cập nhật ảnh: ' + err.message, 'error');
+          }
+        };
+
+        card.addEventListener('click', (e) => {
+          selectThisImage();
+        });
+
+        grid.appendChild(card);
+      });
+    }
+  } catch (err) {
+    if (loading) loading.style.display = 'none';
+    showToast('Lỗi tải danh sách ảnh: ' + err.message, 'error');
+  }
+}
+
+function initMediaGalleryModalEvents() {
+  const modal = document.getElementById('media-gallery-modal');
+  const btnClose = document.getElementById('btn-close-gallery-modal');
+  const btnCloseFooter = document.getElementById('btn-gallery-close');
+
+  const closeModal = () => {
+    if (modal) modal.style.display = 'none';
+  };
+
+  if (btnClose) btnClose.addEventListener('click', closeModal);
+  if (btnCloseFooter) btnCloseFooter.addEventListener('click', closeModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // Category filter tabs
+  document.querySelectorAll('#gallery-cat-tabs .gallery-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#gallery-cat-tabs .gallery-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      galleryCurrentCategory = btn.getAttribute('data-cat') || 'all';
+      galleryCurrentPage = 1;
+      fetchAndRenderGallery();
+    });
+  });
+
+  // Live search
+  const searchInput = document.getElementById('gallery-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(gallerySearchDebounce);
+      gallerySearchDebounce = setTimeout(() => {
+        galleryCurrentSearch = e.target.value.trim();
+        galleryCurrentPage = 1;
+        fetchAndRenderGallery();
+      }, 300);
+    });
+  }
+
+  // Pagination
+  const btnPrev = document.getElementById('btn-gallery-prev');
+  if (btnPrev) {
+    btnPrev.addEventListener('click', () => {
+      if (galleryCurrentPage > 1) {
+        galleryCurrentPage--;
+        fetchAndRenderGallery();
+      }
+    });
+  }
+
+  const btnNext = document.getElementById('btn-gallery-next');
+  if (btnNext) {
+    btnNext.addEventListener('click', () => {
+      if (galleryCurrentPage < galleryTotalPages) {
+        galleryCurrentPage++;
+        fetchAndRenderGallery();
+      }
+    });
+  }
+}
+
 
 async function deleteKeyword(id) {
   try {
@@ -2853,4 +3173,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initKeywordClusteringUI();
   initCustomMediaUI();
   initLiveBlogCrawlerUI();
+  initMediaGalleryModalEvents();
 });
+

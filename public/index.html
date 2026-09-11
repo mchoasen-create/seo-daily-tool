@@ -1202,6 +1202,55 @@
           <p id="modal-meta-desc" style="font-size: 0.88rem; color: var(--text-main); margin: 0; line-height: 1.5;"></p>
         </div>
 
+        <!-- QUẢN LÝ HÌNH ẢNH MINH HỌA (KHO 611 ẢNH THỰC TẾ) -->
+        <div class="article-image-manager" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 14px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-images" style="color: #38bdf8; font-size: 1.1rem;"></i>
+              <strong style="color: #fff; font-size: 0.92rem;">Hình Ảnh Minh Họa Bài Viết (Kho 611 Tấm Thực Tế)</strong>
+            </div>
+            <button class="btn btn-sm btn-primary" id="btn-modal-randomize-images" style="font-size: 0.8rem; padding: 5px 12px;">
+              <i class="fa-solid fa-shuffle"></i> 🔄 Đổi Cả 2 Ảnh Mới
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+            <!-- Image 1 Card -->
+            <div class="image-slot-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.72rem; font-weight: 600;">
+                  <i class="fa-solid fa-star"></i> Ảnh 1 (Ảnh Đại Diện & Hero)
+                </span>
+              </div>
+              <div style="width: 100%; height: 130px; border-radius: 6px; overflow: hidden; background: #0b1329; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <img id="modal-img1-preview" src="" alt="Ảnh 1" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1548839140-29a749e1cf4e?w=500&q=80'" />
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-sm btn-secondary" id="btn-pick-img1" style="flex: 1; font-size: 0.76rem; padding: 5px 8px;">
+                  <i class="fa-solid fa-photo-film"></i> Chọn từ kho 611 ảnh...
+                </button>
+              </div>
+            </div>
+
+            <!-- Image 2 Card -->
+            <div class="image-slot-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 0.72rem; font-weight: 600;">
+                  <i class="fa-solid fa-image"></i> Ảnh 2 (Nội Dung Chi Tiết)
+                </span>
+              </div>
+              <div style="width: 100%; height: 130px; border-radius: 6px; overflow: hidden; background: #0b1329; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <img id="modal-img2-preview" src="" alt="Ảnh 2" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1559825481-12a05cc00344?w=500&q=80'" />
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-sm btn-secondary" id="btn-pick-img2" style="flex: 1; font-size: 0.76rem; padding: 5px 8px;">
+                  <i class="fa-solid fa-photo-film"></i> Chọn từ kho 611 ảnh...
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id="modal-article-rendered-content" class="rendered-preview">
           <!-- Article HTML rendered here -->
         </div>
@@ -1213,6 +1262,67 @@
         <div style="display: flex; gap: 10px;">
           <button class="btn btn-accent" id="btn-modal-publish-wp"><i class="fa-brands fa-wordpress"></i> 🚀 Đăng Lên WordPress Ngay</button>
           <button class="btn btn-secondary" id="btn-modal-close-btn">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: KHO ẢNH 611 TẤM THỰC TẾ & CHỌN ẢNH THỦ CÔNG -->
+  <div id="media-gallery-modal" class="modal-backdrop" style="display: none; z-index: 1050;">
+    <div class="modal-box glass" style="max-width: 950px; height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="header-icon-glow" style="width: 40px; height: 40px; font-size: 16px; background: rgba(56, 189, 248, 0.2); color: #38bdf8;">
+            <i class="fa-solid fa-photo-film"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; color: #fff; line-height: 1.3;">Kho Thư Viện 611 Ảnh Thực Tế Hoa Sen</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">
+              Đang chọn cho: <strong id="gallery-picking-for-label" style="color: #38bdf8;">Ảnh 1 (Ảnh Đại Diện)</strong>
+            </span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="btn-close-gallery-modal" style="font-size: 1.4rem; padding: 4px 10px; cursor: pointer;">&times;</button>
+      </div>
+
+      <!-- Controls: Categories & Search -->
+      <div style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div class="gallery-category-tabs" style="display: flex; gap: 6px; flex-wrap: wrap;" id="gallery-cat-tabs">
+          <button class="btn btn-sm gallery-cat-btn active" data-cat="all">Tất Cả (611)</button>
+          <button class="btn btn-sm gallery-cat-btn" data-cat="phen">Lọc Phèn</button>
+          <button class="btn btn-sm gallery-cat-btn" data-cat="ro">Lọc RO Tinh Khiết</button>
+          <button class="btn btn-sm gallery-cat-btn" data-cat="gieng">Giếng Khoan</button>
+          <button class="btn btn-sm gallery-cat-btn" data-cat="sinh_hoat">Lọc Sinh Hoạt</button>
+          <button class="btn btn-sm gallery-cat-btn" data-cat="cong_nghiep">Công Nghiệp</button>
+        </div>
+        <div style="position: relative; min-width: 220px;">
+          <input type="text" id="gallery-search-input" placeholder="Tìm ảnh theo tên/mô tả..." style="width: 100%; padding: 6px 12px 6px 30px; font-size: 0.82rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;" />
+          <i class="fa-solid fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+      </div>
+
+      <!-- Gallery Grid (Scrollable) -->
+      <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 16px 20px;">
+        <div id="gallery-loading-indicator" style="display: none; text-align: center; padding: 40px; color: #38bdf8;">
+          <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+          <p style="margin-top: 10px; font-size: 0.9rem;">Đang tải kho ảnh...</p>
+        </div>
+        <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px;">
+          <!-- Image items dynamically inserted -->
+        </div>
+        <div id="gallery-empty-state" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+          <i class="fa-regular fa-image fa-3x" style="opacity: 0.4;"></i>
+          <p style="margin-top: 10px;">Không tìm thấy hình ảnh phù hợp.</p>
+        </div>
+      </div>
+
+      <!-- Gallery Footer with Pagination -->
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <div id="gallery-page-info" style="font-size: 0.82rem; color: var(--text-muted);">Trang 1 / 26 (611 ảnh)</div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-sm btn-secondary" id="btn-gallery-prev"><i class="fa-solid fa-chevron-left"></i> Trang Trước</button>
+          <button class="btn btn-sm btn-secondary" id="btn-gallery-next">Trang Sau <i class="fa-solid fa-chevron-right"></i></button>
+          <button class="btn btn-sm btn-primary" id="btn-gallery-close">Đóng</button>
         </div>
       </div>
     </div>

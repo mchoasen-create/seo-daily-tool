@@ -1,5 +1,10 @@
 const { generateSmartSeoTemplate, getRecentUsedImages } = require('./lib/generator');
-const { getTwoDistinctRotatedImages } = require('./lib/custom_media');
+const { 
+  getTwoDistinctRotatedImages, 
+  getMediaGallery, 
+  updatePostImages, 
+  randomizePostImages 
+} = require('./lib/custom_media');
 const { 
   crawlAllBlogPosts, 
   getLiveBlogPosts, 
@@ -187,6 +192,44 @@ app.post('/api/media/rotate-all', (req, res) => {
     });
   } else {
     res.status(400).json(result);
+  }
+});
+
+// Get paginated gallery of 611 verified images with filters
+app.get('/api/media/gallery', (req, res) => {
+  try {
+    const data = getMediaGallery(req.query);
+    res.json({ success: true, ...data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Update draft post images
+app.post('/api/posts/:id/update-images', (req, res) => {
+  try {
+    const result = updatePostImages(req.params.id, req.body);
+    if (result.success) {
+      res.json({ success: true, message: 'Đã cập nhật hình ảnh bài viết thành công!', post: result.post });
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Randomize fresh non-repeating images for a draft post
+app.post('/api/posts/:id/randomize-images', (req, res) => {
+  try {
+    const result = randomizePostImages(req.params.id);
+    if (result.success) {
+      res.json({ success: true, message: 'Đã đổi ảnh ngẫu nhiên độc bản thành công!', post: result.post });
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
