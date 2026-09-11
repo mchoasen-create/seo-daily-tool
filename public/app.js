@@ -2671,8 +2671,185 @@ function initRankTrackerAndAuditUI() {
     });
   }
 
+  initLiveSerpPlaygroundUI();
   loadRankingsData();
   runAuditCheck();
+}
+
+function initLiveSerpPlaygroundUI() {
+  const input = document.getElementById('live-serp-query-input');
+  const btnRun = document.getElementById('btn-run-live-serp');
+  const resultsBox = document.getElementById('live-serp-results-container');
+  const tagBtns = document.querySelectorAll('.btn-quick-serp-tag');
+
+  // Update mode banner if live config is active
+  fetch('/api/google/config')
+    .then(r => r.json())
+    .then(d => {
+      if (d.success && d.data && d.data.serperApiKey) {
+        const banner = document.getElementById('rank-tracker-mode-banner');
+        if (banner) {
+          banner.style.background = 'rgba(16, 185, 129, 0.12)';
+          banner.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+          banner.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.2rem;"></i>
+              <span style="font-size: 0.88rem; color: #a7f3d0;">
+                <strong>Chế Độ Live SERP Thật Đang Bật</strong> — Kết nối Serper API đã kích hoạt. Dữ liệu truy vấn trực tiếp từ Google SERP Việt Nam 100%.
+              </span>
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.25); color: #34d399; font-weight: 600;">Live Google Active</span>
+          `;
+        }
+      }
+    })
+    .catch(() => {});
+
+  async function executeLiveSearch(query) {
+    if (!query || !query.trim()) {
+      showToast('Vui lòng nhập từ khóa để quét Google', 'warning');
+      return;
+    }
+    const q = query.trim();
+    if (input) input.value = q;
+
+    if (!resultsBox) return;
+    resultsBox.style.display = 'block';
+    resultsBox.innerHTML = `
+      <div style="text-align: center; padding: 25px; color: var(--text-muted);">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.8rem; color: #38bdf8; margin-bottom: 10px;"></i>
+        <p style="font-size: 0.9rem;">Đang kết nối Google Việt Nam (gl: vn, hl: vi) quét 100 kết quả cho <strong>"${q}"</strong>...</p>
+      </div>
+    `;
+
+    if (btnRun) {
+      btnRun.disabled = true;
+      btnRun.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang quét...`;
+    }
+
+    try {
+      const res = await fetch('/api/serper/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q, num: 100 })
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message || 'Lỗi truy vấn Google SERP');
+      }
+
+      const foundRank = data.foundRank;
+      const targetUrl = data.targetUrl;
+      const organic = data.organic || [];
+
+      let rankBadgeHtml = '';
+      if (foundRank) {
+        rankBadgeHtml = `
+          <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);">
+                #${foundRank}
+              </div>
+              <div>
+                <div style="font-size: 1rem; font-weight: 700; color: #a7f3d0;">🎉 Website xulynuochoasen.com Đang Đứng TOP #${foundRank} Trên Google!</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; word-break: break-all;">
+                  Link: <a href="${targetUrl}" target="_blank" style="color: #38bdf8; text-decoration: underline;">${targetUrl}</a>
+                </div>
+              </div>
+            </div>
+            <span class="badge" style="background: #10b981; color: #064e3b; font-weight: 700; padding: 6px 12px; font-size: 0.85rem;">Xác Thực Live 100%</span>
+          </div>
+        `;
+      } else {
+        rankBadgeHtml = `
+          <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-circle-info" style="color: #f59e0b; font-size: 1.2rem;"></i>
+            <div style="font-size: 0.85rem; color: #fde68a;">
+              Website <code>xulynuochoasen.com</code> chưa lọt vào Top ${organic.length} cho từ khóa <strong>"${q}"</strong>. (Nên xuất bản thêm bài viết chuyên sâu nhắm từ khóa dài này!)
+            </div>
+          </div>
+        `;
+      }
+
+      let organicListHtml = organic.map((item, idx) => {
+        const isMySite = item.link && item.link.includes('xulynuochoasen.com');
+        return `
+          <div style="padding: 12px 14px; border-radius: 6px; margin-bottom: 8px; transition: all 0.2s; ${isMySite ? 'background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);' : 'background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);'}">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+              <span style="font-size: 0.8rem; font-weight: 700; min-width: 32px; padding: 2px 6px; border-radius: 4px; text-align: center; ${isMySite ? 'background: #10b981; color: white;' : 'background: rgba(255,255,255,0.1); color: #94a3b8;'}">
+                #${idx + 1}
+              </span>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 0.95rem; font-weight: 600;">
+                  <a href="${item.link}" target="_blank" style="color: ${isMySite ? '#34d399' : '#38bdf8'}; text-decoration: none;">
+                    ${item.title || item.link}
+                  </a>
+                  ${isMySite ? '<span class="badge" style="background: #10b981; color: white; margin-left: 8px; font-size: 0.7rem;">Website Của Bạn</span>' : ''}
+                </div>
+                <div style="font-size: 0.78rem; color: #10b981; word-break: break-all; margin-top: 2px;">
+                  ${item.link}
+                </div>
+                <div style="font-size: 0.82rem; color: #cbd5e1; margin-top: 4px; line-height: 1.4;">
+                  ${item.snippet || ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      resultsBox.innerHTML = `
+        ${rankBadgeHtml}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted);">
+            Tìm thấy <strong>${organic.length} kết quả Google Việt Nam</strong>:
+          </span>
+          <button class="btn btn-sm btn-outline" id="btn-close-serp-results" style="font-size: 0.75rem; padding: 2px 8px;">
+            <i class="fa-solid fa-xmark"></i> Đóng Kết Quả
+          </button>
+        </div>
+        <div style="max-height: 450px; overflow-y: auto; padding-right: 4px;">
+          ${organicListHtml}
+        </div>
+      `;
+
+      const btnClose = document.getElementById('btn-close-serp-results');
+      if (btnClose) {
+        btnClose.addEventListener('click', () => {
+          resultsBox.style.display = 'none';
+        });
+      }
+    } catch (err) {
+      resultsBox.innerHTML = `
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 14px; color: #fca5a5;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Lỗi khi quét Google: ${err.message}
+        </div>
+      `;
+    } finally {
+      if (btnRun) {
+        btnRun.disabled = false;
+        btnRun.innerHTML = `<i class="fa-solid fa-bolt"></i> Quét Google Ngay`;
+      }
+    }
+  }
+
+  if (btnRun && input) {
+    btnRun.addEventListener('click', () => executeLiveSearch(input.value));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        executeLiveSearch(input.value);
+      }
+    });
+  }
+
+  tagBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.getAttribute('data-q');
+      if (q) executeLiveSearch(q);
+    });
+  });
 }
 
 function initKeywordClusteringUI() {

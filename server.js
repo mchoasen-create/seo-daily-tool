@@ -19,7 +19,8 @@ const {
   runTechnicalAudit,
   getGoogleConfig,
   saveGoogleConfig,
-  fetchRealGoogleRank
+  fetchRealGoogleRank,
+  searchSerperLive
 } = require('./lib/audit_tracker');
 const { generateKeywordCluster } = require('./lib/clustering');
 const express = require('express');
@@ -358,6 +359,19 @@ app.post('/api/rankings/check', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi khi quét vị trí thứ hạng Google: ' + err.message });
+  }
+});
+
+app.post('/api/serper/search', async (req, res) => {
+  try {
+    const { query, num = 100 } = req.body || {};
+    if (!query || !query.trim()) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập từ khóa tìm kiếm.' });
+    }
+    const result = await searchSerperLive({ query: query.trim(), num: Number(num) || 100 });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 

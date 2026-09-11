@@ -983,6 +983,49 @@
           </button>
         </div>
 
+        <!-- Dedicated Live SERP Playground Card (Always Configured for VN) -->
+        <div class="card glass" style="margin-top: 18px; border: 1px solid rgba(56, 189, 248, 0.35); background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
+                <span>⚡ Trạm Quét Google Live (Serper Playground Việt Nam Cố Định)</span>
+              </h3>
+              <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--text-muted);">
+                Đã khóa cứng vĩnh viễn: 🇻🇳 Quốc gia: Việt Nam (<code style="color: #38bdf8;">gl: vn</code>) • 🗣️ Ngôn ngữ: Tiếng Việt (<code style="color: #38bdf8;">hl: vi</code>) • 📊 100 kết quả Google (<code style="color: #38bdf8;">num: 100</code>) • 🎯 Mục tiêu: <code style="color: #38bdf8;">xulynuochoasen.com</code>
+              </p>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);"><i class="fa-solid fa-circle-check"></i> Key Kết Nối Sẵn</span>
+              <span class="badge" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4);"><i class="fa-solid fa-globe"></i> Google VN</span>
+              <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);"><i class="fa-solid fa-list-ol"></i> Top 100 Deep Scan</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="position: relative; flex: 1;">
+              <input type="text" id="live-serp-query-input" class="form-control" placeholder="Gõ từ khóa cần kiểm tra (ví dụ: xử lý nước hoa sen, lọc nước phèn gia đình, site:xulynuochoasen.com)..." style="padding-left: 38px; font-size: 0.95rem;">
+              <i class="fa-brands fa-google" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #38bdf8;"></i>
+            </div>
+            <button class="btn btn-primary" id="btn-run-live-serp" style="white-space: nowrap; padding: 10px 22px; font-weight: 600;">
+              <i class="fa-solid fa-bolt"></i> Quét Google Ngay
+            </button>
+          </div>
+
+          <!-- Quick keyword tags -->
+          <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap;" id="quick-serp-tags-container">
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Gợi ý quét nhanh:</span>
+            <button class="btn-quick-serp-tag" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; cursor: pointer;" data-q="xử lý nước hoa sen">xử lý nước hoa sen</button>
+            <button class="btn-quick-serp-tag" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; cursor: pointer;" data-q="lọc nước hoa sen">lọc nước hoa sen</button>
+            <button class="btn-quick-serp-tag" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; cursor: pointer;" data-q="lọc nước phèn hoa sen">lọc nước phèn hoa sen</button>
+            <button class="btn-quick-serp-tag" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; cursor: pointer;" data-q="công ty môi trường hoa sen">công ty môi trường hoa sen</button>
+            <button class="btn-quick-serp-tag" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; cursor: pointer;" data-q="site:xulynuochoasen.com">site:xulynuochoasen.com (Xem link đã index)</button>
+          </div>
+
+          <!-- Live SERP Results Box -->
+          <div id="live-serp-results-container" style="margin-top: 16px; display: none;"></div>
+        </div>
+
         <!-- KPI Stat Cards Row -->
         <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px;">
           <div class="stat-card glass">
