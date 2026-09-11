@@ -590,6 +590,32 @@ async function publishToWordPress(postData) {
   const endpoint = `${cleanUrl}/wp-json/wp/v2/posts`;
 
   const authHeader = 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword.replace(/\s+/g, '')}`).toString('base64');
+  const cleanTitle = (postData.title || '').trim();
+
+  // 1. Anti-Duplicate Check: Avoid publishing duplicate titles to WordPress
+  try {
+    const searchUrl = `${endpoint}?search=${encodeURIComponent(cleanTitle)}&per_page=5`;
+    const checkRes = await fetchFn(searchUrl, {
+      headers: { 'Authorization': authHeader, 'Accept': 'application/json' }
+    });
+    if (checkRes.ok) {
+      const existingList = await checkRes.json();
+      const exactMatch = Array.isArray(existingList) && existingList.find(p => p.title && p.title.rendered.trim().toLowerCase() === cleanTitle.toLowerCase());
+      if (exactMatch) {
+        console.log(`⚠️ WordPress đã có bài viết mang tiêu đề y hệt (ID ${exactMatch.id}): "${cleanTitle}". Bỏ qua để tránh trùng lặp!`);
+        return {
+          success: true,
+          wpId: exactMatch.id,
+          link: exactMatch.link,
+          status: exactMatch.status,
+          message: `Bài viết đã tồn tại trên WordPress (ID ${exactMatch.id})`
+        };
+      }
+    }
+  } catch (checkErr) {
+    console.warn('Lỗi kiểm tra trùng lặp trên WordPress:', checkErr.message);
+  }
+
   const htmlContent = markdownToHtml(postData.content);
 
   const payload = {
@@ -598,6 +624,37 @@ async function publishToWordPress(postData) {
     excerpt: postData.metaDescription || '',
     status: wpConfig.defaultStatus || 'publish'
   };
+
+  // 2. Attach Featured Image (featured_media) so post thumbnail displays on Blog page
+  let mediaId = null;
+  const VERIFIED_IMAGES_FILE = path.join(DATA_DIR, 'verified_wp_images.json');
+  if (fs.existsSync(VERIFIED_IMAGES_FILE)) {
+    try {
+      const verifiedImages = JSON.parse(fs.readFileSync(VERIFIED_IMAGES_FILE, 'utf-8') || '[]');
+      const targetImgUrl = postData.imageUrl || '';
+      if (targetImgUrl) {
+        const baseFilename = path.basename(targetImgUrl).split('?')[0];
+        const matched = verifiedImages.find(img => img.url === targetImgUrl || path.basename(img.url) === baseFilename);
+        if (matched) mediaId = matched.id;
+      }
+      // If still no mediaId, search content for images
+      if (!mediaId && postData.content) {
+        const cRegex = /!\[.*?\]\((https?:\/\/[^\s\)]+)\)/i;
+        const cMatch = cRegex.exec(postData.content);
+        if (cMatch) {
+          const cUrl = cMatch[1];
+          const cBase = path.basename(cUrl).split('?')[0];
+          const matched = verifiedImages.find(img => img.url === cUrl || path.basename(img.url) === cBase);
+          if (matched) mediaId = matched.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Lỗi phân giải featured_media:', e.message);
+    }
+  }
+  if (mediaId) {
+    payload.featured_media = mediaId;
+  }
 
   const categoryId = postData.categoryId || wpConfig.categoryId;
   if (categoryId) {
@@ -986,28 +1043,19 @@ app.get('/api/scheduler/status', (req, res) => {
     }
   }
 
-  // 2. Generate countdown calculation
+  // 2. Generate countdown & Queue Readiness calculation
+  const ungeneratedKeywords = pendingKeywords.filter(k => !k.generatedPostId);
+  const ungeneratedCount = ungeneratedKeywords.length;
+  const allPregenerated = pendingKeywords.length > 0 && ungeneratedCount === 0;
+
   const genIntervalHours = parseFloat(config.generateIntervalHours || 2);
   const genIntervalMs = genIntervalHours * 3600000;
   const lastGenTime = config.lastGenerateRun ? new Date(config.lastGenerateRun).getTime() : 0;
   const nextGenTimeMs = lastGenTime ? lastGenTime + genIntervalMs : now;
   const generateRemainingSec = Math.max(0, Math.round((nextGenTimeMs - now) / 1000));
 
-  // Next item to generate (first pending keyword without generated post, or cyclic rotation)
-  let nextGenObj = pendingKeywords.find(k => !k.generatedPostId);
-  let isRotatingCycle = false;
-  if (!nextGenObj && keywords.length > 0) {
-    isRotatingCycle = true;
-    const latestPost = posts[0];
-    let nextIdx = 0;
-    if (latestPost && latestPost.targetKeyword) {
-      const foundIdx = keywords.findIndex(k => k.keyword.toLowerCase() === latestPost.targetKeyword.toLowerCase());
-      if (foundIdx !== -1) {
-        nextIdx = (foundIdx + 1) % keywords.length;
-      }
-    }
-    nextGenObj = keywords[nextIdx] || keywords[0];
-  }
+  // Next item to generate (first pending keyword without generated post)
+  let nextGenObj = ungeneratedKeywords.length > 0 ? ungeneratedKeywords[0] : null;
 
   const timeline = pendingKeywords.map((item, idx) => {
     const itemRemainingSec = publishRemainingSec + (idx * pubIntervalMs / 1000);
@@ -1041,19 +1089,25 @@ app.get('/api/scheduler/status', (req, res) => {
       publishRemainingSec,
       lastGenerateRun: config.lastGenerateRun,
       nextGenerateTime: new Date(nextGenTimeMs).toISOString(),
-      generateRemainingSec,
+      generateRemainingSec: allPregenerated ? 0 : generateRemainingSec,
+      allPregenerated,
+      ungeneratedCount,
       nextPublishItem: nextPublishItem ? {
         id: nextPublishItem.id,
         keyword: nextPublishItem.keyword,
         title: nextPublishTitle,
         hasPost: !!nextPublishItem.generatedPostId
       } : null,
-      nextGenerateItem: nextGenObj ? {
+      nextGenerateItem: allPregenerated ? {
+        allReady: true,
+        keyword: 'Tất cả bài trong hàng chờ đã soạn xong 100%',
+        topic: 'Tất cả bài trong hàng chờ đã soạn xong 100%'
+      } : (nextGenObj ? {
         id: nextGenObj.id,
         keyword: nextGenObj.keyword,
         topic: nextGenObj.topic || nextGenObj.keyword,
-        isRotating: isRotatingCycle
-      } : null,
+        isRotating: false
+      } : null),
       pendingCount: pendingKeywords.length,
       pregeneratedCount,
       timeline,
