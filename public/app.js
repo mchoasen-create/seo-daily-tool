@@ -1539,7 +1539,7 @@ function openQuickPreviewModal(post, keywordItem) {
               contentBox.innerHTML = (post.content || '').replace(/\n\n/g, '<br><br>');
             }
           }
-          showToast('Đã đổi cả 2 ảnh mới độc bản từ kho 611 ảnh!', 'success');
+          showToast('Đã đổi cả 2 ảnh mới độc bản từ thư viện 942 ảnh!', 'success');
         } else {
           showToast(data.message || 'Không thể đổi ảnh', 'error');
         }
