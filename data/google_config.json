@@ -1,10 +1,10 @@
 {
   "domain": "xulynuochoasen.com",
-  "googleApiKey": "",
+  "googleApiKey": "b85a50f02bd076845f7b8e07116f91cf4d4ee62e",
   "googleCseId": "",
-  "serperApiKey": "",
+  "serperApiKey": "b85a50f02bd076845f7b8e07116f91cf4d4ee62e",
   "searchConsoleEmail": "contact@xulynuochoasen.com",
-  "isLiveMode": false,
+  "isLiveMode": true,
   "autoIndexPing": true,
-  "lastSync": "2026-09-10T13:37:48.554Z"
+  "lastSync": "2026-09-11T16:12:06.353Z"
 }
