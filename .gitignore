@@ -4,3 +4,4 @@ scratch/
 backup_v1/
 .waliseogoogle/
 *.log
+data/gemini.json

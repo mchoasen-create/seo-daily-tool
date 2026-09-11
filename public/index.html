@@ -1081,6 +1081,7 @@
                     <th style="padding: 10px;">Biến Động</th>
                     <th style="padding: 10px;">Lượng Tìm (Search Vol)</th>
                     <th style="padding: 10px;">Target URL (xulynuochoasen.com)</th>
+                    <th style="padding: 10px;">Lịch Sử</th>
                   </tr>
                 </thead>
                 <tbody id="rankings-table-tbody">
@@ -1419,8 +1420,48 @@
     </div>
   </div>
 
+  <!-- ====== RANKING HISTORY MODAL ====== -->
+  <div id="ranking-history-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background: var(--card-bg, #1a1a2e); border: 1px solid var(--border-color, #2a2a4a); border-radius:16px; width:min(700px,95vw); max-height:85vh; overflow:hidden; display:flex; flex-direction:column; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+      <!-- Modal Header -->
+      <div style="padding:20px 24px; border-bottom:1px solid var(--border-color, #2a2a4a); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <div>
+          <h3 style="margin:0; font-size:1.1rem; color:var(--text-color,#e0e0e0);">
+            <i class="fa-solid fa-chart-line" style="color:#a855f7; margin-right:8px;"></i>
+            Lịch Sử Thứ Hạng
+          </h3>
+          <div id="ranking-history-keyword-title" style="font-size:0.82rem; color:var(--text-muted,#888); margin-top:3px;"></div>
+        </div>
+        <button onclick="document.getElementById('ranking-history-modal').style.display='none'" style="background:none;border:none;color:var(--text-muted,#888);cursor:pointer;font-size:1.4rem;line-height:1;padding:4px 8px;">&times;</button>
+      </div>
+      <!-- Modal Body -->
+      <div style="padding:20px 24px; overflow-y:auto; flex:1;">
+        <div id="ranking-history-loading" style="display:none; text-align:center; padding:40px; color:var(--text-muted,#888);">
+          <i class="fa-solid fa-spinner fa-spin fa-2x"></i><br><br>Đang tải lịch sử...
+        </div>
+        <div id="ranking-history-empty" style="display:none; text-align:center; padding:40px; color:var(--text-muted,#888);">
+          <i class="fa-solid fa-clock-rotate-left fa-2x" style="opacity:0.3;"></i><br><br>
+          Chưa có dữ liệu lịch sử.<br>
+          <span style="font-size:0.82rem;">Hãy bấm "Quét Vị Trí Google" ít nhất 1 lần để bắt đầu ghi nhận.</span>
+        </div>
+        <table id="ranking-history-table" style="width:100%; border-collapse:collapse; font-size:0.88rem; display:none;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border-color,#2a2a4a); color:var(--text-muted,#888); text-align:left;">
+              <th style="padding:10px 8px;">📅 Ngày</th>
+              <th style="padding:10px 8px;">Vị Trí</th>
+              <th style="padding:10px 8px;">Biến Động</th>
+              <th style="padding:10px 8px;">Loại Dữ Liệu</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-history-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
+
 
   <script src="app.js"></script>
 </body>

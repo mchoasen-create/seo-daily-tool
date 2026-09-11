@@ -362,6 +362,48 @@ app.post('/api/rankings/check', async (req, res) => {
   }
 });
 
+// Get historical ranking timeline for a specific keyword
+app.get('/api/rankings/history/:keyword', (req, res) => {
+  try {
+    const RANKINGS_FILE_PATH = path.join(DATA_DIR, 'rankings.json');
+    let rankings = [];
+    if (fs.existsSync(RANKINGS_FILE_PATH)) {
+      rankings = JSON.parse(fs.readFileSync(RANKINGS_FILE_PATH, 'utf8'));
+    }
+    const kwParam = decodeURIComponent(req.params.keyword).toLowerCase().trim();
+    const found = rankings.find(r => r.keyword.toLowerCase().trim() === kwParam);
+    if (!found) {
+      return res.json({ success: true, keyword: kwParam, history: [], currentPosition: null });
+    }
+    // Format history for display: newest first
+    const history = (found.history || [])
+      .slice()
+      .reverse()
+      .map((h, idx, arr) => {
+        const prev = arr[idx + 1] ? arr[idx + 1].position : null;
+        const change = prev !== null ? prev - h.position : 0;
+        return {
+          date: h.date,
+          position: h.position,
+          isLive: h.isLive,
+          change: change,
+          trend: change > 0 ? 'up' : (change < 0 ? 'down' : 'same')
+        };
+      });
+    res.json({
+      success: true,
+      keyword: found.keyword,
+      currentPosition: found.position,
+      targetUrl: found.targetUrl,
+      history
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi tải lịch sử thứ hạng: ' + err.message });
+  }
+});
+
+
+
 app.post('/api/serper/search', async (req, res) => {
   try {
     const { query, num = 100 } = req.body || {};

@@ -2532,6 +2532,7 @@ function renderRankingsTable(keywords) {
     }
 
     const shortUrl = kw.targetUrl ? kw.targetUrl.replace('https://xulynuochoasen.com', '') : '/';
+    const kwEncoded = encodeURIComponent(kw.keyword);
 
     tr.innerHTML = `
       <td style="font-weight: 700; color: var(--text-color);">${escapeHtml(kw.keyword)}</td>
@@ -2540,10 +2541,86 @@ function renderRankingsTable(keywords) {
       <td style="color: ${changeColor}; font-weight: 600; font-size: 0.88rem;">${changeText}</td>
       <td style="color: #06b6d4; font-weight: 600; font-size: 0.88rem;">${(kw.searchVolume || 0).toLocaleString('vi-VN')} /tháng</td>
       <td><a href="${kw.targetUrl}" target="_blank" style="color: var(--accent-primary); font-size: 0.82rem; text-decoration: none;"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${escapeHtml(shortUrl)}</a></td>
+      <td>
+        <button onclick="showKeywordHistory('${kwEncoded}')" title="Xem lịch sử thứ hạng" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); color: #a855f7; border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.78rem; white-space:nowrap;">
+          <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử
+        </button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
 }
+
+async function showKeywordHistory(kwEncoded) {
+  const modal = document.getElementById('ranking-history-modal');
+  const loadingEl = document.getElementById('ranking-history-loading');
+  const emptyEl = document.getElementById('ranking-history-empty');
+  const tableEl = document.getElementById('ranking-history-table');
+  const tbodyEl = document.getElementById('ranking-history-tbody');
+  const titleEl = document.getElementById('ranking-history-keyword-title');
+
+  const keyword = decodeURIComponent(kwEncoded);
+
+  // Show modal in loading state
+  modal.style.display = 'flex';
+  loadingEl.style.display = 'block';
+  emptyEl.style.display = 'none';
+  tableEl.style.display = 'none';
+  titleEl.textContent = keyword;
+
+  try {
+    const res = await fetch(`/api/rankings/history/${kwEncoded}`);
+    const data = await res.json();
+    loadingEl.style.display = 'none';
+
+    if (!data.success || !data.history || data.history.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+
+    titleEl.textContent = `${data.keyword} — Hiện tại: Top ${data.currentPosition || '?'}`;
+    tbodyEl.innerHTML = '';
+
+    data.history.forEach(h => {
+      const isTop3 = h.position <= 3;
+      const isTop10 = h.position <= 10;
+      let posColor = '#ef4444'; // page 2+
+      if (isTop3) posColor = '#f59e0b';
+      else if (isTop10) posColor = '#10b981';
+
+      let changeHtml = '<span style="color:var(--text-muted)">—</span>';
+      if (h.change > 0) changeHtml = `<span style="color:#10b981; font-weight:700">↑ +${h.change} nấc</span>`;
+      else if (h.change < 0) changeHtml = `<span style="color:#ef4444; font-weight:700">↓ ${h.change} nấc</span>`;
+
+      // Format date to DD/MM/YYYY
+      const [y, m, d] = h.date.split('-');
+      const dateFormatted = `${d}/${m}/${y}`;
+
+      const liveBadge = h.isLive
+        ? '<span style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:#10b981;border-radius:6px;padding:2px 7px;font-size:0.72rem;">Live SERP</span>'
+        : '<span style="background:rgba(100,100,120,0.2);border:1px solid rgba(100,100,120,0.3);color:#888;border-radius:6px;padding:2px 7px;font-size:0.72rem;">Demo</span>';
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid var(--border-color, #2a2a4a)';
+      tr.innerHTML = `
+        <td style="padding:10px 8px; color:var(--text-color);">${dateFormatted}</td>
+        <td style="padding:10px 8px;">
+          <span style="font-weight:800; font-size:1rem; color:${posColor};">Top ${h.position}</span>
+        </td>
+        <td style="padding:10px 8px;">${changeHtml}</td>
+        <td style="padding:10px 8px;">${liveBadge}</td>
+      `;
+      tbodyEl.appendChild(tr);
+    });
+
+    tableEl.style.display = 'table';
+  } catch (err) {
+    loadingEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+    emptyEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation fa-2x" style="opacity:0.5;"></i><br><br>Lỗi tải dữ liệu: ${err.message}`;
+  }
+}
+
 
 function runAuditCheck() {
   fetch('/api/audit')

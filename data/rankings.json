@@ -5,9 +5,16 @@
     "previousPosition": 1,
     "searchVolume": 1500,
     "trend": "same",
-    "lastChecked": "2026-09-11T16:17:35.770Z",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 1,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Hoa Sen",
@@ -15,29 +22,50 @@
     "previousPosition": 2,
     "searchVolume": 1200,
     "trend": "same",
-    "lastChecked": "2026-09-11T16:17:35.771Z",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 2,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Phèn Hoa Sen",
-    "position": 2,
+    "position": 1,
     "previousPosition": 2,
     "searchVolume": 850,
-    "trend": "same",
-    "lastChecked": "2026-09-11T16:17:35.771Z",
+    "trend": "up",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/loc-nuoc-nhiem-phen/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 1,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Công Ty Môi Trường Hoa Sen",
-    "position": 6,
+    "position": 5,
     "previousPosition": 6,
     "searchVolume": 900,
-    "trend": "same",
-    "lastChecked": "2026-09-11T16:17:35.771Z",
+    "trend": "up",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 5,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "xulynuochoasen.com",
@@ -45,488 +73,831 @@
     "previousPosition": 1,
     "searchVolume": 3000,
     "trend": "same",
-    "lastChecked": "2026-09-11T16:17:35.771Z",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 1,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Phèn",
     "position": 100,
-    "previousPosition": 6,
+    "previousPosition": 100,
     "searchVolume": 1200,
-    "trend": "down",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
+    "trend": "same",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/12529/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Tinh Khiết",
     "position": 100,
-    "previousPosition": 10,
+    "previousPosition": 100,
     "searchVolume": 2400,
-    "trend": "down",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
+    "trend": "same",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-tinh-khiet-r-o-1000-lit-1-gio/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Công Nghiệp",
     "position": 100,
-    "previousPosition": 11,
+    "previousPosition": 100,
     "searchVolume": 1800,
-    "trend": "down",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
+    "trend": "same",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-cong-nghiep-cong-suat-2000-lit-1-gio/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Sinh Hoạt",
     "position": 100,
-    "previousPosition": 10,
+    "previousPosition": 100,
     "searchVolume": 3100,
-    "trend": "down",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
+    "trend": "same",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/12529/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Giếng Khoan",
     "position": 100,
-    "previousPosition": 4,
+    "previousPosition": 100,
     "searchVolume": 2900,
-    "trend": "down",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
+    "trend": "same",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/xu-ly-loc-nuoc-gieng-khoan-nhiem-khi-doc-va-kim-loai-nang-2026-3/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Mặn",
     "position": 100,
-    "previousPosition": 1,
+    "previousPosition": 100,
     "searchVolume": 950,
-    "trend": "down",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
+    "trend": "same",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-nhiem-man-cong-suat-800-lit-1-gio/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Xử Lý Nước Giếng Khoan Phèn",
     "position": 100,
-    "previousPosition": 15,
+    "previousPosition": 100,
     "searchVolume": 1400,
-    "trend": "down",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
+    "trend": "same",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
     "targetUrl": "https://xulynuochoasen.com/",
-    "isLive": true
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Nhiễm Phèn Nặng",
     "position": 100,
-    "previousPosition": 12,
+    "previousPosition": 100,
     "searchVolume": 500,
-    "trend": "down",
+    "trend": "same",
     "targetUrl": "https://xulynuochoasen.com/",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
-    "isLive": true
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Phèn Gia Đình",
     "position": 100,
-    "previousPosition": 7,
+    "previousPosition": 100,
     "searchVolume": 900,
-    "trend": "down",
+    "trend": "same",
     "targetUrl": "https://xulynuochoasen.com/",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
-    "isLive": true
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Mặn Thành Nước Ngọt",
     "position": 100,
-    "previousPosition": 5,
+    "previousPosition": 100,
     "searchVolume": 2300,
-    "trend": "down",
+    "trend": "same",
     "targetUrl": "https://xulynuochoasen.com/",
-    "lastChecked": "2026-09-11T16:17:12.064Z",
-    "isLive": true
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Giếng Khoan Bị Vàng Hôi Tanh",
-    "position": 1,
+    "position": 100,
     "previousPosition": 1,
     "searchVolume": 600,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/bi-quyet-chon-mua-he-thong-loc-nuoc-gieng-khoan-bi-vang-hoi-ta/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Hệ Thống Lọc Nước Sinh Hoạt Đầu Nguồn",
-    "position": 6,
+    "position": 100,
     "previousPosition": 6,
     "searchVolume": 1100,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/b-quy-t-ch-n-mua-h-th-ng-h-th-ng-l-c-n-c-sinh-ho-t-u-ngu/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Công Nghiệp 1000L/H",
-    "position": 9,
-    "previousPosition": 10,
+    "position": 100,
+    "previousPosition": 9,
     "searchVolume": 1000,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/giai-phap-loc-nuoc-cong-nghiep-1000l-h-chuan-bo-y-te-toi-uu-2026/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Giá Cột Lọc Nước Phèn Composite",
-    "position": 10,
+    "position": 100,
     "previousPosition": 10,
     "searchVolume": 2300,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/ph-n-t-ch-k-thu-t-v-t-li-u-l-c-gi-c-t-l-c-n-c-ph-n-composit/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Vật Liệu Lọc Nước Nhiễm Phèn Nặng",
-    "position": 4,
+    "position": 100,
     "previousPosition": 4,
     "searchVolume": 1500,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/l-tr-nh-kh-o-s-t-thi-c-ng-v-t-li-u-l-c-n-c-nhi-m-ph-n-n-ng-2026/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Hệ Thống Lọc Nước Phèn 3 Cột Inox 304",
-    "position": 7,
-    "previousPosition": 6,
+    "position": 100,
+    "previousPosition": 7,
     "searchVolume": 700,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/h-th-ng-h-th-ng-l-c-n-c-ph-n-3-c-t-inox-304-x-l-tri-t/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Cách Làm Bể Lọc Nước Phèn Thủ Công",
-    "position": 15,
-    "previousPosition": 14,
+    "position": 100,
+    "previousPosition": 15,
     "searchVolume": 1300,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/gi-i-ph-p-c-ch-l-m-b-l-c-n-c-ph-n-th-c-ng-chu-n-b-y-t-t-i/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Máy Lọc Nước RO Công Nghiệp Nhà Xưởng",
-    "position": 8,
-    "previousPosition": 9,
+    "position": 100,
+    "previousPosition": 8,
     "searchVolume": 2000,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/nh-gi-chi-ti-t-gi-i-ph-p-m-y-l-c-n-c-ro-c-ng-nghi-p-nh-x/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Dây Chuyền Lọc Nước Đóng Bình Tinh Khiết",
-    "position": 3,
-    "previousPosition": 2,
+    "position": 100,
+    "previousPosition": 3,
     "searchVolume": 1700,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/quy-tr-nh-x-l-n-c-t-chu-n-v-i-d-y-chuy-n-l-c-n-c-ng-b/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Báo Giá Hệ Thống Lọc Nước Công Nghiệp 2000L/H",
-    "position": 3,
+    "position": 100,
     "previousPosition": 3,
     "searchVolume": 700,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/gi-i-ph-p-b-o-gi-h-th-ng-l-c-n-c-c-ng-nghi-p-2000l-h-chu-n/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Bảo Trì Màng RO Công Nghiệp 4040 8040",
-    "position": 6,
+    "position": 100,
     "previousPosition": 6,
     "searchVolume": 1100,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/t-i-sao-n-n-trang-b-h-th-ng-b-o-tr-m-ng-ro-c-ng-nghi-p-4040/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Sinh Hoạt Gia Đình Chung Cư",
-    "position": 4,
-    "previousPosition": 5,
+    "position": 100,
+    "previousPosition": 4,
     "searchVolume": 2300,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/kinh-nghi-m-b-o-tr-s-c-r-a-c-t-l-c-l-c-n-c-sinh-ho-t-gia/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Cột Lọc Nước Sinh Hoạt Khử Clo Cặn Vôi",
-    "position": 4,
-    "previousPosition": 5,
+    "position": 100,
+    "previousPosition": 4,
     "searchVolume": 800,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/quy-tr-nh-x-l-n-c-t-chu-n-v-i-c-t-l-c-n-c-sinh-ho-t-kh/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Giá Bộ Lọc Nước Sinh Hoạt 2 Cột Composite",
-    "position": 5,
-    "previousPosition": 4,
+    "position": 100,
+    "previousPosition": 5,
     "searchVolume": 1700,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/kinh-nghi-m-b-o-tr-s-c-r-a-c-t-l-c-gi-b-l-c-n-c-sinh-ho/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Tổng Biệt Thự Cao Cấp",
-    "position": 13,
-    "previousPosition": 12,
+    "position": 100,
+    "previousPosition": 13,
     "searchVolume": 1000,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/t-v-n-ch-n-c-u-h-nh-l-c-n-c-t-ng-bi-t-th-cao-c-p-ph-h-p-nh/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Màng RO Nước Mặn SW30 Cao Áp",
-    "position": 10,
+    "position": 100,
     "previousPosition": 10,
     "searchVolume": 900,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/quy-tr-nh-x-l-n-c-t-chu-n-v-i-m-ng-ro-n-c-m-n-sw30-cao/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Hệ Thống Lọc Nước Lợ Tưới Cây Sầu Riêng",
-    "position": 2,
+    "position": 100,
     "previousPosition": 2,
     "searchVolume": 2300,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/b-quy-t-ch-n-mua-h-th-ng-h-th-ng-l-c-n-c-l-t-i-c-y-s-u-r/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Xử Lý Nước Mặn Miền Tây Xâm Nhập Mặn",
-    "position": 15,
-    "previousPosition": 14,
+    "position": 100,
+    "previousPosition": 15,
     "searchVolume": 1500,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/t-v-n-ch-n-c-u-h-nh-x-l-n-c-m-n-mi-n-t-y-x-m-nh-p-m-n-ph/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Giá Máy Lọc Nước Mặn Gia Đình",
-    "position": 5,
+    "position": 100,
     "previousPosition": 5,
     "searchVolume": 1900,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/t-i-sao-n-n-trang-b-h-th-ng-gi-m-y-l-c-n-c-m-n-gia-nh-gi/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Sơ Đồ Hệ Thống Lọc Nước Giếng Khoan",
-    "position": 10,
-    "previousPosition": 11,
+    "position": 100,
+    "previousPosition": 10,
     "searchVolume": 1900,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/kinh-nghi-m-b-o-tr-s-c-r-a-c-t-l-c-s-h-th-ng-l-c-n-c/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Vật Liệu Lọc Nước Giếng Khoan Khử Sắt",
-    "position": 10,
-    "previousPosition": 11,
+    "position": 100,
+    "previousPosition": 10,
     "searchVolume": 1000,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/quy-tr-nh-x-l-n-c-t-chu-n-v-i-v-t-li-u-l-c-n-c-gi-ng-kho/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lắp Đặt Cột Lọc Nước Giếng Khoan Tận Nơi",
-    "position": 6,
+    "position": 100,
     "previousPosition": 6,
     "searchVolume": 600,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/ph-n-t-ch-k-thu-t-v-t-li-u-l-c-l-p-t-c-t-l-c-n-c-gi-ng-kho/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Cách Tự Làm Hệ Thống Lọc Nước Giếng Khoan",
-    "position": 9,
+    "position": 100,
     "previousPosition": 9,
     "searchVolume": 2100,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/kinh-nghi-m-b-o-tr-s-c-r-a-c-t-l-c-c-ch-t-l-m-h-th-ng-l-c/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Máy Lọc Nước Tinh Khiết RO Gia Đình",
-    "position": 5,
-    "previousPosition": 4,
+    "position": 100,
+    "previousPosition": 5,
     "searchVolume": 2000,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/quy-tr-nh-x-l-n-c-t-chu-n-v-i-m-y-l-c-n-c-tinh-khi-t-ro/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Thay Lõi Lọc Nước RO Định Kỳ Tại Nhà",
-    "position": 7,
-    "previousPosition": 8,
+    "position": 100,
+    "previousPosition": 7,
     "searchVolume": 500,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/giai-phap-loc-nuoc-tinh-khiet-ro-gia-dinh-dat-chuan-bo-y-te-moi-nhat-2026/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Bơm Áp Cao Máy Lọc Nước RO",
-    "position": 12,
-    "previousPosition": 13,
+    "position": 100,
+    "previousPosition": 12,
     "searchVolume": 800,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/huong-dan-loc-nuoc-tinh-khiet-chi-tiet-chuan-toi-uu-moi-nhat-cho-gia-dinh/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Chỉ Số TDS Nước RO Đạt Chuẩn Bộ Y Tế",
-    "position": 6,
-    "previousPosition": 5,
+    "position": 100,
+    "previousPosition": 6,
     "searchVolume": 700,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/huong-dan-loc-nuoc-phen-chi-tiet-giai-phap-loc-nuoc-phen/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Phèn Sắt Mangan Chuẩn Y Tế",
-    "position": 13,
-    "previousPosition": 12,
+    "position": 100,
+    "previousPosition": 13,
     "searchVolume": 2100,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/huong-dan-he-thong-loc-nuoc-nhiem-phen-nang-cho-gia-dinh-chi-t/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Hệ Thống Khử Đá Vôi Nước Giếng Khoan",
-    "position": 3,
-    "previousPosition": 4,
+    "position": 100,
+    "previousPosition": 3,
     "searchVolume": 1700,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/huong-dan-he-thong-loc-nuoc-tinh-khiet-ro-cho-gia-dinh-chi-tie/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Xử Lý Nước Giếng Cặn Vàng Đóng Bể",
-    "position": 2,
+    "position": 100,
     "previousPosition": 2,
     "searchVolume": 1800,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/huong-dan-cach-xu-ly-nuoc-gieng-khoan-bi-nhiem-phen-nang-chi-t/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Cột Lọc Composite 1054 Khử Phèn",
-    "position": 4,
-    "previousPosition": 3,
+    "position": 100,
+    "previousPosition": 4,
     "searchVolume": 1500,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/huong-dan-xu-ly-nuoc-phen-hieu-qua-cho-gia-dinh-chi-tiet-giai/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Cột Lọc Inox 304 Khử Clo Sinh Hoạt",
-    "position": 5,
+    "position": 100,
     "previousPosition": 5,
     "searchVolume": 1200,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/l-tr-nh-kh-o-s-t-thi-c-ng-c-t-l-c-inox-304-kh-clo-sinh-ho-t/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Than Hoạt Tính Jacobi Khử Mùi Nước",
-    "position": 1,
+    "position": 100,
     "previousPosition": 1,
     "searchVolume": 1200,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/so-s-nh-hi-u-qu-chi-ph-u-t-than-ho-t-t-nh-jacobi-kh-m/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Hạt Birm USA Khử Sắt Không Dùng Hóa Chất",
-    "position": 13,
+    "position": 100,
     "previousPosition": 13,
     "searchVolume": 800,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/nh-gi-chi-ti-t-gi-i-ph-p-h-t-birm-usa-kh-s-t-kh-ng-d-ng-h/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Cát Thạch Anh Lọc Nước Giếng Khoan",
-    "position": 8,
+    "position": 100,
     "previousPosition": 8,
     "searchVolume": 2000,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/ph-n-t-ch-k-thu-t-v-t-li-u-l-c-c-t-th-ch-anh-l-c-n-c-gi-ng-k/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Sỏi Thạch Anh Lót Đáy Cột Lọc",
-    "position": 15,
+    "position": 100,
     "previousPosition": 15,
     "searchVolume": 600,
-    "trend": "same",
-    "targetUrl": "https://xulynuochoasen.com/l-tr-nh-kh-o-s-t-thi-c-ng-s-i-th-ch-anh-l-t-y-c-t-l-c-2026/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Hạt Nâng pH Flomag USA Cân Bằng Nước",
-    "position": 2,
-    "previousPosition": 1,
+    "position": 100,
+    "previousPosition": 2,
     "searchVolume": 600,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/c-m-nang-h-t-n-ng-ph-flomag-usa-c-n-b-ng-n-c-t-a-z-b-o-v-s/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   },
   {
     "keyword": "Lọc Nước Sinh Hoạt Chung Cư",
-    "position": 3,
-    "previousPosition": 4,
+    "position": 100,
+    "previousPosition": 3,
     "searchVolume": 1600,
-    "trend": "up",
-    "targetUrl": "https://xulynuochoasen.com/b-quy-t-ch-n-mua-h-th-ng-l-c-n-c-sinh-ho-t-chung-c-b-n-b/",
-    "lastChecked": "2026-09-11T16:12:09.722Z",
-    "isLive": false
+    "trend": "down",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "lastChecked": "2026-09-11T19:31:58.467Z",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-11",
+        "position": 100,
+        "isLive": true
+      }
+    ]
   }
 ]
