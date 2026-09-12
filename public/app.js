@@ -2967,13 +2967,154 @@ function initKeywordClusteringUI() {
   }
 }
 
-/* --- Custom Media UI Handlers --- */
-async function loadCustomMediaGallery() {
+let activeCustomMediaKho = 'kho_1';
+let currentMediaItemsCache = [];
+let selectedMediaIds = new Set();
+
+let KHO_METADATA = {
+  kho_1: {
+    name: 'Kho 1: Lọc Nước Sinh Hoạt / Giếng Khoan / Phèn',
+    shortName: 'Sinh Hoạt / Giếng / Phèn',
+    badge: '📁 Đang Mở Kho 1: Sinh Hoạt & Giếng Khoan',
+    badgeBg: '#0ea5e9',
+    desc: 'Hình ảnh thực tế các mẫu bình lọc composite 2 hoặc 3 bình nhỏ gọn gia đình, cột lọc inox sinh hoạt trên mái nhà, bồn nước, ban công.',
+    rotateBtnText: '🔄 Xoay Vòng Riêng Kho 1 Vào Bài Viết'
+  },
+  kho_2: {
+    name: 'Kho 2: Lọc Nước Công Nghiệp',
+    shortName: 'Nước Công Nghiệp',
+    badge: '🏭 Đang Mở Kho 2: Nước Công Nghiệp',
+    badgeBg: '#f59e0b',
+    desc: 'Bình lọc to, đường kính lớn, bồn xưởng composite cỡ lớn hoặc bồn inox công nghiệp có cửa thăm manhole/mặt bích tròn, tủ điện tự động.',
+    rotateBtnText: '🔄 Xoay Vòng Riêng Kho 2 Vào Bài Viết'
+  },
+  kho_3: {
+    name: 'Kho 3: Lọc Nước Mặn & Lọc Nước Tinh Khiết RO',
+    shortName: 'Mặn & Tinh Khiết RO',
+    badge: '💧 Đang Mở Kho 3: Mặn & Tinh Khiết RO',
+    badgeBg: '#10b981',
+    desc: 'Khung máy inox, vỏ màng RO composite màu trắng và vỏ màng inox 304 sáng bóng, bơm cao áp trục đứng, đồng hồ đo áp lực, lưu lượng kế.',
+    rotateBtnText: '🔄 Xoay Vòng Riêng Kho 3 Vào Bài Viết'
+  },
+  all: {
+    name: 'Tổng Kho Tất Cả Hình Ảnh Thực Tế',
+    shortName: 'Tổng Kho',
+    badge: '📦 Đang Mở Tổng Kho (Tất Cả 3 Kho)',
+    badgeBg: '#8b5cf6',
+    desc: 'Xem toàn bộ hình ảnh thực tế từ cả 3 kho kỹ thuật đã phân loại và sẵn sàng đưa vào bài viết.',
+    rotateBtnText: '🔄 Xoay Vòng Kho Này Vào Bài Viết'
+  }
+};
+
+async function loadKhoConfig() {
   try {
-    const res = await fetch('/api/media');
+    const res = await fetch('/api/kho/config');
+    const data = await res.json();
+    if (data.success && data.data) {
+      Object.keys(data.data).forEach(k => {
+        if (!KHO_METADATA[k]) KHO_METADATA[k] = {};
+        KHO_METADATA[k].name = data.data[k].name || KHO_METADATA[k].name;
+        KHO_METADATA[k].shortName = data.data[k].shortName || KHO_METADATA[k].shortName;
+        KHO_METADATA[k].desc = data.data[k].desc || KHO_METADATA[k].desc;
+        KHO_METADATA[k].badge = `📁 Đang Mở ${data.data[k].name || k}`;
+
+        const domId = k.replace('_', '-');
+        const titleEl = document.getElementById(`card-title-${domId}`);
+        const descEl = document.getElementById(`card-desc-${domId}`);
+        if (titleEl) titleEl.textContent = data.data[k].name;
+        if (descEl) descEl.textContent = data.data[k].desc;
+      });
+    }
+  } catch (e) {
+    console.warn('Cannot load kho config:', e);
+  }
+}
+
+function switchActiveKho(kho) {
+  activeCustomMediaKho = kho;
+  selectedMediaIds.clear();
+  updateBulkToolbarUI();
+
+  // Highlight active Kho card
+  const cards = {
+    kho_1: document.getElementById('card-tab-kho-1'),
+    kho_2: document.getElementById('card-tab-kho-2'),
+    kho_3: document.getElementById('card-tab-kho-3')
+  };
+
+  const btnAll = document.getElementById('btn-show-all-media');
+
+  Object.entries(cards).forEach(([k, cardEl]) => {
+    if (!cardEl) return;
+    if (k === kho) {
+      cardEl.classList.add('active');
+      if (k === 'kho_1') {
+        cardEl.style.border = '2px solid #0ea5e9';
+        cardEl.style.background = 'rgba(14, 165, 233, 0.12)';
+        cardEl.style.boxShadow = '0 0 20px rgba(14, 165, 233, 0.25)';
+      } else if (k === 'kho_2') {
+        cardEl.style.border = '2px solid #f59e0b';
+        cardEl.style.background = 'rgba(245, 158, 11, 0.12)';
+        cardEl.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.25)';
+      } else if (k === 'kho_3') {
+        cardEl.style.border = '2px solid #10b981';
+        cardEl.style.background = 'rgba(16, 185, 129, 0.12)';
+        cardEl.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.25)';
+      }
+    } else {
+      cardEl.classList.remove('active');
+      cardEl.style.border = '1px solid var(--border-color)';
+      cardEl.style.background = 'var(--card-bg)';
+      cardEl.style.boxShadow = 'none';
+    }
+  });
+
+  if (btnAll) {
+    if (kho === 'all') {
+      btnAll.classList.add('active');
+      btnAll.style.background = 'rgba(139, 92, 246, 0.25)';
+      btnAll.style.borderColor = '#a855f7';
+      btnAll.style.color = '#c084fc';
+    } else {
+      btnAll.classList.remove('active');
+      btnAll.style.background = 'rgba(255, 255, 255, 0.05)';
+      btnAll.style.borderColor = 'var(--border-color)';
+      btnAll.style.color = 'var(--text-muted)';
+    }
+  }
+
+  // Update Header details
+  const meta = KHO_METADATA[kho] || KHO_METADATA.all;
+  const badgeEl = document.getElementById('active-kho-badge');
+  const titleEl = document.getElementById('active-kho-title');
+  const descEl = document.getElementById('active-kho-desc');
+  const rotateBtn = document.getElementById('btn-rotate-active-kho');
+
+  if (badgeEl) {
+    badgeEl.textContent = meta.badge;
+    badgeEl.style.background = meta.badgeBg;
+  }
+  if (titleEl) titleEl.textContent = meta.name;
+  if (descEl) descEl.textContent = meta.desc;
+  if (rotateBtn) rotateBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> ${meta.rotateBtnText}`;
+
+  loadCustomMediaGallery(kho);
+}
+
+async function loadCustomMediaGallery(kho = activeCustomMediaKho) {
+  try {
+    const res = await fetch(`/api/media?kho=${encodeURIComponent(kho)}`);
     const data = await res.json();
     if (data.success) {
-      renderCustomMediaGrid(data.data || []);
+      if (data.stats) {
+        const setStat = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setStat('stat-kho-all', data.stats.all);
+        setStat('stat-kho-1', data.stats.kho_1);
+        setStat('stat-kho-2', data.stats.kho_2);
+        setStat('stat-kho-3', data.stats.kho_3);
+      }
+      currentMediaItemsCache = data.data || [];
+      renderCustomMediaGrid(currentMediaItemsCache);
     }
   } catch (err) {
     console.error('Error loading custom media:', err);
@@ -3008,50 +3149,187 @@ function rotateImageClient(imgUrl, degrees = 90) {
   });
 }
 
+function updateBulkToolbarUI() {
+  const countEl = document.getElementById('selected-media-count');
+  const btnGroup = document.getElementById('bulk-action-buttons');
+  const checkAll = document.getElementById('check-select-all');
+
+  const count = selectedMediaIds.size;
+  if (countEl) countEl.textContent = count;
+
+  if (btnGroup) {
+    if (count > 0) {
+      btnGroup.style.opacity = '1';
+      btnGroup.style.pointerEvents = 'auto';
+    } else {
+      btnGroup.style.opacity = '0.4';
+      btnGroup.style.pointerEvents = 'none';
+    }
+  }
+
+  if (checkAll && currentMediaItemsCache.length > 0) {
+    checkAll.checked = count === currentMediaItemsCache.length;
+    checkAll.indeterminate = count > 0 && count < currentMediaItemsCache.length;
+  }
+}
+
 function renderCustomMediaGrid(mediaList) {
   const grid = document.getElementById('custom-media-gallery-grid');
-  const countEl = document.getElementById('custom-media-count');
   if (!grid) return;
 
   grid.innerHTML = '';
-  if (countEl) countEl.textContent = mediaList.length;
+  selectedMediaIds.clear();
+  updateBulkToolbarUI();
 
   if (mediaList.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 30px;">Chưa có ảnh thực tế nào. Hãy chọn ảnh từ máy tính hoặc dán link Google Drive bên trên để bắt đầu!</div>`;
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 50px 20px; background: rgba(15, 23, 42, 0.4); border-radius: 12px; border: 1px dashed var(--border-color);">
+      <i class="fa-solid fa-folder-open" style="font-size: 2.8rem; color: #64748b; margin-bottom: 12px; display: block;"></i>
+      <div style="font-weight: 600; font-size: 1rem; color: #fff; margin-bottom: 6px;">Kho này hiện chưa có ảnh nào</div>
+      <div style="font-size: 0.85rem; color: var(--text-muted); max-width: 480px; margin: 0 auto;">
+        Anh có thể bấm nút "Tải Thêm Ảnh Vào Kho Này" ở trên để tải ảnh từ máy tính hoặc dán link Google Drive nhé!
+      </div>
+    </div>`;
     return;
   }
 
   mediaList.forEach(m => {
     const card = document.createElement('div');
-    card.style.cssText = 'background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; position: relative;';
+    card.className = 'custom-media-card';
+    card.style.cssText = 'background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2);';
 
-    const tagBadge = m.tagKeyword ? `<span style="position: absolute; top: 6px; left: 6px; background: rgba(14, 165, 233, 0.9); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; z-index: 2;">${escapeHtml(m.tagKeyword)}</span>` : '<span style="position: absolute; top: 6px; left: 6px; background: rgba(100, 116, 139, 0.8); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; z-index: 2;">Dùng chung</span>';
+    const mKho = m.kho || (
+      (m.tagKeyword || '').toLowerCase().includes('công nghiệp') ? 'kho_2' :
+      ((m.tagKeyword || '').toLowerCase().includes('mặn') || (m.tagKeyword || '').toLowerCase().includes('tinh khiết')) ? 'kho_3' : 'kho_1'
+    );
+
+    let badgeHtml = '';
+    if (mKho === 'kho_1') {
+      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(14, 165, 233, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-house-chimney"></i> Kho 1</span>`;
+    } else if (mKho === 'kho_2') {
+      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(245, 158, 11, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-industry"></i> Kho 2</span>`;
+    } else if (mKho === 'kho_3') {
+      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(16, 185, 129, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-water"></i> Kho 3</span>`;
+    }
 
     const driveIcon = m.isDrive ? '<i class="fa-brands fa-google-drive" style="color: #4285f4; margin-right: 4px;"></i>' : '<i class="fa-solid fa-image" style="color: #10b981; margin-right: 4px;"></i>';
 
     card.innerHTML = `
-      ${tagBadge}
-      <div style="width: 100%; height: 130px; background: #000; overflow: hidden; position: relative;">
-        <img src="${m.url}" alt="${escapeHtml(m.tagKeyword || 'Custom Image')}" style="width: 100%; height: 100%; object-fit: cover;">
+      <!-- Checkbox Select -->
+      <label style="position: absolute; top: 8px; left: 8px; z-index: 3; margin: 0; cursor: pointer;">
+        <input type="checkbox" class="check-media-item" data-id="${m.id}" style="width: 17px; height: 17px; cursor: pointer; accent-color: var(--accent-primary);">
+      </label>
+      ${badgeHtml}
+
+      <!-- Image Box -->
+      <div style="width: 100%; height: 140px; background: #0b0f19; overflow: hidden; position: relative;">
+        <img src="${m.url}" alt="${escapeHtml(m.alt || m.tagKeyword || 'Ảnh công trình Hoa Sen')}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
         <button class="btn-rotate-media" data-id="${m.id}" title="Xoay 90° sang phải" style="position: absolute; bottom: 6px; right: 6px; background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-color); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; z-index: 2;">
-          <i class="fa-solid fa-rotate-right"></i> Xoay 90°
+          <i class="fa-solid fa-rotate-right"></i>
         </button>
       </div>
-      <div style="padding: 10px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.6);">
-        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; color: var(--text-muted);" title="${escapeHtml(m.filename || 'Ảnh')}">${driveIcon}${escapeHtml(m.filename || 'Ảnh')}</span>
-        <button class="btn-delete-media" data-id="${m.id}" title="Xóa ảnh" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 2px 6px;">
-          <i class="fa-solid fa-trash-can"></i>
-        </button>
+
+      <!-- Card Details & Actions -->
+      <div style="padding: 10px; background: rgba(15, 23, 42, 0.7); display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; color: #fff; font-weight: 600; font-size: 0.82rem;" title="${escapeHtml(m.title || m.filename || 'Ảnh')}">
+              ${driveIcon}${escapeHtml(m.title || m.filename || 'Ảnh')}
+            </span>
+            <div style="display: flex; gap: 2px;">
+              <button class="btn-edit-media" data-id="${m.id}" title="Chỉnh sửa chi tiết" style="background: none; border: none; color: #38bdf8; cursor: pointer; padding: 3px 5px; font-size: 0.82rem;">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button class="btn-delete-media" data-id="${m.id}" title="Xóa ảnh" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 3px 5px; font-size: 0.82rem;">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+          ${m.features ? `<div style="font-size: 0.72rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(m.features)}">${escapeHtml(m.features)}</div>` : ''}
+        </div>
+
+        <!-- Quick Kho Selector -->
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <select class="select-change-kho" data-id="${m.id}" style="width: 100%; background: rgba(30, 41, 59, 0.95); border: 1px solid var(--border-color); color: #e2e8f0; font-size: 0.75rem; border-radius: 4px; padding: 3px 6px; cursor: pointer;">
+            <option value="kho_1" ${mKho === 'kho_1' ? 'selected' : ''}>📁 Kho 1: Sinh Hoạt / Giếng / Phèn</option>
+            <option value="kho_2" ${mKho === 'kho_2' ? 'selected' : ''}>🏭 Kho 2: Công Nghiệp</option>
+            <option value="kho_3" ${mKho === 'kho_3' ? 'selected' : ''}>💧 Kho 3: Mặn / RO Tinh Khiết</option>
+          </select>
+        </div>
       </div>
     `;
     grid.appendChild(card);
   });
 
-  // Attach delete listeners
-  document.querySelectorAll('.btn-delete-media').forEach(btn => {
+  // Checkbox item change
+  grid.querySelectorAll('.check-media-item').forEach(chk => {
+    chk.addEventListener('change', (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      if (e.currentTarget.checked) {
+        selectedMediaIds.add(id);
+      } else {
+        selectedMediaIds.delete(id);
+      }
+      updateBulkToolbarUI();
+    });
+  });
+
+  // Quick Kho Changer
+  grid.querySelectorAll('.select-change-kho').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      const newKho = e.currentTarget.value;
+      try {
+        const res = await fetch('/api/media/update-kho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, kho: newKho })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Đã chuyển kho ảnh thành công!', 'success');
+          loadCustomMediaGallery(activeCustomMediaKho);
+        } else {
+          showToast(data.message || 'Lỗi khi chuyển kho', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi đổi kho ảnh', 'error');
+      }
+    });
+  });
+
+  // Edit Image Modal Trigger
+  grid.querySelectorAll('.btn-edit-media').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      const item = currentMediaItemsCache.find(m => m.id === id);
+      if (!item) return;
+
+      const modal = document.getElementById('edit-media-modal');
+      const idInput = document.getElementById('edit-media-id');
+      const previewImg = document.getElementById('edit-media-preview-img');
+      const filenameSub = document.getElementById('edit-media-filename-sub');
+      const khoSelect = document.getElementById('edit-media-kho-select');
+      const titleInput = document.getElementById('edit-media-title-input');
+      const altInput = document.getElementById('edit-media-alt-input');
+      const featuresInput = document.getElementById('edit-media-features-input');
+
+      if (idInput) idInput.value = item.id;
+      if (previewImg) previewImg.src = item.url;
+      if (filenameSub) filenameSub.textContent = item.filename || item.id;
+      if (khoSelect) khoSelect.value = item.kho || 'kho_1';
+      if (titleInput) titleInput.value = item.title || item.filename || '';
+      if (altInput) altInput.value = item.alt || item.tagKeyword || '';
+      if (featuresInput) featuresInput.value = item.features || '';
+
+      if (modal) modal.style.display = 'flex';
+    });
+  });
+
+  // Delete listeners
+  grid.querySelectorAll('.btn-delete-media').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const id = e.currentTarget.getAttribute('data-id');
-      if (!confirm('Anh có chắc muốn xóa hình ảnh này khỏi thư viện không?')) return;
+      if (!confirm('Anh có chắc muốn xóa hình ảnh này khỏi kho không?')) return;
       try {
         const res = await fetch('/api/media/delete', {
           method: 'POST',
@@ -3060,8 +3338,8 @@ function renderCustomMediaGrid(mediaList) {
         });
         const data = await res.json();
         if (data.success) {
-          showToast('Đã xóa ảnh khỏi thư viện!', 'success');
-          loadCustomMediaGallery();
+          showToast('Đã xóa ảnh khỏi kho thành công!', 'success');
+          loadCustomMediaGallery(activeCustomMediaKho);
         }
       } catch (err) {
         showToast('Lỗi khi xóa ảnh', 'error');
@@ -3069,15 +3347,15 @@ function renderCustomMediaGrid(mediaList) {
     });
   });
 
-  // Attach rotate listeners
-  document.querySelectorAll('.btn-rotate-media').forEach(btn => {
+  // Rotate listeners
+  grid.querySelectorAll('.btn-rotate-media').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const id = e.currentTarget.getAttribute('data-id');
       const cardImg = e.currentTarget.parentElement.querySelector('img');
       if (!cardImg) return;
 
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Xoay...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
 
       try {
         const rotatedBase64 = await rotateImageClient(cardImg.src, 90);
@@ -3095,20 +3373,196 @@ function renderCustomMediaGrid(mediaList) {
         showToast('Lỗi khi xoay ảnh', 'error');
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-rotate-right"></i> Xoay 90°`;
+        btn.innerHTML = `<i class="fa-solid fa-rotate-right"></i>`;
       }
     });
   });
 }
 
 function initCustomMediaUI() {
+  // 1. Bind the 3 Big Kho Cards & All Media Button
+  const cardKho1 = document.getElementById('card-tab-kho-1');
+  const cardKho2 = document.getElementById('card-tab-kho-2');
+  const cardKho3 = document.getElementById('card-tab-kho-3');
+  const btnShowAll = document.getElementById('btn-show-all-media');
+
+  if (cardKho1) cardKho1.addEventListener('click', () => switchActiveKho('kho_1'));
+  if (cardKho2) cardKho2.addEventListener('click', () => switchActiveKho('kho_2'));
+  if (cardKho3) cardKho3.addEventListener('click', () => switchActiveKho('kho_3'));
+  if (btnShowAll) btnShowAll.addEventListener('click', () => switchActiveKho('all'));
+
+  // 2. Toggle Upload Box
+  const btnToggleUpload = document.getElementById('btn-toggle-upload-box');
+  const uploadPanel = document.getElementById('kho-upload-panel');
+  if (btnToggleUpload && uploadPanel) {
+    btnToggleUpload.addEventListener('click', () => {
+      const isHidden = uploadPanel.style.display === 'none' || !uploadPanel.style.display;
+      uploadPanel.style.display = isHidden ? 'block' : 'none';
+      btnToggleUpload.innerHTML = isHidden
+        ? `<i class="fa-solid fa-chevron-up"></i> Đóng Khung Tải Ảnh`
+        : `<i class="fa-solid fa-cloud-arrow-up"></i> Tải Thêm Ảnh Vào Kho Này`;
+    });
+  }
+
+  // 3. Rotate Active Kho into Posts
+  const btnRotateActiveKho = document.getElementById('btn-rotate-active-kho');
+  if (btnRotateActiveKho) {
+    btnRotateActiveKho.addEventListener('click', async () => {
+      const targetKho = (activeCustomMediaKho === 'all') ? 'kho_1' : activeCustomMediaKho;
+      btnRotateActiveKho.disabled = true;
+      btnRotateActiveKho.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang Xoay Vòng...`;
+
+      try {
+        const res = await fetch('/api/media/rotate-kho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ khoId: targetKho })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Đã xoay vòng ảnh thành công!', 'success');
+          loadPostsList();
+        } else {
+          showToast(data.message || 'Không thể xoay vòng kho này', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi xoay vòng kho', 'error');
+      } finally {
+        btnRotateActiveKho.disabled = false;
+        const meta = KHO_METADATA[activeCustomMediaKho] || KHO_METADATA.all;
+        btnRotateActiveKho.innerHTML = `<i class="fa-solid fa-rotate"></i> ${meta.rotateBtnText}`;
+      }
+    });
+  }
+
+  // 4. Select All Checkbox
+  const checkSelectAll = document.getElementById('check-select-all');
+  if (checkSelectAll) {
+    checkSelectAll.addEventListener('change', (e) => {
+      const isChecked = e.currentTarget.checked;
+      const allCheckboxes = document.querySelectorAll('.check-media-item');
+      selectedMediaIds.clear();
+      allCheckboxes.forEach(chk => {
+        chk.checked = isChecked;
+        if (isChecked) selectedMediaIds.add(chk.getAttribute('data-id'));
+      });
+      updateBulkToolbarUI();
+    });
+  }
+
+  // 5. Bulk Move
+  document.querySelectorAll('.btn-bulk-move').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const targetKho = e.currentTarget.getAttribute('data-target');
+      const ids = Array.from(selectedMediaIds);
+      if (ids.length === 0) return showToast('Vui lòng chọn ít nhất 1 ảnh để chuyển kho.', 'error');
+
+      const KHO_NAMES = { kho_1: 'Kho 1', kho_2: 'Kho 2', kho_3: 'Kho 3' };
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/media/bulk-update-kho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids, kho: targetKho })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Đã chuyển thành công ${data.updatedCount} ảnh sang ${KHO_NAMES[targetKho]}!`, 'success');
+          loadCustomMediaGallery(activeCustomMediaKho);
+        } else {
+          showToast(data.message || 'Lỗi khi chuyển kho hàng loạt', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi chuyển kho hàng loạt', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // 6. Bulk Delete
+  const btnBulkDelete = document.getElementById('btn-bulk-delete');
+  if (btnBulkDelete) {
+    btnBulkDelete.addEventListener('click', async () => {
+      const ids = Array.from(selectedMediaIds);
+      if (ids.length === 0) return showToast('Vui lòng chọn ít nhất 1 ảnh để xóa.', 'error');
+      if (!confirm(`Anh có chắc chắn muốn xóa ${ids.length} ảnh đã chọn khỏi kho không?`)) return;
+
+      btnBulkDelete.disabled = true;
+      try {
+        const res = await fetch('/api/media/bulk-delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Đã xóa thành công ${data.deletedCount} ảnh!`, 'success');
+          loadCustomMediaGallery(activeCustomMediaKho);
+        } else {
+          showToast(data.message || 'Lỗi khi xóa hàng loạt', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi xóa hàng loạt', 'error');
+      } finally {
+        btnBulkDelete.disabled = false;
+      }
+    });
+  });
+
+  // 7. Edit Image Modal Save & Close
+  const modalEdit = document.getElementById('edit-media-modal');
+  const btnCloseModal = document.getElementById('btn-close-edit-media-modal');
+  const btnCancelModal = document.getElementById('btn-cancel-edit-media');
+  const btnSaveModal = document.getElementById('btn-save-edit-media');
+
+  const closeEditModal = () => { if (modalEdit) modalEdit.style.display = 'none'; };
+  if (btnCloseModal) btnCloseModal.addEventListener('click', closeEditModal);
+  if (btnCancelModal) btnCancelModal.addEventListener('click', closeEditModal);
+
+  if (btnSaveModal) {
+    btnSaveModal.addEventListener('click', async () => {
+      const id = document.getElementById('edit-media-id')?.value;
+      const kho = document.getElementById('edit-media-kho-select')?.value;
+      const title = document.getElementById('edit-media-title-input')?.value;
+      const alt = document.getElementById('edit-media-alt-input')?.value;
+      const features = document.getElementById('edit-media-features-input')?.value;
+
+      if (!id) return;
+
+      btnSaveModal.disabled = true;
+      btnSaveModal.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang Lưu...`;
+
+      try {
+        const res = await fetch('/api/media/edit-item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, kho, title, alt, features })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Đã lưu thông tin ảnh thành công!', 'success');
+          closeEditModal();
+          loadCustomMediaGallery(activeCustomMediaKho);
+        } else {
+          showToast(data.message || 'Lỗi khi lưu ảnh', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi lưu thông tin ảnh', 'error');
+      } finally {
+        btnSaveModal.disabled = false;
+        btnSaveModal.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi`;
+      }
+    });
+  }
+
+  // 8. Upload files directly into the active Kho
   const btnUpload = document.getElementById('btn-upload-custom-media');
   const fileInput = document.getElementById('custom-media-file-input');
-  const tagInput = document.getElementById('custom-media-tag-input');
   const dragZone = document.getElementById('media-drag-drop-zone');
 
   const processSelectedFiles = async (filesList) => {
-    const tag = tagInput ? tagInput.value.trim() : '';
+    const targetKho = (activeCustomMediaKho === 'all') ? 'kho_1' : activeCustomMediaKho;
     if (!filesList || filesList.length === 0) return showToast('Vui lòng chọn ít nhất 1 hình ảnh từ máy tính.', 'error');
 
     btnUpload.disabled = true;
@@ -3129,14 +3583,13 @@ function initCustomMediaUI() {
       const res = await fetch('/api/media/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ files: parsedFiles, tagKeyword: tag })
+        body: JSON.stringify({ files: parsedFiles, kho: targetKho })
       });
       const data = await res.json();
       if (data.success) {
         showToast(data.message || 'Tải ảnh lên thành công!', 'success');
         if (fileInput) fileInput.value = '';
-        if (tagInput) tagInput.value = '';
-        loadCustomMediaGallery();
+        loadCustomMediaGallery(activeCustomMediaKho);
       } else {
         showToast(data.message || 'Lỗi khi tải ảnh lên', 'error');
       }
@@ -3144,14 +3597,12 @@ function initCustomMediaUI() {
       showToast('Lỗi kết nối khi tải ảnh lên', 'error');
     } finally {
       btnUpload.disabled = false;
-      btnUpload.innerHTML = `<i class="fa-solid fa-upload"></i> Tải Ảnh Lên Thư Viện`;
+      btnUpload.innerHTML = `<i class="fa-solid fa-upload"></i> Tải Lên Kho Này`;
     }
   };
 
   if (btnUpload && fileInput) {
-    btnUpload.addEventListener('click', () => {
-      processSelectedFiles(fileInput.files);
-    });
+    btnUpload.addEventListener('click', () => processSelectedFiles(fileInput.files));
   }
 
   if (dragZone && fileInput) {
@@ -3162,17 +3613,18 @@ function initCustomMediaUI() {
     });
     dragZone.addEventListener('dragleave', (e) => {
       e.preventDefault();
-      dragZone.style.background = 'rgba(14, 165, 233, 0.06)';
+      dragZone.style.background = 'rgba(14, 165, 233, 0.05)';
     });
     dragZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dragZone.style.background = 'rgba(14, 165, 233, 0.06)';
+      dragZone.style.background = 'rgba(14, 165, 233, 0.05)';
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         processSelectedFiles(e.dataTransfer.files);
       }
     });
   }
 
+  // 9. Drive Link
   const btnDrive = document.getElementById('btn-add-drive-media');
   const driveUrlInput = document.getElementById('drive-media-url-input');
   const driveTagInput = document.getElementById('drive-media-tag-input');
@@ -3181,6 +3633,7 @@ function initCustomMediaUI() {
     btnDrive.addEventListener('click', async () => {
       const url = driveUrlInput.value.trim();
       const tag = driveTagInput ? driveTagInput.value.trim() : '';
+      const targetKho = (activeCustomMediaKho === 'all') ? 'kho_1' : activeCustomMediaKho;
       if (!url) return showToast('Vui lòng dán đường dẫn Google Drive', 'error');
 
       btnDrive.disabled = true;
@@ -3190,48 +3643,136 @@ function initCustomMediaUI() {
         const res = await fetch('/api/media/drive-link', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ driveUrl: url, tagKeyword: tag })
+          body: JSON.stringify({ driveUrl: url, tagKeyword: tag, kho: targetKho })
         });
         const data = await res.json();
         if (data.success) {
-          showToast('Đã kết nối ảnh Google Drive!', 'success');
+          showToast('Đã lưu link ảnh Google Drive thành công!', 'success');
           driveUrlInput.value = '';
           if (driveTagInput) driveTagInput.value = '';
-          loadCustomMediaGallery();
+          loadCustomMediaGallery(activeCustomMediaKho);
+        } else {
+          showToast(data.message || 'Lỗi khi lưu link Drive', 'error');
         }
       } catch (err) {
-        showToast('Lỗi khi kết nối Google Drive', 'error');
+        showToast('Lỗi kết nối Google Drive', 'error');
       } finally {
         btnDrive.disabled = false;
-        btnDrive.innerHTML = `<i class="fa-solid fa-link"></i> Thêm Link Ảnh Google Drive`;
+        btnDrive.innerHTML = `<i class="fa-solid fa-link"></i> Thêm Link Drive Vào Kho Này`;
       }
     });
   }
 
+  // 10. Rotate All Media
   const btnRotateAll = document.getElementById('btn-rotate-media-all');
   if (btnRotateAll) {
     btnRotateAll.addEventListener('click', async () => {
       btnRotateAll.disabled = true;
-      btnRotateAll.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang Xoay Vòng Kho Ảnh...`;
+      btnRotateAll.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang Xoay Vòng...`;
       try {
         const res = await fetch('/api/media/rotate-all', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-          showToast(data.message || 'Đã xoay vòng ảnh thành công!', 'success');
+          showToast(data.message || 'Đã xoay vòng toàn bộ kho ảnh vào bài viết!', 'success');
           loadPostsList();
         } else {
-          showToast(data.message || 'Không thể xoay vòng ảnh', 'error');
+          showToast(data.message || 'Không thể xoay vòng', 'error');
         }
       } catch (err) {
         showToast('Lỗi khi xoay vòng ảnh', 'error');
       } finally {
         btnRotateAll.disabled = false;
-        btnRotateAll.innerHTML = `<i class="fa-solid fa-sync"></i> Xoay Vòng Kho Ảnh Vào Tất Cả Bài Viết`;
+        btnRotateAll.innerHTML = `<i class="fa-solid fa-sync"></i> Xoay Vòng Toàn Bộ 3 Kho`;
       }
     });
   }
 
-  loadCustomMediaGallery();
+  // 11. Rename Kho Modal & Actions
+  const modalRename = document.getElementById('rename-kho-modal');
+  const btnCloseRename = document.getElementById('btn-close-rename-kho-modal');
+  const btnCancelRename = document.getElementById('btn-cancel-rename-kho');
+  const btnSaveRename = document.getElementById('btn-save-rename-kho');
+
+  const openRenameModal = (khoId) => {
+    const meta = KHO_METADATA[khoId] || {};
+    const targetInput = document.getElementById('rename-kho-target-id');
+    const label = document.getElementById('rename-kho-current-label');
+    const nameInput = document.getElementById('rename-kho-name-input');
+    const shortInput = document.getElementById('rename-kho-short-input');
+    const descInput = document.getElementById('rename-kho-desc-input');
+
+    if (targetInput) targetInput.value = khoId;
+    if (label) label.textContent = khoId.toUpperCase();
+    if (nameInput) nameInput.value = meta.name || '';
+    if (shortInput) shortInput.value = meta.shortName || '';
+    if (descInput) descInput.value = meta.desc || '';
+
+    if (modalRename) modalRename.style.display = 'flex';
+  };
+
+  const closeRenameModal = () => {
+    if (modalRename) modalRename.style.display = 'none';
+  };
+
+  if (btnCloseRename) btnCloseRename.addEventListener('click', closeRenameModal);
+  if (btnCancelRename) btnCancelRename.addEventListener('click', closeRenameModal);
+
+  document.querySelectorAll('.btn-rename-kho').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetKho = e.currentTarget.getAttribute('data-kho');
+      openRenameModal(targetKho);
+    });
+  });
+
+  const btnRenameActive = document.getElementById('btn-rename-active-kho');
+  if (btnRenameActive) {
+    btnRenameActive.addEventListener('click', () => {
+      const targetKho = (activeCustomMediaKho === 'all') ? 'kho_1' : activeCustomMediaKho;
+      openRenameModal(targetKho);
+    });
+  }
+
+  if (btnSaveRename) {
+    btnSaveRename.addEventListener('click', async () => {
+      const khoId = document.getElementById('rename-kho-target-id')?.value;
+      const name = document.getElementById('rename-kho-name-input')?.value;
+      const shortName = document.getElementById('rename-kho-short-input')?.value;
+      const desc = document.getElementById('rename-kho-desc-input')?.value;
+
+      if (!khoId || !name) return showToast('Vui lòng nhập tên kho mới.', 'error');
+
+      btnSaveRename.disabled = true;
+      btnSaveRename.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang Lưu...`;
+
+      try {
+        const res = await fetch('/api/kho/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ khoId, name, shortName, desc })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Đã đổi tên ${khoId.toUpperCase()} thành công!`, 'success');
+          closeRenameModal();
+          await loadKhoConfig();
+          switchActiveKho(activeCustomMediaKho);
+        } else {
+          showToast(data.message || 'Lỗi khi đổi tên kho', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi đổi tên kho', 'error');
+      } finally {
+        btnSaveRename.disabled = false;
+        btnSaveRename.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Lưu Tên Kho Mới`;
+      }
+    });
+  }
+
+  // Load kho config & initialize with Kho 1 active by default
+  loadKhoConfig().then(() => {
+    switchActiveKho('kho_1');
+  });
 }
 
 /* ==========================================================================

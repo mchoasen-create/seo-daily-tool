@@ -3,7 +3,12 @@ const {
   getTwoDistinctRotatedImages, 
   getMediaGallery, 
   updatePostImages, 
-  randomizePostImages 
+  randomizePostImages,
+  rotateKhoMediaToPosts,
+  bulkUpdateKho,
+  bulkDeleteMedia,
+  syncKhoFiles,
+  saveCustomMedia: saveCustomMediaCore
 } = require('./lib/custom_media');
 const { 
   crawlAllBlogPosts, 
@@ -48,7 +53,7 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 }
 
 /* ==========================================================================
-   CUSTOM MEDIA LIBRARY API ENDPOINTS
+   CUSTOM MEDIA LIBRARY API ENDPOINTS (3 KHO ĐỘC LẬP & ĐỒNG BỘ)
    ========================================================================== */
 const CUSTOM_MEDIA_FILE = path.join(DATA_DIR, 'custom_media.json');
 
@@ -62,19 +67,166 @@ function getCustomMedia() {
 }
 
 function saveCustomMedia(list) {
-  fs.writeFileSync(CUSTOM_MEDIA_FILE, JSON.stringify(list, null, 2), 'utf-8');
+  if (typeof saveCustomMediaCore === 'function') {
+    saveCustomMediaCore(list);
+  } else {
+    fs.writeFileSync(CUSTOM_MEDIA_FILE, JSON.stringify(list, null, 2), 'utf-8');
+    if (typeof syncKhoFiles === 'function') syncKhoFiles(list);
+  }
 }
 
 app.get('/api/media', (req, res) => {
   const mediaList = getCustomMedia();
-  res.json({ success: true, count: mediaList.length, data: mediaList });
+  const { kho = 'all' } = req.query;
+  
+  // Calculate statistics for 3 Kho
+  const stats = {
+    all: mediaList.length,
+    kho_1: mediaList.filter(m => m.kho === 'kho_1' || (!m.kho && (m.tagKeyword || '').toLowerCase().includes('sinh hoạt'))).length,
+    kho_2: mediaList.filter(m => m.kho === 'kho_2' || (!m.kho && (m.tagKeyword || '').toLowerCase().includes('công nghiệp'))).length,
+    kho_3: mediaList.filter(m => m.kho === 'kho_3' || (!m.kho && ((m.tagKeyword || '').toLowerCase().includes('mặn') || (m.tagKeyword || '').toLowerCase().includes('tinh khiết')))).length
+  };
+
+  let filtered = mediaList;
+  if (kho && kho !== 'all') {
+    filtered = mediaList.filter(m => {
+      if (m.kho === kho) return true;
+      if (!m.kho) {
+        if (kho === 'kho_1' && (m.tagKeyword || '').toLowerCase().includes('sinh hoạt')) return true;
+        if (kho === 'kho_2' && (m.tagKeyword || '').toLowerCase().includes('công nghiệp')) return true;
+        if (kho === 'kho_3' && ((m.tagKeyword || '').toLowerCase().includes('mặn') || (m.tagKeyword || '').toLowerCase().includes('tinh khiết'))) return true;
+      }
+      return false;
+    });
+  }
+
+  res.json({ success: true, count: filtered.length, stats, data: filtered });
+});
+
+// Quản lý cấu hình tên gọi & mô tả của 3 Kho
+const KHO_CONFIG_FILE = path.join(DATA_DIR, 'kho_config.json');
+
+function getKhoConfig() {
+  const defaults = {
+    kho_1: {
+      name: 'Kho 1: Lọc Nước Sinh Hoạt / Giếng Khoan / Phèn',
+      shortName: 'Sinh Hoạt / Giếng / Phèn',
+      desc: 'Cột lọc Composite, Cột Inox 2-3 bình nhỏ gọn cho gia đình, sân thượng, bồn nước, ban công.'
+    },
+    kho_2: {
+      name: 'Kho 2: Lọc Nước Công Nghiệp',
+      shortName: 'Nước Công Nghiệp',
+      desc: 'Bình lọc to, đường kính lớn, bồn xưởng, bồn composite công nghiệp cỡ lớn hoặc bồn inox công nghiệp có cửa thăm manhole/mặt bích tròn.'
+    },
+    kho_3: {
+      name: 'Kho 3: Lọc Nước Mặn & Lọc Nước Tinh Khiết RO',
+      shortName: 'Mặn & Tinh Khiết RO',
+      desc: 'Khung máy inox, vỏ màng RO composite trắng và vỏ màng inox 304 sáng bóng, bơm cao áp trục đứng, đồng hồ đo áp lực, lưu lượng kế.'
+    }
+  };
+  if (!fs.existsSync(KHO_CONFIG_FILE)) {
+    try { fs.writeFileSync(KHO_CONFIG_FILE, JSON.stringify(defaults, null, 2), 'utf8'); } catch (e) {}
+    return defaults;
+  }
+  try {
+    return JSON.parse(fs.readFileSync(KHO_CONFIG_FILE, 'utf8') || '{}');
+  } catch (e) {
+    return defaults;
+  }
+}
+
+app.get('/api/kho/config', (req, res) => {
+  res.json({ success: true, data: getKhoConfig() });
+});
+
+app.post('/api/kho/config', (req, res) => {
+  const { khoId, name, desc, shortName } = req.body;
+  if (!khoId || !name) return res.status(400).json({ success: false, message: 'Thiếu mã kho hoặc tên kho mới.' });
+  const config = getKhoConfig();
+  if (!config[khoId]) config[khoId] = {};
+  if (name) config[khoId].name = name.trim();
+  if (desc !== undefined) config[khoId].desc = desc.trim();
+  if (shortName) config[khoId].shortName = shortName.trim();
+
+  try {
+    fs.writeFileSync(KHO_CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
+  } catch (e) {}
+  res.json({ success: true, message: `Đã đổi tên ${khoId} thành công!`, data: config });
+});
+
+// Lấy danh sách ảnh riêng biệt của 1 kho trực tiếp
+app.get('/api/media/kho/:khoId', (req, res) => {
+  const { khoId } = req.params;
+  const mediaList = getCustomMedia();
+  const filtered = mediaList.filter(m => m.kho === khoId);
+  res.json({ success: true, count: filtered.length, khoId, data: filtered });
+});
+
+// Chỉnh sửa chi tiết một hình ảnh (Tiêu đề, Alt, Ghi chú, Kho)
+app.post('/api/media/edit-item', (req, res) => {
+  const { id, kho, title, alt, features, tagKeyword } = req.body;
+  if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID ảnh cần sửa.' });
+
+  const KHO_TAGS = {
+    kho_1: 'Lọc Nước Sinh Hoạt, Giếng Khoan, Phèn',
+    kho_2: 'Lọc Nước Công Nghiệp',
+    kho_3: 'Lọc Nước Mặn, Tinh Khiết RO'
+  };
+
+  const mediaList = getCustomMedia();
+  const item = mediaList.find(m => m.id === id);
+  if (!item) return res.status(404).json({ success: false, message: 'Không tìm thấy ảnh.' });
+
+  if (kho) {
+    item.kho = kho;
+    item.categoryName = KHO_TAGS[kho] || kho;
+  }
+  if (title !== undefined) item.title = title.trim();
+  if (alt !== undefined) item.alt = alt.trim();
+  if (features !== undefined) item.features = features.trim();
+  if (tagKeyword !== undefined && tagKeyword.trim()) {
+    item.tagKeyword = tagKeyword.trim();
+  } else if (kho) {
+    item.tagKeyword = KHO_TAGS[kho] || kho;
+  }
+
+  saveCustomMedia(mediaList);
+  res.json({ success: true, message: 'Đã cập nhật thông tin ảnh thành công!', data: item });
+});
+
+app.post('/api/media/update-kho', (req, res) => {
+  const { id, kho } = req.body;
+  if (!id || !kho) return res.status(400).json({ success: false, message: 'Thiếu id hoặc kho cần chuyển.' });
+  
+  const KHO_TAGS = {
+    kho_1: 'Lọc Nước Sinh Hoạt, Giếng Khoan, Phèn',
+    kho_2: 'Lọc Nước Công Nghiệp',
+    kho_3: 'Lọc Nước Mặn, Tinh Khiết RO'
+  };
+
+  const mediaList = getCustomMedia();
+  const item = mediaList.find(m => m.id === id);
+  if (!item) return res.status(404).json({ success: false, message: 'Không tìm thấy ảnh.' });
+
+  item.kho = kho;
+  item.tagKeyword = KHO_TAGS[kho] || kho;
+  item.categoryName = KHO_TAGS[kho] || kho;
+
+  saveCustomMedia(mediaList);
+  res.json({ success: true, message: `Đã chuyển ảnh sang ${KHO_TAGS[kho] || kho}!`, data: item });
 });
 
 app.post('/api/media/upload', (req, res) => {
-  const { files = [], tagKeyword = '' } = req.body;
+  const { files = [], tagKeyword = '', kho = 'kho_1' } = req.body;
   if (!Array.isArray(files) || files.length === 0) {
     return res.status(400).json({ success: false, message: 'Không có file ảnh nào được gửi.' });
   }
+
+  const KHO_TAGS = {
+    kho_1: 'Lọc Nước Sinh Hoạt, Giếng Khoan, Phèn',
+    kho_2: 'Lọc Nước Công Nghiệp',
+    kho_3: 'Lọc Nước Mặn, Tinh Khiết RO'
+  };
 
   const mediaList = getCustomMedia();
   let addedCount = 0;
@@ -94,7 +246,9 @@ app.post('/api/media/upload', (req, res) => {
       mediaList.push({
         id: uniqueId,
         url: `/uploads/${saveName}`,
-        tagKeyword: tagKeyword.trim(),
+        kho: kho || 'kho_1',
+        tagKeyword: tagKeyword.trim() || KHO_TAGS[kho] || 'Lọc Nước Sinh Hoạt, Giếng Khoan, Phèn',
+        categoryName: KHO_TAGS[kho] || 'Lọc Nước Sinh Hoạt, Giếng Khoan, Phèn',
         filename: filename || saveName,
         createdAt: new Date().toISOString()
       });
@@ -103,7 +257,7 @@ app.post('/api/media/upload', (req, res) => {
   }
 
   saveCustomMedia(mediaList);
-  res.json({ success: true, message: `Đã tải lên thành công ${addedCount} tấm ảnh thực tế!`, count: addedCount });
+  res.json({ success: true, message: `Đã tải lên thành công ${addedCount} tấm ảnh vào ${KHO_TAGS[kho] || 'Kho'}!`, count: addedCount });
 });
 
 app.post('/api/media/drive-link', (req, res) => {
@@ -211,6 +365,47 @@ app.post('/api/media/rotate-all', (req, res) => {
       message: `Đã tự động xoay vòng ${result.totalMedia} hình ảnh trong kho cho ${result.updatedCount} bài viết từ khóa!`,
       data: result
     });
+  } else {
+    res.status(400).json(result);
+  }
+});
+
+// Rotate only images from a specific Kho into articles matching that Kho's keywords
+app.post('/api/media/rotate-kho', (req, res) => {
+  const { khoId } = req.body;
+  if (!khoId) return res.status(400).json({ success: false, message: 'Thiếu khoId cần xoay vòng.' });
+  const result = rotateKhoMediaToPosts(khoId);
+  if (result.success) {
+    const KHO_NAMES = {
+      kho_1: 'Kho 1 (Sinh Hoạt, Giếng Khoan, Phèn)',
+      kho_2: 'Kho 2 (Công Nghiệp)',
+      kho_3: 'Kho 3 (Mặn & Tinh Khiết RO)'
+    };
+    res.json({
+      success: true,
+      message: `Đã tự động gán & xoay vòng ${result.totalKhoImages} ảnh từ ${KHO_NAMES[khoId] || khoId} vào ${result.updatedCount} bài viết đúng từ khóa!`,
+      data: result
+    });
+  } else {
+    res.status(400).json(result);
+  }
+});
+
+app.post('/api/media/bulk-update-kho', (req, res) => {
+  const { ids, kho } = req.body;
+  const result = bulkUpdateKho(ids, kho);
+  if (result.success) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
+app.post('/api/media/bulk-delete', (req, res) => {
+  const { ids } = req.body;
+  const result = bulkDeleteMedia(ids);
+  if (result.success) {
+    res.json(result);
   } else {
     res.status(400).json(result);
   }

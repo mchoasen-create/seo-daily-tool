@@ -1159,74 +1159,156 @@
         </div>
       </section>
 
-      <!-- TAB: Custom Media Library -->
+      <!-- TAB: Custom Media Library (3 Kho Riêng Biệt) -->
       <section id="tab-custommedia" class="tab-content">
-        <div class="header-action">
+        <div class="header-action" style="margin-bottom: 20px;">
           <div>
-            <h2>📸 Thư Viện Ảnh Thực Tế Công Trình (Custom Media)</h2>
-            <p class="subtitle">Tải lên ảnh thực tế công trình/sản phẩm hoặc dán link Google Drive để tự động ghép vào bài viết chuẩn SEO</p>
+            <h2>📸 Quản Lý 3 Kho Ảnh Thực Tế Công Trình</h2>
+            <p class="subtitle">Phân loại độc lập 3 kho hình ảnh theo từng nhóm giải pháp kỹ thuật, tiện xem, tải lên, chỉnh sửa và tự động ghép đúng chủ đề bài viết</p>
           </div>
-        </div>
-
-        <div class="grid-2-1" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-          <!-- Local Upload Card -->
-          <div class="card">
-            <h3><i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent-primary);"></i> 1. Tải Ảnh Từ Máy Tính (Không Giới Hạn Số Lượng)</h3>
-            <p class="text-muted" style="font-size: 0.88rem;">Anh có thể chọn gửi hàng chục hoặc hàng trăm tấm hình thực tế cùng lúc. Hệ thống sẽ tự động xoay tua ghép bài!</p>
-            
-            <div class="form-group" style="margin-top: 15px;">
-              <label>Gắn nhãn từ khóa khớp với bài viết (Ví dụ: Lọc Nước Phèn, RO...):</label>
-              <input type="text" id="custom-media-tag-input" class="form-control" placeholder="Nhập từ khóa gắn nhãn (để trống nếu dùng chung cho tất cả bài)">
-            </div>
-
-            <div class="form-group" style="margin-top: 15px;">
-              <label>Chọn ảnh từ máy tính (hoặc kéo thả nhiều ảnh vào ô bên dưới):</label>
-              <input type="file" id="custom-media-file-input" class="form-control" multiple accept="image/*">
-            </div>
-
-            <!-- Drag & Drop Zone -->
-            <div id="media-drag-drop-zone" style="border: 2px dashed var(--accent-primary); background: rgba(14, 165, 233, 0.06); padding: 20px; border-radius: 8px; text-align: center; margin-top: 12px; cursor: pointer;">
-              <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 6px;"></i>
-              <div style="font-weight: 600; color: var(--text-color);">Kéo & Thả Hàng Loạt Ảnh Trực Tiếp Vào Đây</div>
-              <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Giúp tránh lỗi khi chọn nhiều ảnh trực tiếp từ điện thoại kết nối USB</div>
-            </div>
-
-            <button class="btn btn-primary" id="btn-upload-custom-media" style="margin-top: 15px; width: 100%;">
-              <i class="fa-solid fa-upload"></i> Tải Ảnh Lên Thư Viện
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button class="btn btn-secondary btn-sm btn-filter-kho" data-kho="all" id="btn-show-all-media">
+              <i class="fa-solid fa-layer-group"></i> Xem Tổng Kho (<span id="stat-kho-all">0</span>)
             </button>
-          </div>
-
-          <!-- Google Drive Import Card -->
-          <div class="card">
-            <h3><i class="fa-brands fa-google-drive" style="color: #4285f4;"></i> 2. Kết Nối Link Ảnh Từ Google Drive</h3>
-            <p class="text-muted" style="font-size: 0.88rem;">Dán link chia sẻ Google Drive của tấm ảnh thực tế để tự động chuyển thành ảnh minh họa bài viết.</p>
-
-            <div class="form-group" style="margin-top: 15px;">
-              <label>Gắn nhãn từ khóa khớp với bài viết:</label>
-              <input type="text" id="drive-media-tag-input" class="form-control" placeholder="Nhập từ khóa gắn nhãn (Ví dụ: Lọc Nước Mặn)">
-            </div>
-
-            <div class="form-group" style="margin-top: 15px;">
-              <label>Dán đường dẫn (URL) Google Drive:</label>
-              <input type="url" id="drive-media-url-input" class="form-control" placeholder="https://drive.google.com/file/d/1abc.../view?usp=sharing">
-            </div>
-
-            <button class="btn btn-secondary" id="btn-add-drive-media" style="margin-top: 10px; width: 100%;">
-              <i class="fa-solid fa-link"></i> Thêm Link Ảnh Google Drive
+            <button class="btn btn-success btn-sm" id="btn-rotate-media-all">
+              <i class="fa-solid fa-sync"></i> Xoay Vòng Toàn Bộ 3 Kho
             </button>
           </div>
         </div>
 
-        <!-- Custom Media Gallery Grid -->
-        <div class="card" style="margin-top: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
-            <h3 style="margin: 0;"><i class="fa-solid fa-images" style="color: #10b981;"></i> Danh Sách Ảnh Thực Tế Đã Lưu (<span id="custom-media-count">0</span> tấm)</h3>
-            <button class="btn btn-success" id="btn-rotate-media-all">
-              <i class="fa-solid fa-sync"></i> Xoay Vòng Kho Ảnh Vào Tất Cả Bài Viết
-            </button>
+        <!-- 3 THẺ KHO LỚN TRỰC QUAN ĐỘC LẬP -->
+        <div class="grid-3-kho" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px;">
+          <!-- KHO 1 CARD -->
+          <div class="card kho-tab-card active" id="card-tab-kho-1" data-kho="kho_1" style="cursor: pointer; border: 2px solid #0ea5e9; background: rgba(14, 165, 233, 0.08); border-radius: 12px; padding: 18px; transition: all 0.25s ease; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(14, 165, 233, 0.2); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                <i class="fa-solid fa-house-chimney-window"></i>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn-rename-kho" data-kho="kho_1" title="Đổi tên kho này" style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.3); color: #38bdf8; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                  <i class="fa-solid fa-pen-to-square"></i> Đổi tên
+                </button>
+                <span class="badge-kho-count" style="background: #0ea5e9; color: #fff; font-weight: 700; font-size: 0.85rem; padding: 4px 12px; border-radius: 20px;"><span id="stat-kho-1">0</span> ảnh</span>
+              </div>
+            </div>
+            <h3 id="card-title-kho-1" style="color: #fff; font-size: 1.15rem; margin: 0 0 6px 0;">📁 KHO 1: Sinh Hoạt / Phèn / Giếng</h3>
+            <p id="card-desc-kho-1" style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 10px 0; min-height: 38px;">Cột lọc Composite, Cột Inox 2-3 bình nhỏ gọn cho gia đình, sân thượng, bồn nước, ban công.</p>
+            <div style="font-size: 0.75rem; color: #38bdf8; background: rgba(14, 165, 233, 0.12); padding: 5px 8px; border-radius: 6px; font-weight: 600;">
+              Khớp bài: Lọc Nước Phèn, Giếng Khoan, Sinh Hoạt
+            </div>
           </div>
-          <div id="custom-media-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px;">
-            <!-- Gallery items rendered dynamically -->
+
+          <!-- KHO 2 CARD -->
+          <div class="card kho-tab-card" id="card-tab-kho-2" data-kho="kho_2" style="cursor: pointer; border: 1px solid var(--border-color); background: var(--card-bg); border-radius: 12px; padding: 18px; transition: all 0.25s ease; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                <i class="fa-solid fa-industry"></i>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn-rename-kho" data-kho="kho_2" title="Đổi tên kho này" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                  <i class="fa-solid fa-pen-to-square"></i> Đổi tên
+                </button>
+                <span class="badge-kho-count" style="background: #f59e0b; color: #fff; font-weight: 700; font-size: 0.85rem; padding: 4px 12px; border-radius: 20px;"><span id="stat-kho-2">0</span> ảnh</span>
+              </div>
+            </div>
+            <h3 id="card-title-kho-2" style="color: #fff; font-size: 1.15rem; margin: 0 0 6px 0;">🏭 KHO 2: Lọc Nước Công Nghiệp</h3>
+            <p id="card-desc-kho-2" style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 10px 0; min-height: 38px;">Bình lọc to, đường kính lớn, bồn xưởng, bồn inox công nghiệp có cửa thăm manhole, tủ điện.</p>
+            <div style="font-size: 0.75rem; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 5px 8px; border-radius: 6px; font-weight: 600;">
+              Khớp bài: Lọc Nước Công Nghiệp
+            </div>
+          </div>
+
+          <!-- KHO 3 CARD -->
+          <div class="card kho-tab-card" id="card-tab-kho-3" data-kho="kho_3" style="cursor: pointer; border: 1px solid var(--border-color); background: var(--card-bg); border-radius: 12px; padding: 18px; transition: all 0.25s ease; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); color: #34d399; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                <i class="fa-solid fa-water"></i>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn-rename-kho" data-kho="kho_3" title="Đổi tên kho này" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                  <i class="fa-solid fa-pen-to-square"></i> Đổi tên
+                </button>
+                <span class="badge-kho-count" style="background: #10b981; color: #fff; font-weight: 700; font-size: 0.85rem; padding: 4px 12px; border-radius: 20px;"><span id="stat-kho-3">0</span> ảnh</span>
+              </div>
+            </div>
+            <h3 id="card-title-kho-3" style="color: #fff; font-size: 1.15rem; margin: 0 0 6px 0;">💧 KHO 3: Mặn & Tinh Khiết RO</h3>
+            <p id="card-desc-kho-3" style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 10px 0; min-height: 38px;">Khung máy inox, vỏ màng RO composite trắng & vỏ màng Inox 304, bơm cao áp, lưu lượng kế.</p>
+            <div style="font-size: 0.75rem; color: #34d399; background: rgba(16, 185, 129, 0.12); padding: 5px 8px; border-radius: 6px; font-weight: 600;">
+              Khớp bài: Lọc Nước Mặn, Lọc Nước Tinh Khiết
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIVE KHO WORKSPACE CONTAINER -->
+        <div class="card" id="active-kho-workspace" style="padding: 22px; margin-bottom: 24px; border-radius: 12px;">
+          <!-- Kho Header & Actions -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 18px;">
+            <div>
+              <span id="active-kho-badge" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 12px; background: #0ea5e9; color: #fff; display: inline-block; margin-bottom: 6px;">Đang Mở Kho 1</span>
+              <h3 id="active-kho-title" style="margin: 0; font-size: 1.3rem; color: #fff;">Kho 1: Lọc Nước Phèn / Nước Giếng Khoan / Lọc Nước Sinh Hoạt</h3>
+              <p id="active-kho-desc" style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Hình ảnh thực tế các mẫu bình lọc composite 2 hoặc 3 bình nhỏ gọn gia đình hoặc cột inox nhỏ</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" id="btn-rename-active-kho">
+                <i class="fa-solid fa-pen-to-square"></i> Đổi Tên Kho Này
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-toggle-upload-box">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Tải Thêm Ảnh Vào Kho Này
+              </button>
+              <button class="btn btn-success btn-sm" id="btn-rotate-active-kho">
+                <i class="fa-solid fa-rotate"></i> Xoay Vòng Riêng Kho Này Vào Bài Viết
+              </button>
+            </div>
+          </div>
+
+          <!-- Upload Dropzone (Collapsible) -->
+          <div id="kho-upload-panel" style="display: none; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 0.95rem;"><i class="fa-solid fa-desktop" style="color: var(--accent-primary);"></i> Chọn ảnh từ máy tính (lưu thẳng vào kho đang mở)</h4>
+                <div id="media-drag-drop-zone" style="border: 2px dashed var(--accent-primary); background: rgba(14, 165, 233, 0.05); padding: 18px; border-radius: 8px; text-align: center; cursor: pointer;">
+                  <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: var(--accent-primary); margin-bottom: 4px;"></i>
+                  <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-color);">Kéo & Thả Hàng Loạt Ảnh Vào Đây</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">Hoặc click để chọn nhiều file ảnh</div>
+                  <input type="file" id="custom-media-file-input" multiple accept="image/*" style="display: none;">
+                </div>
+                <button class="btn btn-primary btn-sm" id="btn-upload-custom-media" style="margin-top: 10px; width: 100%;">
+                  <i class="fa-solid fa-upload"></i> Tải Lên Kho Này
+                </button>
+              </div>
+              <div>
+                <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 0.95rem;"><i class="fa-brands fa-google-drive" style="color: #4285f4;"></i> Hoặc dán link Google Drive</h4>
+                <input type="url" id="drive-media-url-input" class="form-control" placeholder="https://drive.google.com/file/d/..." style="margin-bottom: 10px;">
+                <input type="text" id="drive-media-tag-input" class="form-control" placeholder="Ghi chú thêm (tùy chọn)..." style="margin-bottom: 10px;">
+                <button class="btn btn-secondary btn-sm" id="btn-add-drive-media" style="width: 100%;">
+                  <i class="fa-solid fa-link"></i> Thêm Link Drive Vào Kho Này
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bulk Actions Toolbar -->
+          <div id="bulk-actions-toolbar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #fff; margin: 0;">
+                <input type="checkbox" id="check-select-all" style="cursor: pointer; width: 16px; height: 16px;">
+                <span>Chọn tất cả (<span id="selected-media-count">0</span> đã chọn)</span>
+              </label>
+            </div>
+            <div id="bulk-action-buttons" style="display: flex; gap: 8px; align-items: center; opacity: 0.5; pointer-events: none; transition: opacity 0.2s;">
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Chuyển sang:</span>
+              <button class="btn btn-sm btn-secondary btn-bulk-move" data-target="kho_1" style="font-size: 0.75rem; padding: 4px 8px;">📁 Kho 1</button>
+              <button class="btn btn-sm btn-secondary btn-bulk-move" data-target="kho_2" style="font-size: 0.75rem; padding: 4px 8px;">🏭 Kho 2</button>
+              <button class="btn btn-sm btn-secondary btn-bulk-move" data-target="kho_3" style="font-size: 0.75rem; padding: 4px 8px;">💧 Kho 3</button>
+              <button class="btn btn-sm btn-danger" id="btn-bulk-delete" style="font-size: 0.75rem; padding: 4px 10px; margin-left: 6px;">
+                <i class="fa-solid fa-trash-can"></i> Xóa Đã Chọn
+              </button>
+            </div>
+          </div>
+
+          <!-- Lưới Ảnh Động Của Kho -->
+          <div id="custom-media-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
+            <!-- Rendered by app.js -->
           </div>
         </div>
       </section>
@@ -1459,10 +1541,104 @@
     </div>
   </div>
 
+  <!-- MODAL: CHỈNH SỬA THÔNG TIN HÌNH ẢNH TRONG KHO -->
+  <div id="edit-media-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box glass" style="max-width: 600px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="header-icon-glow" style="width: 40px; height: 40px; font-size: 16px; background: rgba(14, 165, 233, 0.2); color: #0ea5e9;">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; color: #fff; line-height: 1.3;">Chỉnh Sửa Chi Tiết Hình Ảnh</h3>
+            <span id="edit-media-filename-sub" style="font-size: 0.8rem; color: var(--text-muted);">IMG_xxxx.jpg</span>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-edit-media-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 18px 24px;">
+        <input type="hidden" id="edit-media-id">
+        <div style="display: flex; gap: 18px; margin-bottom: 18px; align-items: center;">
+          <div style="width: 130px; height: 130px; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid var(--border-color); flex-shrink: 0;">
+            <img id="edit-media-preview-img" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 0.82rem; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 6px;">Phân Loại Vào Kho:</label>
+            <select id="edit-media-kho-select" class="form-control" style="font-weight: 600; padding: 8px 12px; font-size: 0.9rem;">
+              <option value="kho_1">📁 Kho 1: Lọc Nước Sinh Hoạt / Giếng Khoan / Phèn</option>
+              <option value="kho_2">🏭 Kho 2: Lọc Nước Công Nghiệp</option>
+              <option value="kho_3">💧 Kho 3: Lọc Nước Mặn & Tinh Khiết RO</option>
+            </select>
+            <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; display: block;">
+              Chọn đúng kho để hệ thống tự động gán vào bài viết cùng chủ đề.
+            </small>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">Tiêu Đề Ảnh (Title / Tên thiết bị):</label>
+          <input type="text" id="edit-media-title-input" class="form-control" placeholder="Ví dụ: Cột lọc composite 2 bình 1054 van tự động">
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">Thẻ Alt SEO (Từ khóa hiển thị trên ảnh bài viết):</label>
+          <input type="text" id="edit-media-alt-input" class="form-control" placeholder="Ví dụ: Hệ thống lọc nước phèn giếng khoan gia đình Hoa Sen">
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">Đặc Tính Kỹ Thuật / Ghi Chú:</label>
+          <input type="text" id="edit-media-features-input" class="form-control" placeholder="Ví dụ: 2 bình composite đường kính nhỏ, van cơ 3 ngã, lắp sân thượng">
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-color);">
+        <button class="btn btn-secondary" id="btn-cancel-edit-media">Hủy</button>
+        <button class="btn btn-primary" id="btn-save-edit-media">
+          <i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi
+        </button>
+      </div>
+    </div>
+  <!-- MODAL: ĐỔI TÊN & CẤU HÌNH KHO -->
+  <div id="rename-kho-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box glass" style="max-width: 500px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="header-icon-glow" style="width: 40px; height: 40px; font-size: 16px; background: rgba(139, 92, 246, 0.2); color: #a855f7;">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; color: #fff; line-height: 1.3;">Đổi Tên Kho Hình Ảnh</h3>
+            <span id="rename-kho-current-label" style="font-size: 0.8rem; color: var(--text-muted);">Kho 1</span>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-rename-kho-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 18px 24px;">
+        <input type="hidden" id="rename-kho-target-id">
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">Tên Kho Hiển Thị (Title):</label>
+          <input type="text" id="rename-kho-name-input" class="form-control" placeholder="Ví dụ: Kho 1: Lọc Nước Sinh Hoạt / Giếng Khoan">
+        </div>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">Tên Viết Tắt (Hiển thị nhãn trên ảnh):</label>
+          <input type="text" id="rename-kho-short-input" class="form-control" placeholder="Ví dụ: Sinh Hoạt / Giếng">
+        </div>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">Mô Tả Tiêu Chí Kho (Ghi chú mẫu máy):</label>
+          <textarea id="rename-kho-desc-input" class="form-control" rows="3" placeholder="Ví dụ: Mẫu bình composite 2-3 cột nhỏ gọn gia đình..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-color);">
+        <button class="btn btn-secondary" id="btn-cancel-rename-kho">Hủy</button>
+        <button class="btn btn-primary" id="btn-save-rename-kho">
+          <i class="fa-solid fa-floppy-disk"></i> Lưu Tên Kho Mới
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
 
-
-  <script src="app.js"></script>
+  <script src="app.js?v=2.1.0"></script>
 </body>
 </html>

@@ -1,0 +1,17 @@
+{
+  "kho_1": {
+    "name": "Kho 1: Lọc Nước Sinh Hoạt / Giếng Khoan / Phèn",
+    "shortName": "Sinh Hoạt / Giếng / Phèn",
+    "desc": "Cột lọc Composite, Cột Inox 2-3 bình nhỏ gọn cho gia đình, sân thượng, bồn nước, ban công."
+  },
+  "kho_2": {
+    "name": "Kho 2: Lọc Nước Công Nghiệp",
+    "shortName": "Nước Công Nghiệp",
+    "desc": "Bình lọc to, đường kính lớn, bồn xưởng, bồn composite công nghiệp cỡ lớn hoặc bồn inox công nghiệp có cửa thăm manhole/mặt bích tròn."
+  },
+  "kho_3": {
+    "name": "Kho 3: Lọc Nước Mặn & Lọc Nước Tinh Khiết RO",
+    "shortName": "Mặn & Tinh Khiết RO",
+    "desc": "Khung máy inox, vỏ màng RO composite trắng và vỏ màng inox 304 sáng bóng, bơm cao áp trục đứng, đồng hồ đo áp lực, lưu lượng kế."
+  }
+}
