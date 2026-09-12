@@ -28,15 +28,6 @@
     "categoryName": "Lọc Nước Công Nghiệp"
   },
   {
-    "id": "media_1788941553359_2ctg",
-    "url": "/uploads/media_1788941553359_2ctg.jpeg",
-    "tagKeyword": "Lọc Nước Công Nghiệp",
-    "filename": "IMG_6144.jpg",
-    "createdAt": "2026-09-09T08:12:33.359Z",
-    "kho": "kho_2",
-    "categoryName": "Lọc Nước Công Nghiệp"
-  },
-  {
     "id": "media_1788941550323_3waz",
     "url": "/uploads/media_1788941550323_3waz.jpeg",
     "tagKeyword": "Lọc Nước Công Nghiệp",
@@ -60,15 +51,6 @@
     "tagKeyword": "Lọc Nước Công Nghiệp",
     "filename": "IMG_6106.jpg",
     "createdAt": "2026-09-09T08:12:26.833Z",
-    "kho": "kho_2",
-    "categoryName": "Lọc Nước Công Nghiệp"
-  },
-  {
-    "id": "media_1788941546608_afeb",
-    "url": "/uploads/media_1788941546608_afeb.jpeg",
-    "tagKeyword": "Lọc Nước Công Nghiệp",
-    "filename": "IMG_6101.jpg",
-    "createdAt": "2026-09-09T08:12:26.608Z",
     "kho": "kho_2",
     "categoryName": "Lọc Nước Công Nghiệp"
   },
@@ -105,15 +87,6 @@
     "tagKeyword": "Lọc Nước Công Nghiệp",
     "filename": "IMG_5791.jpg",
     "createdAt": "2026-09-09T08:12:20.904Z",
-    "kho": "kho_2",
-    "categoryName": "Lọc Nước Công Nghiệp"
-  },
-  {
-    "id": "media_1788941539766_kckf",
-    "url": "/uploads/media_1788941539766_kckf.jpeg",
-    "tagKeyword": "Lọc Nước Công Nghiệp",
-    "filename": "IMG_5780.jpg",
-    "createdAt": "2026-09-09T08:12:19.767Z",
     "kho": "kho_2",
     "categoryName": "Lọc Nước Công Nghiệp"
   },
@@ -235,6 +208,15 @@
     "categoryName": "Lọc Nước Công Nghiệp"
   },
   {
+    "id": "media_1788941527686_m57v",
+    "url": "/uploads/media_1788941527686_m57v.jpeg",
+    "tagKeyword": "Lọc Nước Công Nghiệp",
+    "filename": "IMG_4872.jpg",
+    "createdAt": "2026-09-09T08:12:07.687Z",
+    "kho": "kho_2",
+    "categoryName": "Lọc Nước Công Nghiệp"
+  },
+  {
     "id": "media_1788941527351_ets7",
     "url": "/uploads/media_1788941527351_ets7.jpeg",
     "tagKeyword": "Lọc Nước Công Nghiệp",
@@ -276,6 +258,15 @@
     "tagKeyword": "Lọc Nước Công Nghiệp",
     "filename": "IMG_4583.jpg",
     "createdAt": "2026-09-09T08:12:04.083Z",
+    "kho": "kho_2",
+    "categoryName": "Lọc Nước Công Nghiệp"
+  },
+  {
+    "id": "media_1788941523960_bstv",
+    "url": "/uploads/media_1788941523960_bstv.jpeg",
+    "tagKeyword": "Lọc Nước Công Nghiệp",
+    "filename": "IMG_4582.jpg",
+    "createdAt": "2026-09-09T08:12:03.960Z",
     "kho": "kho_2",
     "categoryName": "Lọc Nước Công Nghiệp"
   },
