@@ -1466,10 +1466,66 @@ function getPostImages(post) {
 
 function updatePreviewModalImages(post) {
   const { img1, img2 } = getPostImages(post);
+  const targetUrl = (post.targetProductUrl || post.targetUrl || 'https://xulynuochoasen.com/').trim();
   const img1El = document.getElementById('modal-img1-preview');
   const img2El = document.getElementById('modal-img2-preview');
-  if (img1El) img1El.src = img1;
-  if (img2El) img2El.src = img2;
+  if (img1El) {
+    img1El.src = img1;
+    img1El.style.cursor = 'pointer';
+    img1El.title = `Nhấp để xem trang sản phẩm đích (mở tab mới): ${targetUrl}`;
+    img1El.onclick = () => window.open(targetUrl, '_blank');
+  }
+  if (img2El) {
+    img2El.src = img2;
+    img2El.style.cursor = 'pointer';
+    img2El.title = `Nhấp để xem trang sản phẩm đích (mở tab mới): ${targetUrl}`;
+    img2El.onclick = () => window.open(targetUrl, '_blank');
+  }
+}
+
+function renderArticleContent(contentBox, post) {
+  if (!contentBox || !post) return;
+  const targetUrl = (post.targetProductUrl || post.targetUrl || 'https://xulynuochoasen.com/').trim();
+  let html = '';
+  if (window.marked && typeof marked.parse === 'function') {
+    html = marked.parse(post.content || '*Chưa có nội dung bài viết.*');
+  } else {
+    html = (post.content || '').replace(/\n\n/g, '<br><br>');
+  }
+  contentBox.innerHTML = html;
+
+  // Process all images inside article content to ensure they are clickable links to targetProductUrl
+  const imgs = contentBox.querySelectorAll('img');
+  imgs.forEach(img => {
+    img.style.cursor = 'pointer';
+    img.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+    img.title = (img.alt ? img.alt + ' - ' : '') + 'Nhấp để xem sản phẩm chi tiết (mở tab mới)';
+
+    const parentA = img.closest('a');
+    if (parentA) {
+      parentA.target = '_blank';
+      parentA.rel = 'noopener noreferrer';
+      parentA.title = img.title;
+      if (!parentA.href || parentA.href.includes('localhost') || parentA.href === '#') {
+        parentA.href = targetUrl;
+      }
+    } else {
+      const a = document.createElement('a');
+      a.href = targetUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.title = img.title;
+      img.parentNode.insertBefore(a, img);
+      a.appendChild(img);
+    }
+  });
+
+  // Ensure all links in content open in new tab
+  const allLinks = contentBox.querySelectorAll('a');
+  allLinks.forEach(a => {
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+  });
 }
 
 function openQuickPreviewModal(post, keywordItem) {
@@ -1506,13 +1562,7 @@ function openQuickPreviewModal(post, keywordItem) {
           updatePreviewModalImages(post);
 
           const contentBox = document.getElementById('modal-article-rendered-content');
-          if (contentBox) {
-            if (window.marked && typeof marked.parse === 'function') {
-              contentBox.innerHTML = marked.parse(post.content || '');
-            } else {
-              contentBox.innerHTML = (post.content || '').replace(/\n\n/g, '<br><br>');
-            }
-          }
+          renderArticleContent(contentBox, post);
           showToast('Đã đổi cả 2 ảnh mới độc bản từ thư viện 942 ảnh!', 'success');
         } else {
           showToast(data.message || 'Không thể đổi ảnh', 'error');
@@ -1542,11 +1592,7 @@ function openQuickPreviewModal(post, keywordItem) {
   }
 
   const contentBox = document.getElementById('modal-article-rendered-content');
-  if (window.marked && typeof marked.parse === 'function') {
-    contentBox.innerHTML = marked.parse(post.content || '*Chưa có nội dung bài viết.*');
-  } else {
-    contentBox.innerHTML = (post.content || '').replace(/\n\n/g, '<br><br>');
-  }
+  renderArticleContent(contentBox, post);
 
   const btnEdit = document.getElementById('btn-modal-open-editor');
   if (btnEdit) {
@@ -1716,12 +1762,10 @@ async function fetchAndRenderGallery() {
               updatePreviewModalImages(galleryPickingPost);
 
               const contentBox = document.getElementById('modal-article-rendered-content');
-              if (contentBox) {
-                if (window.marked && typeof marked.parse === 'function') {
-                  contentBox.innerHTML = marked.parse(galleryPickingPost.content || '');
-                } else {
-                  contentBox.innerHTML = (galleryPickingPost.content || '').replace(/\n\n/g, '<br><br>');
-                }
+              if (contentBox && typeof renderArticleContent === 'function') {
+                renderArticleContent(contentBox, galleryPickingPost);
+              } else if (contentBox) {
+                contentBox.innerHTML = (galleryPickingPost.content || '').replace(/\n\n/g, '<br><br>');
               }
 
               const modal = document.getElementById('media-gallery-modal');

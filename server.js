@@ -716,7 +716,7 @@ function normalizeWpUrl(url) {
 }
 
 /* Helper to convert Markdown to HTML cleanly for WordPress REST API */
-function markdownToHtml(md) {
+function markdownToHtml(md, fallbackTargetUrl = 'https://xulynuochoasen.com/') {
   if (!md) return '';
   let src = md;
 
@@ -749,13 +749,13 @@ function markdownToHtml(md) {
         inTable = true;
         result.push('<table style="width:100%; border-collapse:collapse; margin:20px 0; border:1px solid #cbd5e1;"><thead><tr style="background:#f8fafc;">');
         cells.forEach(cell => {
-          result.push(`<th style="padding:10px; border:1px solid #cbd5e1; text-align:left;">${formatInlineMarkdown(cell)}</th>`);
+          result.push(`<th style="padding:10px; border:1px solid #cbd5e1; text-align:left;">${formatInlineMarkdown(cell, fallbackTargetUrl)}</th>`);
         });
         result.push('</tr></thead><tbody>');
       } else {
         result.push('<tr>');
         cells.forEach(cell => {
-          result.push(`<td style="padding:10px; border:1px solid #cbd5e1;">${formatInlineMarkdown(cell)}</td>`);
+          result.push(`<td style="padding:10px; border:1px solid #cbd5e1;">${formatInlineMarkdown(cell, fallbackTargetUrl)}</td>`);
         });
         result.push('</tr>');
       }
@@ -768,7 +768,7 @@ function markdownToHtml(md) {
     if (line.startsWith('* ') || line.startsWith('- ')) {
       if (!inList) { result.push('<ul style="margin:15px 0; padding-left:20px;">'); inList = true; }
       const itemText = line.replace(/^[\*\-]\s+/, '').trim();
-      result.push(`<li>${formatInlineMarkdown(itemText)}</li>`);
+      result.push(`<li>${formatInlineMarkdown(itemText, fallbackTargetUrl)}</li>`);
       continue;
     }
 
@@ -776,46 +776,62 @@ function markdownToHtml(md) {
 
     // Headings
     if (line.startsWith('# ')) {
-      result.push(`<h1 style="color:#0f172a; margin-top:25px; margin-bottom:15px;">${formatInlineMarkdown(line.substring(2))}</h1>`);
+      result.push(`<h1 style="color:#0f172a; margin-top:25px; margin-bottom:15px;">${formatInlineMarkdown(line.substring(2), fallbackTargetUrl)}</h1>`);
       continue;
     }
     if (line.startsWith('## ')) {
-      result.push(`<h2 style="color:#0f172a; margin-top:25px; margin-bottom:15px; border-bottom:2px solid #0284c7; padding-bottom:6px;">${formatInlineMarkdown(line.substring(3))}</h2>`);
+      result.push(`<h2 style="color:#0f172a; margin-top:25px; margin-bottom:15px; border-bottom:2px solid #0284c7; padding-bottom:6px;">${formatInlineMarkdown(line.substring(3), fallbackTargetUrl)}</h2>`);
       continue;
     }
     if (line.startsWith('### ')) {
-      result.push(`<h3 style="color:#1e293b; margin-top:20px; margin-bottom:10px;">${formatInlineMarkdown(line.substring(4))}</h3>`);
+      result.push(`<h3 style="color:#1e293b; margin-top:20px; margin-bottom:10px;">${formatInlineMarkdown(line.substring(4), fallbackTargetUrl)}</h3>`);
       continue;
     }
 
     // Blockquote
     if (line.startsWith('> ')) {
-      result.push(`<blockquote style="border-left:4px solid #0284c7; background:#f8fafc; padding:12px 18px; margin:15px 0; border-radius:4px; font-style:italic;">${formatInlineMarkdown(line.substring(2))}</blockquote>`);
+      result.push(`<blockquote style="border-left:4px solid #0284c7; background:#f8fafc; padding:12px 18px; margin:15px 0; border-radius:4px; font-style:italic;">${formatInlineMarkdown(line.substring(2), fallbackTargetUrl)}</blockquote>`);
       continue;
     }
 
-    // Images (Linked and Plain)
-    if (line.startsWith('[![') || line.startsWith('![')) {
-      const linkedImgMatch = line.match(/^\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)$/);
+    // Clean stray markdown artifacts
+    if (line === '[' || line === ']' || /^\]\([^)]+\)$/.test(line)) {
+      continue;
+    }
+
+    // Images (Linked and Plain) - ALWAYS make images clickable links pointing to target landing page
+    if (line.includes('![') && line.includes('](')) {
+      const linkedImgMatch = line.match(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/);
       if (linkedImgMatch) {
         const alt = linkedImgMatch[1];
         let imgSrc = linkedImgMatch[2];
-        const linkHref = linkedImgMatch[3];
+        const linkHref = (linkedImgMatch[3] || fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
         if (imgSrc.startsWith('/uploads/')) {
           imgSrc = 'https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgSrc);
         }
-        result.push(`<p style="text-align:center;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt}"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; margin:15px 0; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
+        result.push(`<p style="text-align:center; margin:20px 0;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt} - Nhấp để xem sản phẩm chi tiết"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
         continue;
       }
-      const imgMatch = line.match(/^!\[(.*?)\]\((.*?)\)$/);
+      const imgMatch = line.match(/!\[(.*?)\]\((.*?)\)/);
       if (imgMatch) {
+        const alt = imgMatch[1];
         let imgSrc = imgMatch[2];
+        const linkHref = (fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
         if (imgSrc.startsWith('/uploads/')) {
           imgSrc = 'https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgSrc);
         }
-        result.push(`<p style="text-align:center;"><img src="${imgSrc}" alt="${imgMatch[1]}" title="${imgMatch[1]}" style="max-width:100%; height:auto; border-radius:8px; margin:15px 0;" /></p>`);
+        result.push(`<p style="text-align:center; margin:20px 0;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt} - Nhấp để xem sản phẩm chi tiết"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
         continue;
       }
+    }
+
+    // HTML Images that are not yet wrapped in <a>
+    if (line.includes('<img') && !line.includes('<a')) {
+      const wrapped = line.replace(/<img([^>]+)>/gi, (match) => {
+        return `<a href="${fallbackTargetUrl}" target="_blank" rel="noopener noreferrer" title="Nhấp để xem sản phẩm chi tiết"><img${match.slice(4, -1)} style="cursor:pointer; max-width:100%; border-radius:8px;" /></a>`;
+      });
+      result.push(`<p style="text-align:center; margin:20px 0;">${wrapped}</p>`);
+      continue;
     }
 
     // HTML Block (like div)
@@ -825,7 +841,7 @@ function markdownToHtml(md) {
     }
 
     // Standard Paragraph
-    result.push(`<p style="margin-bottom:16px; line-height:1.7;">${formatInlineMarkdown(line)}</p>`);
+    result.push(`<p style="margin-bottom:16px; line-height:1.7;">${formatInlineMarkdown(line, fallbackTargetUrl)}</p>`);
   }
 
   if (inList) result.push('</ul>');
@@ -834,12 +850,20 @@ function markdownToHtml(md) {
   return result.join('\n');
 }
 
-function formatInlineMarkdown(text) {
+function formatInlineMarkdown(text, fallbackTargetUrl = 'https://xulynuochoasen.com/') {
   if (!text) return '';
   let str = text;
+  // Linked images: [![alt](img)](url)
+  str = str.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (match, alt, imgUrl, linkUrl) => {
+    const finalImg = imgUrl.startsWith('/uploads/') ? ('https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgUrl)) : imgUrl;
+    const finalLink = (linkUrl || fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
+    return `<a href="${finalLink}" target="_blank" rel="noopener noreferrer" title="${alt}"><img src="${finalImg}" alt="${alt}" style="max-width:100%; height:auto; cursor:pointer; border-radius:8px;" /></a>`;
+  });
+  // Plain images: ![alt](url)
   str = str.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
     const finalUrl = url.startsWith('/uploads/') ? ('https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(url)) : url;
-    return `<img src="${finalUrl}" alt="${alt}" style="max-width:100%; height:auto;" />`;
+    const finalLink = (fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
+    return `<a href="${finalLink}" target="_blank" rel="noopener noreferrer" title="${alt}"><img src="${finalUrl}" alt="${alt}" style="max-width:100%; height:auto; cursor:pointer; border-radius:8px;" /></a>`;
   });
   str = str.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:600;">$1</a>');
   str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -979,7 +1003,8 @@ async function publishToWordPress(postData) {
     }
   }
 
-  const htmlContent = markdownToHtml(updatedContent);
+  const targetProductLink = (postData.targetProductUrl || postData.targetUrl || 'https://xulynuochoasen.com/').trim();
+  const htmlContent = markdownToHtml(updatedContent, targetProductLink);
 
   const payload = {
     title: postData.title,
