@@ -1,5 +1,597 @@
 [
   {
+    "id": "media_1788941561604_ette",
+    "url": "/uploads/media_1788941561604_ette.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6224.jpg",
+    "createdAt": "2026-09-09T08:12:41.605Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941557380_j0qt",
+    "url": "/uploads/media_1788941557380_j0qt.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6208.jpg",
+    "createdAt": "2026-09-09T08:12:37.380Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO",
+    "features": "Bộ 2 cột lọc composite sinh hoạt gia đình trên sân thượng"
+  },
+  {
+    "id": "media_1788941556579_70ap",
+    "url": "/uploads/media_1788941556579_70ap.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6207.jpg",
+    "createdAt": "2026-09-09T08:12:36.579Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO",
+    "features": "2 cột composite lọc nước sinh hoạt lắp sân thượng"
+  },
+  {
+    "id": "media_1788941556578_71f2",
+    "url": "/uploads/media_1788941556578_71f2.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6203.jpg",
+    "createdAt": "2026-09-09T08:12:36.579Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO",
+    "features": "Bộ 2 cột lọc composite gia đình gắn bồn Dai Thanh"
+  },
+  {
+    "id": "media_1788941556577_sn8e",
+    "url": "/uploads/media_1788941556577_sn8e.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6201.jpg",
+    "createdAt": "2026-09-09T08:12:36.578Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO",
+    "features": "Cột lọc composite phèn sinh hoạt gia đình kèm bồn muối"
+  },
+  {
+    "id": "media_1788941555332_ozf7",
+    "url": "/uploads/media_1788941555332_ozf7.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6200.jpg",
+    "createdAt": "2026-09-09T08:12:35.333Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO",
+    "features": "Hệ thống lọc nước giếng composite 2 cột gia đình"
+  },
+  {
+    "id": "media_1788941555331_m6nj",
+    "url": "/uploads/media_1788941555331_m6nj.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6199.jpg",
+    "createdAt": "2026-09-09T08:12:35.332Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO",
+    "features": "Bộ 2 cột composite lọc nước sinh hoạt có mái che"
+  },
+  {
+    "id": "media_1788941555331_g0yb",
+    "url": "/uploads/media_1788941555331_g0yb.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6198.jpg",
+    "createdAt": "2026-09-09T08:12:35.331Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO",
+    "features": "Hệ 2 cột composite lọc nước sinh hoạt ban công"
+  },
+  {
+    "id": "media_1788941554722_chti",
+    "url": "/uploads/media_1788941554722_chti.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6196.jpg",
+    "createdAt": "2026-09-09T08:12:34.722Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941554722_3sk9",
+    "url": "/uploads/media_1788941554722_3sk9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6195.jpg",
+    "createdAt": "2026-09-09T08:12:34.722Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941554396_kicl",
+    "url": "/uploads/media_1788941554396_kicl.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6167.jpg",
+    "createdAt": "2026-09-09T08:12:34.396Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941554395_xssm",
+    "url": "/uploads/media_1788941554395_xssm.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6166.jpg",
+    "createdAt": "2026-09-09T08:12:34.396Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941554095_epus",
+    "url": "/uploads/media_1788941554095_epus.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6162.jpg",
+    "createdAt": "2026-09-09T08:12:34.095Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941554094_dgwf",
+    "url": "/uploads/media_1788941554094_dgwf.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6147.jpg",
+    "createdAt": "2026-09-09T08:12:34.095Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941554093_p0vf",
+    "url": "/uploads/media_1788941554093_p0vf.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6146.jpg",
+    "createdAt": "2026-09-09T08:12:34.094Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941553359_cj63",
+    "url": "/uploads/media_1788941553359_cj63.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6145.jpg",
+    "createdAt": "2026-09-09T08:12:33.360Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941553359_2ctg",
+    "url": "/uploads/media_1788941553359_2ctg.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6144.jpg",
+    "createdAt": "2026-09-09T08:12:33.359Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941553359_3g49",
+    "url": "/uploads/media_1788941553359_3g49.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6142.jpg",
+    "createdAt": "2026-09-09T08:12:33.359Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941552632_76vm",
+    "url": "/uploads/media_1788941552632_76vm.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6137.jpg",
+    "createdAt": "2026-09-09T08:12:32.634Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941552632_sbwl",
+    "url": "/uploads/media_1788941552632_sbwl.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6136.jpg",
+    "createdAt": "2026-09-09T08:12:32.632Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941552631_vgkt",
+    "url": "/uploads/media_1788941552631_vgkt.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6133.jpg",
+    "createdAt": "2026-09-09T08:12:32.632Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941551353_dred",
+    "url": "/uploads/media_1788941551353_dred.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6131.jpg",
+    "createdAt": "2026-09-09T08:12:31.354Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941551352_fogs",
+    "url": "/uploads/media_1788941551352_fogs.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6130.jpg",
+    "createdAt": "2026-09-09T08:12:31.353Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941551352_40m5",
+    "url": "/uploads/media_1788941551352_40m5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6129.jpg",
+    "createdAt": "2026-09-09T08:12:31.352Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941550325_sb39",
+    "url": "/uploads/media_1788941550325_sb39.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6128.jpg",
+    "createdAt": "2026-09-09T08:12:30.325Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941550324_pzog",
+    "url": "/uploads/media_1788941550324_pzog.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6127.jpg",
+    "createdAt": "2026-09-09T08:12:30.325Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941549575_l5zk",
+    "url": "/uploads/media_1788941549575_l5zk.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6115.jpg",
+    "createdAt": "2026-09-09T08:12:29.575Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941549574_zo0s",
+    "url": "/uploads/media_1788941549574_zo0s.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6114.jpg",
+    "createdAt": "2026-09-09T08:12:29.575Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941549574_8k6e",
+    "url": "/uploads/media_1788941549574_8k6e.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6113.jpg",
+    "createdAt": "2026-09-09T08:12:29.574Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941548462_o9bo",
+    "url": "/uploads/media_1788941548462_o9bo.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6112.jpg",
+    "createdAt": "2026-09-09T08:12:28.464Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941548461_y3wy",
+    "url": "/uploads/media_1788941548461_y3wy.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6110.jpg",
+    "createdAt": "2026-09-09T08:12:28.462Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941547339_6kxx",
+    "url": "/uploads/media_1788941547339_6kxx.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6109.jpg",
+    "createdAt": "2026-09-09T08:12:27.340Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941547338_89ch",
+    "url": "/uploads/media_1788941547338_89ch.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6108.jpg",
+    "createdAt": "2026-09-09T08:12:27.339Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941547338_beub",
+    "url": "/uploads/media_1788941547338_beub.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6107.jpg",
+    "createdAt": "2026-09-09T08:12:27.338Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546832_u47y",
+    "url": "/uploads/media_1788941546832_u47y.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6105.jpg",
+    "createdAt": "2026-09-09T08:12:26.832Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546831_cnam",
+    "url": "/uploads/media_1788941546831_cnam.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6104.jpg",
+    "createdAt": "2026-09-09T08:12:26.832Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546608_k7jr",
+    "url": "/uploads/media_1788941546608_k7jr.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6103.jpg",
+    "createdAt": "2026-09-09T08:12:26.610Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546608_ajiv",
+    "url": "/uploads/media_1788941546608_ajiv.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6102.jpg",
+    "createdAt": "2026-09-09T08:12:26.608Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546608_afeb",
+    "url": "/uploads/media_1788941546608_afeb.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6101.jpg",
+    "createdAt": "2026-09-09T08:12:26.608Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546380_ajuj",
+    "url": "/uploads/media_1788941546380_ajuj.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6100.jpg",
+    "createdAt": "2026-09-09T08:12:26.382Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546380_zbw9",
+    "url": "/uploads/media_1788941546380_zbw9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6091.jpg",
+    "createdAt": "2026-09-09T08:12:26.380Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941546379_c0ic",
+    "url": "/uploads/media_1788941546379_c0ic.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6088.jpg",
+    "createdAt": "2026-09-09T08:12:26.380Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941545716_r9mk",
+    "url": "/uploads/media_1788941545716_r9mk.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6085.jpg",
+    "createdAt": "2026-09-09T08:12:25.716Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941545714_vyg8",
+    "url": "/uploads/media_1788941545714_vyg8.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6035.jpg",
+    "createdAt": "2026-09-09T08:12:25.715Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941545148_rnuc",
+    "url": "/uploads/media_1788941545148_rnuc.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6033.jpg",
+    "createdAt": "2026-09-09T08:12:25.149Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941545147_9416",
+    "url": "/uploads/media_1788941545147_9416.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6031.jpg",
+    "createdAt": "2026-09-09T08:12:25.148Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941545146_yqby",
+    "url": "/uploads/media_1788941545146_yqby.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6027.jpg",
+    "createdAt": "2026-09-09T08:12:25.147Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941544545_p6yx",
+    "url": "/uploads/media_1788941544545_p6yx.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6024.jpg",
+    "createdAt": "2026-09-09T08:12:24.546Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941544544_1uox",
+    "url": "/uploads/media_1788941544544_1uox.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6022.jpg",
+    "createdAt": "2026-09-09T08:12:24.545Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941543416_3dvg",
+    "url": "/uploads/media_1788941543416_3dvg.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6006.jpg",
+    "createdAt": "2026-09-09T08:12:23.417Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941543415_c7ff",
+    "url": "/uploads/media_1788941543415_c7ff.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6002.jpg",
+    "createdAt": "2026-09-09T08:12:23.416Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941543414_ezhq",
+    "url": "/uploads/media_1788941543414_ezhq.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_6001.jpg",
+    "createdAt": "2026-09-09T08:12:23.415Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941542215_n847",
+    "url": "/uploads/media_1788941542215_n847.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5986.jpg",
+    "createdAt": "2026-09-09T08:12:22.216Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941542215_gvw5",
+    "url": "/uploads/media_1788941542215_gvw5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5985.jpg",
+    "createdAt": "2026-09-09T08:12:22.215Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941542214_nhq5",
+    "url": "/uploads/media_1788941542214_nhq5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5984.jpg",
+    "createdAt": "2026-09-09T08:12:22.215Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941542002_v0x6",
+    "url": "/uploads/media_1788941542002_v0x6.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5983.jpg",
+    "createdAt": "2026-09-09T08:12:22.003Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941542001_eqdp",
+    "url": "/uploads/media_1788941542001_eqdp.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5981.jpg",
+    "createdAt": "2026-09-09T08:12:22.001Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941541709_kasj",
+    "url": "/uploads/media_1788941541709_kasj.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5918.jpg",
+    "createdAt": "2026-09-09T08:12:21.709Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941541708_w78v",
+    "url": "/uploads/media_1788941541708_w78v.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5917.jpg",
+    "createdAt": "2026-09-09T08:12:21.709Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941541707_lv7r",
+    "url": "/uploads/media_1788941541707_lv7r.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5856.jpg",
+    "createdAt": "2026-09-09T08:12:21.708Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941540902_gttb",
+    "url": "/uploads/media_1788941540902_gttb.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5789.jpg",
+    "createdAt": "2026-09-09T08:12:20.903Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941540901_baf0",
+    "url": "/uploads/media_1788941540901_baf0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5783.jpg",
+    "createdAt": "2026-09-09T08:12:20.902Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941539767_jrts",
+    "url": "/uploads/media_1788941539767_jrts.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5782.jpg",
+    "createdAt": "2026-09-09T08:12:19.768Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941539767_obvf",
+    "url": "/uploads/media_1788941539767_obvf.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5781.jpg",
+    "createdAt": "2026-09-09T08:12:19.767Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941539766_kckf",
+    "url": "/uploads/media_1788941539766_kckf.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5780.jpg",
+    "createdAt": "2026-09-09T08:12:19.767Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
     "id": "media_1788941539498_vfoz",
     "url": "/uploads/media_1788941539498_vfoz.jpeg",
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
@@ -27,6 +619,555 @@
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
   {
+    "id": "media_1788941538266_ecan",
+    "url": "/uploads/media_1788941538266_ecan.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5761.jpg",
+    "createdAt": "2026-09-09T08:12:18.266Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941538264_9eza",
+    "url": "/uploads/media_1788941538264_9eza.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5664.jpg",
+    "createdAt": "2026-09-09T08:12:18.265Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941537366_djb5",
+    "url": "/uploads/media_1788941537366_djb5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5663.jpg",
+    "createdAt": "2026-09-09T08:12:17.366Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941537365_xnpe",
+    "url": "/uploads/media_1788941537365_xnpe.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5662.jpg",
+    "createdAt": "2026-09-09T08:12:17.366Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941537364_vsyu",
+    "url": "/uploads/media_1788941537364_vsyu.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5660.jpg",
+    "createdAt": "2026-09-09T08:12:17.365Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941536739_jev7",
+    "url": "/uploads/media_1788941536739_jev7.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5654.jpg",
+    "createdAt": "2026-09-09T08:12:16.740Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941536739_gfhn",
+    "url": "/uploads/media_1788941536739_gfhn.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5651.jpg",
+    "createdAt": "2026-09-09T08:12:16.739Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941535518_b5jz",
+    "url": "/uploads/media_1788941535518_b5jz.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5576.jpg",
+    "createdAt": "2026-09-09T08:12:15.528Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941535517_9quv",
+    "url": "/uploads/media_1788941535517_9quv.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5575.jpg",
+    "createdAt": "2026-09-09T08:12:15.518Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941535230_edrr",
+    "url": "/uploads/media_1788941535230_edrr.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5573.jpg",
+    "createdAt": "2026-09-09T08:12:15.231Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941535217_8zl0",
+    "url": "/uploads/media_1788941535217_8zl0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5560.jpg",
+    "createdAt": "2026-09-09T08:12:15.230Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941535216_mqm3",
+    "url": "/uploads/media_1788941535216_mqm3.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5538.jpg",
+    "createdAt": "2026-09-09T08:12:15.217Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534981_0ys0",
+    "url": "/uploads/media_1788941534981_0ys0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5537.jpg",
+    "createdAt": "2026-09-09T08:12:14.981Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534980_ceuc",
+    "url": "/uploads/media_1788941534980_ceuc.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5536.jpg",
+    "createdAt": "2026-09-09T08:12:14.981Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534969_4v4k",
+    "url": "/uploads/media_1788941534969_4v4k.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5535.jpg",
+    "createdAt": "2026-09-09T08:12:14.980Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534406_jndt",
+    "url": "/uploads/media_1788941534406_jndt.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5486.jpg",
+    "createdAt": "2026-09-09T08:12:14.406Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534405_ird0",
+    "url": "/uploads/media_1788941534405_ird0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5485.jpg",
+    "createdAt": "2026-09-09T08:12:14.406Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534405_apk0",
+    "url": "/uploads/media_1788941534405_apk0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5474.jpg",
+    "createdAt": "2026-09-09T08:12:14.405Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534082_jvz5",
+    "url": "/uploads/media_1788941534082_jvz5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5463.jpg",
+    "createdAt": "2026-09-09T08:12:14.082Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941534081_nt0z",
+    "url": "/uploads/media_1788941534081_nt0z.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5462.jpg",
+    "createdAt": "2026-09-09T08:12:14.082Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533817_ul4b",
+    "url": "/uploads/media_1788941533817_ul4b.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5461.jpg",
+    "createdAt": "2026-09-09T08:12:13.817Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533806_qfrj",
+    "url": "/uploads/media_1788941533806_qfrj.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5404.jpg",
+    "createdAt": "2026-09-09T08:12:13.817Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533578_wrt5",
+    "url": "/uploads/media_1788941533578_wrt5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5392.jpg",
+    "createdAt": "2026-09-09T08:12:13.579Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533578_ke8n",
+    "url": "/uploads/media_1788941533578_ke8n.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5357.jpg",
+    "createdAt": "2026-09-09T08:12:13.578Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533577_9v5d",
+    "url": "/uploads/media_1788941533577_9v5d.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5354.jpg",
+    "createdAt": "2026-09-09T08:12:13.578Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533355_hr0r",
+    "url": "/uploads/media_1788941533355_hr0r.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5319.jpg",
+    "createdAt": "2026-09-09T08:12:13.355Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533354_3om9",
+    "url": "/uploads/media_1788941533354_3om9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5317.jpg",
+    "createdAt": "2026-09-09T08:12:13.355Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533141_179b",
+    "url": "/uploads/media_1788941533141_179b.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5316.jpg",
+    "createdAt": "2026-09-09T08:12:13.142Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533141_e7tq",
+    "url": "/uploads/media_1788941533141_e7tq.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5314.jpg",
+    "createdAt": "2026-09-09T08:12:13.141Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941533140_c4ic",
+    "url": "/uploads/media_1788941533140_c4ic.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5313.jpg",
+    "createdAt": "2026-09-09T08:12:13.141Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941532809_4gl9",
+    "url": "/uploads/media_1788941532809_4gl9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5311.jpg",
+    "createdAt": "2026-09-09T08:12:12.810Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941532809_eund",
+    "url": "/uploads/media_1788941532809_eund.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5306.jpg",
+    "createdAt": "2026-09-09T08:12:12.809Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941532520_spbs",
+    "url": "/uploads/media_1788941532520_spbs.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5305.jpg",
+    "createdAt": "2026-09-09T08:12:12.521Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941532520_o6uc",
+    "url": "/uploads/media_1788941532520_o6uc.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5304.jpg",
+    "createdAt": "2026-09-09T08:12:12.520Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941532121_brdu",
+    "url": "/uploads/media_1788941532121_brdu.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5276.jpg",
+    "createdAt": "2026-09-09T08:12:12.121Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941532120_5t6l",
+    "url": "/uploads/media_1788941532120_5t6l.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5275.jpg",
+    "createdAt": "2026-09-09T08:12:12.121Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941532120_gxgh",
+    "url": "/uploads/media_1788941532120_gxgh.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5274.jpg",
+    "createdAt": "2026-09-09T08:12:12.120Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530953_lfcu",
+    "url": "/uploads/media_1788941530953_lfcu.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5189.jpg",
+    "createdAt": "2026-09-09T08:12:10.954Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530952_t9vb",
+    "url": "/uploads/media_1788941530952_t9vb.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5153.jpg",
+    "createdAt": "2026-09-09T08:12:10.953Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530358_e6qm",
+    "url": "/uploads/media_1788941530358_e6qm.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5152.jpg",
+    "createdAt": "2026-09-09T08:12:10.358Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530357_nalx",
+    "url": "/uploads/media_1788941530357_nalx.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5150.jpg",
+    "createdAt": "2026-09-09T08:12:10.358Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530356_1g1v",
+    "url": "/uploads/media_1788941530356_1g1v.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5100.jpg",
+    "createdAt": "2026-09-09T08:12:10.357Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530012_e7bs",
+    "url": "/uploads/media_1788941530012_e7bs.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5099.jpg",
+    "createdAt": "2026-09-09T08:12:10.013Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530011_l8nu",
+    "url": "/uploads/media_1788941530011_l8nu.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5098.jpg",
+    "createdAt": "2026-09-09T08:12:10.012Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941530010_zso0",
+    "url": "/uploads/media_1788941530010_zso0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5096.jpg",
+    "createdAt": "2026-09-09T08:12:10.011Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941529459_om6y",
+    "url": "/uploads/media_1788941529459_om6y.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5079.jpg",
+    "createdAt": "2026-09-09T08:12:09.460Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941529459_8dsl",
+    "url": "/uploads/media_1788941529459_8dsl.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_5013.jpg",
+    "createdAt": "2026-09-09T08:12:09.459Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941529182_c5je",
+    "url": "/uploads/media_1788941529182_c5je.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4992.jpg",
+    "createdAt": "2026-09-09T08:12:09.183Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941529182_09zv",
+    "url": "/uploads/media_1788941529182_09zv.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4991.jpg",
+    "createdAt": "2026-09-09T08:12:09.182Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941529181_s34t",
+    "url": "/uploads/media_1788941529181_s34t.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4987.jpg",
+    "createdAt": "2026-09-09T08:12:09.182Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941528770_4jrz",
+    "url": "/uploads/media_1788941528770_4jrz.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4986.jpg",
+    "createdAt": "2026-09-09T08:12:08.770Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941528769_gdoa",
+    "url": "/uploads/media_1788941528769_gdoa.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4984.jpg",
+    "createdAt": "2026-09-09T08:12:08.769Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941528511_zjrv",
+    "url": "/uploads/media_1788941528511_zjrv.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4982.jpg",
+    "createdAt": "2026-09-09T08:12:08.512Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941528510_jdlv",
+    "url": "/uploads/media_1788941528510_jdlv.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4981.jpg",
+    "createdAt": "2026-09-09T08:12:08.511Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941528509_ind0",
+    "url": "/uploads/media_1788941528509_ind0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4980.jpg",
+    "createdAt": "2026-09-09T08:12:08.510Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941528192_ssej",
+    "url": "/uploads/media_1788941528192_ssej.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4978.jpg",
+    "createdAt": "2026-09-09T08:12:08.193Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941528192_rlh9",
+    "url": "/uploads/media_1788941528192_rlh9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4909.jpg",
+    "createdAt": "2026-09-09T08:12:08.192Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941527912_jjp8",
+    "url": "/uploads/media_1788941527912_jjp8.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4908.jpg",
+    "createdAt": "2026-09-09T08:12:07.913Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941527102_dva7",
+    "url": "/uploads/media_1788941527102_dva7.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4821.jpg",
+    "createdAt": "2026-09-09T08:12:07.103Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941526573_j9uq",
+    "url": "/uploads/media_1788941526573_j9uq.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4740.jpg",
+    "createdAt": "2026-09-09T08:12:06.573Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941525035_n93j",
+    "url": "/uploads/media_1788941525035_n93j.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4670.jpg",
+    "createdAt": "2026-09-09T08:12:05.036Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
     "id": "media_1788941524083_o7k0",
     "url": "/uploads/media_1788941524083_o7k0.jpeg",
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
@@ -41,6 +1182,15 @@
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
     "filename": "IMG_4584.jpg",
     "createdAt": "2026-09-09T08:12:04.083Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941523800_t00b",
+    "url": "/uploads/media_1788941523800_t00b.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4434.jpg",
+    "createdAt": "2026-09-09T08:12:03.801Z",
     "kho": "kho_3",
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
@@ -72,38 +1222,272 @@
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
   {
-    "id": "media_1788941514876_9nz5",
-    "url": "/uploads/media_1788941514876_9nz5.jpeg",
+    "id": "media_1788941522910_b6ji",
+    "url": "/uploads/media_1788941522910_b6ji.jpeg",
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
-    "filename": "IMG_4068.jpg",
-    "createdAt": "2026-09-09T08:11:54.877Z",
+    "filename": "IMG_4379.jpg",
+    "createdAt": "2026-09-09T08:12:02.911Z",
     "kho": "kho_3",
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
   {
-    "id": "media_1788941514415_hoj8",
-    "url": "/uploads/media_1788941514415_hoj8.jpeg",
+    "id": "media_1788941522271_zjnu",
+    "url": "/uploads/media_1788941522271_zjnu.jpeg",
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
-    "filename": "IMG_4055.jpg",
+    "filename": "IMG_4280.jpg",
+    "createdAt": "2026-09-09T08:12:02.271Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941521753_7vqk",
+    "url": "/uploads/media_1788941521753_7vqk.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4260.jpg",
+    "createdAt": "2026-09-09T08:12:01.753Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941520650_p5t9",
+    "url": "/uploads/media_1788941520650_p5t9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4249.jpg",
+    "createdAt": "2026-09-09T08:12:00.651Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941519696_bgl9",
+    "url": "/uploads/media_1788941519696_bgl9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4208.jpg",
+    "createdAt": "2026-09-09T08:11:59.696Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941518683_sika",
+    "url": "/uploads/media_1788941518683_sika.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4136.jpg",
+    "createdAt": "2026-09-09T08:11:58.684Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941517031_c271",
+    "url": "/uploads/media_1788941517031_c271.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4119.jpg",
+    "createdAt": "2026-09-09T08:11:57.031Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941516657_sk4z",
+    "url": "/uploads/media_1788941516657_sk4z.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4082.jpg",
+    "createdAt": "2026-09-09T08:11:56.658Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941515085_ey3r",
+    "url": "/uploads/media_1788941515085_ey3r.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4069.jpg",
+    "createdAt": "2026-09-09T08:11:55.085Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941514416_yjv9",
+    "url": "/uploads/media_1788941514416_yjv9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_4060.jpg",
     "createdAt": "2026-09-09T08:11:54.416Z",
     "kho": "kho_3",
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
   {
-    "id": "media_1788941514414_eimr",
-    "url": "/uploads/media_1788941514414_eimr.jpeg",
+    "id": "media_1788941514182_kzw8",
+    "url": "/uploads/media_1788941514182_kzw8.jpeg",
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
-    "filename": "IMG_4008.jpg",
-    "createdAt": "2026-09-09T08:11:54.415Z",
+    "filename": "IMG_3969.jpg",
+    "createdAt": "2026-09-09T08:11:54.182Z",
     "kho": "kho_3",
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
   {
-    "id": "media_1788941514286_8zd7",
-    "url": "/uploads/media_1788941514286_8zd7.jpeg",
+    "id": "media_1788941513817_3bir",
+    "url": "/uploads/media_1788941513817_3bir.jpeg",
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
-    "filename": "IMG_4007.jpg",
-    "createdAt": "2026-09-09T08:11:54.287Z",
+    "filename": "IMG_3794.jpg",
+    "createdAt": "2026-09-09T08:11:53.818Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941512377_ierc",
+    "url": "/uploads/media_1788941512377_ierc.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3771.jpg",
+    "createdAt": "2026-09-09T08:11:52.377Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941511970_6pvj",
+    "url": "/uploads/media_1788941511970_6pvj.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3642.jpg",
+    "createdAt": "2026-09-09T08:11:51.970Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941511401_42cl",
+    "url": "/uploads/media_1788941511401_42cl.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3633.jpg",
+    "createdAt": "2026-09-09T08:11:51.402Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941510424_9m3s",
+    "url": "/uploads/media_1788941510424_9m3s.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3623.jpg",
+    "createdAt": "2026-09-09T08:11:50.425Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941508997_dzq6",
+    "url": "/uploads/media_1788941508997_dzq6.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3613.jpg",
+    "createdAt": "2026-09-09T08:11:48.998Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941508148_k964",
+    "url": "/uploads/media_1788941508148_k964.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3562.jpg",
+    "createdAt": "2026-09-09T08:11:48.148Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941506648_nwqx",
+    "url": "/uploads/media_1788941506648_nwqx.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3548.jpg",
+    "createdAt": "2026-09-09T08:11:46.649Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941506259_bbbm",
+    "url": "/uploads/media_1788941506259_bbbm.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3461.jpg",
+    "createdAt": "2026-09-09T08:11:46.259Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941505719_bf8i",
+    "url": "/uploads/media_1788941505719_bf8i.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3368.jpg",
+    "createdAt": "2026-09-09T08:11:45.720Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941503752_ex2x",
+    "url": "/uploads/media_1788941503752_ex2x.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3323.jpg",
+    "createdAt": "2026-09-09T08:11:43.752Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941503255_jg5k",
+    "url": "/uploads/media_1788941503255_jg5k.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3283.jpg",
+    "createdAt": "2026-09-09T08:11:43.256Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941502468_wr4s",
+    "url": "/uploads/media_1788941502468_wr4s.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3266.jpg",
+    "createdAt": "2026-09-09T08:11:42.469Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941501871_8wiv",
+    "url": "/uploads/media_1788941501871_8wiv.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3232.jpg",
+    "createdAt": "2026-09-09T08:11:41.871Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941500539_9gh9",
+    "url": "/uploads/media_1788941500539_9gh9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3198.jpg",
+    "createdAt": "2026-09-09T08:11:40.540Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941499101_3qu0",
+    "url": "/uploads/media_1788941499101_3qu0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3188.jpg",
+    "createdAt": "2026-09-09T08:11:39.101Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941498724_4k0b",
+    "url": "/uploads/media_1788941498724_4k0b.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3163.jpg",
+    "createdAt": "2026-09-09T08:11:38.725Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941498269_7u0v",
+    "url": "/uploads/media_1788941498269_7u0v.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3135.jpg",
+    "createdAt": "2026-09-09T08:11:38.270Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941497024_ks6c",
+    "url": "/uploads/media_1788941497024_ks6c.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3117.jpg",
+    "createdAt": "2026-09-09T08:11:37.025Z",
     "kho": "kho_3",
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
@@ -113,6 +1497,555 @@
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
     "filename": "IMG_3096.jpg",
     "createdAt": "2026-09-09T08:11:35.164Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941494879_menl",
+    "url": "/uploads/media_1788941494879_menl.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3088.jpg",
+    "createdAt": "2026-09-09T08:11:34.879Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941494078_v6e9",
+    "url": "/uploads/media_1788941494078_v6e9.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3071.jpg",
+    "createdAt": "2026-09-09T08:11:34.079Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941492630_unqq",
+    "url": "/uploads/media_1788941492630_unqq.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3060.jpg",
+    "createdAt": "2026-09-09T08:11:32.630Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941491224_ciee",
+    "url": "/uploads/media_1788941491224_ciee.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_3039.jpg",
+    "createdAt": "2026-09-09T08:11:31.225Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941490957_j42v",
+    "url": "/uploads/media_1788941490957_j42v.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2984.jpg",
+    "createdAt": "2026-09-09T08:11:30.958Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941490306_z5lc",
+    "url": "/uploads/media_1788941490306_z5lc.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2798.jpg",
+    "createdAt": "2026-09-09T08:11:30.307Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941490088_zrj1",
+    "url": "/uploads/media_1788941490088_zrj1.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2752.jpg",
+    "createdAt": "2026-09-09T08:11:30.088Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941488107_6b0s",
+    "url": "/uploads/media_1788941488107_6b0s.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2653.jpg",
+    "createdAt": "2026-09-09T08:11:28.108Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941486709_eh54",
+    "url": "/uploads/media_1788941486709_eh54.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2601.jpg",
+    "createdAt": "2026-09-09T08:11:26.709Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941486458_8v52",
+    "url": "/uploads/media_1788941486458_8v52.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2587.jpg",
+    "createdAt": "2026-09-09T08:11:26.459Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941485776_2b23",
+    "url": "/uploads/media_1788941485776_2b23.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2541.jpg",
+    "createdAt": "2026-09-09T08:11:25.776Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941485181_fy9k",
+    "url": "/uploads/media_1788941485181_fy9k.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2520.jpg",
+    "createdAt": "2026-09-09T08:11:25.182Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941484766_be20",
+    "url": "/uploads/media_1788941484766_be20.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2510.jpg",
+    "createdAt": "2026-09-09T08:11:24.767Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941484431_c03r",
+    "url": "/uploads/media_1788941484431_c03r.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2492.jpg",
+    "createdAt": "2026-09-09T08:11:24.431Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941484266_nn4e",
+    "url": "/uploads/media_1788941484266_nn4e.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2450.jpg",
+    "createdAt": "2026-09-09T08:11:24.267Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941483520_eja4",
+    "url": "/uploads/media_1788941483520_eja4.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2393.jpg",
+    "createdAt": "2026-09-09T08:11:23.521Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941483031_1tu2",
+    "url": "/uploads/media_1788941483031_1tu2.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2385.jpg",
+    "createdAt": "2026-09-09T08:11:23.031Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941482560_3fii",
+    "url": "/uploads/media_1788941482560_3fii.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2361.jpg",
+    "createdAt": "2026-09-09T08:11:22.561Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941482376_zn0u",
+    "url": "/uploads/media_1788941482376_zn0u.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2349.jpg",
+    "createdAt": "2026-09-09T08:11:22.376Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941481242_xmkt",
+    "url": "/uploads/media_1788941481242_xmkt.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2324.jpg",
+    "createdAt": "2026-09-09T08:11:21.253Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941480163_j1rg",
+    "url": "/uploads/media_1788941480163_j1rg.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2309.jpg",
+    "createdAt": "2026-09-09T08:11:20.164Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941479531_rsf7",
+    "url": "/uploads/media_1788941479531_rsf7.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2263.jpg",
+    "createdAt": "2026-09-09T08:11:19.532Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941478413_hxxh",
+    "url": "/uploads/media_1788941478413_hxxh.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2239.jpg",
+    "createdAt": "2026-09-09T08:11:18.414Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941477284_ds4r",
+    "url": "/uploads/media_1788941477284_ds4r.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2232.jpg",
+    "createdAt": "2026-09-09T08:11:17.285Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941476764_52lq",
+    "url": "/uploads/media_1788941476764_52lq.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2210.jpg",
+    "createdAt": "2026-09-09T08:11:16.765Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941476397_zhb0",
+    "url": "/uploads/media_1788941476397_zhb0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2188.jpg",
+    "createdAt": "2026-09-09T08:11:16.398Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941476197_03vp",
+    "url": "/uploads/media_1788941476197_03vp.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2181.jpg",
+    "createdAt": "2026-09-09T08:11:16.198Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941475969_b7pb",
+    "url": "/uploads/media_1788941475969_b7pb.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2172.jpg",
+    "createdAt": "2026-09-09T08:11:15.969Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941475592_uco5",
+    "url": "/uploads/media_1788941475592_uco5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2165.jpg",
+    "createdAt": "2026-09-09T08:11:15.593Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941475231_dwbc",
+    "url": "/uploads/media_1788941475231_dwbc.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2080.jpg",
+    "createdAt": "2026-09-09T08:11:15.232Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941473914_0cbe",
+    "url": "/uploads/media_1788941473914_0cbe.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2065.jpg",
+    "createdAt": "2026-09-09T08:11:13.914Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941473265_zpla",
+    "url": "/uploads/media_1788941473265_zpla.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_2001.jpg",
+    "createdAt": "2026-09-09T08:11:13.266Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941472305_42u5",
+    "url": "/uploads/media_1788941472305_42u5.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1770.jpg",
+    "createdAt": "2026-09-09T08:11:12.305Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941471091_gqkr",
+    "url": "/uploads/media_1788941471091_gqkr.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1711.jpg",
+    "createdAt": "2026-09-09T08:11:11.091Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941470408_hb1g",
+    "url": "/uploads/media_1788941470408_hb1g.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1673.jpg",
+    "createdAt": "2026-09-09T08:11:10.408Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941470238_b41j",
+    "url": "/uploads/media_1788941470238_b41j.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1583.jpg",
+    "createdAt": "2026-09-09T08:11:10.239Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941469745_9nbu",
+    "url": "/uploads/media_1788941469745_9nbu.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1542.jpg",
+    "createdAt": "2026-09-09T08:11:09.745Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941469137_42t1",
+    "url": "/uploads/media_1788941469137_42t1.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1524.jpg",
+    "createdAt": "2026-09-09T08:11:09.138Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941468494_ulq2",
+    "url": "/uploads/media_1788941468494_ulq2.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1257.jpg",
+    "createdAt": "2026-09-09T08:11:08.495Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941468253_6bct",
+    "url": "/uploads/media_1788941468253_6bct.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1243.jpg",
+    "createdAt": "2026-09-09T08:11:08.254Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941467964_q2uu",
+    "url": "/uploads/media_1788941467964_q2uu.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1196.jpg",
+    "createdAt": "2026-09-09T08:11:07.965Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941467772_mdxg",
+    "url": "/uploads/media_1788941467772_mdxg.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1150.jpg",
+    "createdAt": "2026-09-09T08:11:07.773Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941467580_yk3a",
+    "url": "/uploads/media_1788941467580_yk3a.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1143.jpg",
+    "createdAt": "2026-09-09T08:11:07.581Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941467286_xxjo",
+    "url": "/uploads/media_1788941467286_xxjo.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1136.jpg",
+    "createdAt": "2026-09-09T08:11:07.287Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941467005_rt1a",
+    "url": "/uploads/media_1788941467005_rt1a.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1098.jpg",
+    "createdAt": "2026-09-09T08:11:07.006Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941466103_oiot",
+    "url": "/uploads/media_1788941466103_oiot.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1090.jpg",
+    "createdAt": "2026-09-09T08:11:06.104Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941465830_yjkx",
+    "url": "/uploads/media_1788941465830_yjkx.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1077.jpg",
+    "createdAt": "2026-09-09T08:11:05.830Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941465626_0mfl",
+    "url": "/uploads/media_1788941465626_0mfl.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_1052.jpg",
+    "createdAt": "2026-09-09T08:11:05.626Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941465253_jgky",
+    "url": "/uploads/media_1788941465253_jgky.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0943.jpg",
+    "createdAt": "2026-09-09T08:11:05.254Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941464525_znqt",
+    "url": "/uploads/media_1788941464525_znqt.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0826.jpg",
+    "createdAt": "2026-09-09T08:11:04.525Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941464251_7hht",
+    "url": "/uploads/media_1788941464251_7hht.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0736.jpg",
+    "createdAt": "2026-09-09T08:11:04.251Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941464094_qtag",
+    "url": "/uploads/media_1788941464094_qtag.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0720.jpg",
+    "createdAt": "2026-09-09T08:11:04.095Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941463470_r28f",
+    "url": "/uploads/media_1788941463470_r28f.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0666.jpg",
+    "createdAt": "2026-09-09T08:11:03.470Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941462394_ngo0",
+    "url": "/uploads/media_1788941462394_ngo0.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0402.jpg",
+    "createdAt": "2026-09-09T08:11:02.396Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941461788_xb2b",
+    "url": "/uploads/media_1788941461788_xb2b.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0284.jpg",
+    "createdAt": "2026-09-09T08:11:01.788Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941461454_bs24",
+    "url": "/uploads/media_1788941461454_bs24.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0267.jpg",
+    "createdAt": "2026-09-09T08:11:01.454Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941461153_c86w",
+    "url": "/uploads/media_1788941461153_c86w.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0093.jpg",
+    "createdAt": "2026-09-09T08:11:01.153Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941460745_4h8p",
+    "url": "/uploads/media_1788941460745_4h8p.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "IMG_0046.jpg",
+    "createdAt": "2026-09-09T08:11:00.746Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941460109_jwmo",
+    "url": "/uploads/media_1788941460109_jwmo.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "GWXZ5124.jpg",
+    "createdAt": "2026-09-09T08:11:00.110Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941459716_ulgl",
+    "url": "/uploads/media_1788941459716_ulgl.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "GGPA1655.jpg",
+    "createdAt": "2026-09-09T08:10:59.717Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941459354_2c1i",
+    "url": "/uploads/media_1788941459354_2c1i.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "EUYO1587 - Copy.jpg",
+    "createdAt": "2026-09-09T08:10:59.354Z",
     "kho": "kho_3",
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
@@ -135,11 +2068,20 @@
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
   {
-    "id": "media_1788941458635_kcd2",
-    "url": "/uploads/media_1788941458635_kcd2.jpeg",
+    "id": "media_1788941458635_8wre",
+    "url": "/uploads/media_1788941458635_8wre.jpeg",
     "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
-    "filename": "CMIE4561.jpg",
-    "createdAt": "2026-09-09T08:10:58.635Z",
+    "filename": "CTOG6036.jpg",
+    "createdAt": "2026-09-09T08:10:58.636Z",
+    "kho": "kho_3",
+    "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
+  },
+  {
+    "id": "media_1788941458080_g404",
+    "url": "/uploads/media_1788941458080_g404.jpeg",
+    "tagKeyword": "Lọc Nước Mặn, Tinh Khiết RO",
+    "filename": "BOLQ9272.jpg",
+    "createdAt": "2026-09-09T08:10:58.080Z",
     "kho": "kho_3",
     "categoryName": "Lọc Nước Mặn, Tinh Khiết RO"
   },
