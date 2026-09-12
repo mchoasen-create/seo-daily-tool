@@ -5,6 +5,7 @@ const {
   updatePostImages, 
   randomizePostImages,
   rotateKhoMediaToPosts,
+  rotateMediaToAllPosts,
   bulkUpdateKho,
   bulkDeleteMedia,
   syncKhoFiles,
@@ -315,47 +316,6 @@ app.post('/api/media/update-image', (req, res) => {
   res.status(400).json({ success: false, message: 'Dữ liệu ảnh xoay không hợp lệ.' });
 });
 
-function rotateMediaToAllPosts() {
-  const posts = getPosts();
-  const mediaList = getCustomMedia();
-  if (!mediaList || mediaList.length === 0) {
-    return { success: false, message: 'Chưa có ảnh nào trong Thư Viện Ảnh Thực Tế.' };
-  }
-
-  let updatedCount = 0;
-  const usedInBatch = [];
-
-  for (let i = 0; i < posts.length; i++) {
-    const post = posts[i];
-    const kw = post.targetKeyword || post.keyword || post.title || '';
-    const imgPair = getTwoDistinctRotatedImages(kw, usedInBatch);
-    const img1 = imgPair.img1;
-    const img2 = imgPair.img2;
-    usedInBatch.push(img1, img2);
-
-    post.imageUrl = img1;
-    post.featured_image = img1;
-    post.secondaryImageUrl = img2;
-
-    if (post.content) {
-      let count = 0;
-      post.content = post.content.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt) => {
-        count++;
-        if (count === 1) {
-          return `![${alt || post.targetKeyword || 'Hệ thống lọc nước Hoa Sen'}](${img1})`;
-        } else if (count === 2) {
-          return `![${alt || post.targetKeyword || 'Chi tiết cấu tạo lọc nước Hoa Sen'}](${img2})`;
-        }
-        return match;
-      });
-    }
-
-    updatedCount++;
-  }
-
-  savePosts(posts);
-  return { success: true, updatedCount, totalMedia: mediaList.length };
-}
 
 app.post('/api/media/rotate-all', (req, res) => {
   const result = rotateMediaToAllPosts();
