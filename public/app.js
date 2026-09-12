@@ -2970,6 +2970,8 @@ function initKeywordClusteringUI() {
 let activeCustomMediaKho = 'kho_1';
 let currentMediaItemsCache = [];
 let selectedMediaIds = new Set();
+let mediaPage = 1;
+let mediaPageSize = 24;
 
 let KHO_METADATA = {
   kho_1: {
@@ -3032,6 +3034,7 @@ async function loadKhoConfig() {
 
 function switchActiveKho(kho) {
   activeCustomMediaKho = kho;
+  mediaPage = 1;
   selectedMediaIds.clear();
   updateBulkToolbarUI();
 
@@ -3175,13 +3178,15 @@ function updateBulkToolbarUI() {
 
 function renderCustomMediaGrid(mediaList) {
   const grid = document.getElementById('custom-media-gallery-grid');
+  const paginContainer = document.getElementById('custom-media-pagination-container');
   if (!grid) return;
 
   grid.innerHTML = '';
+  if (paginContainer) paginContainer.innerHTML = '';
   selectedMediaIds.clear();
   updateBulkToolbarUI();
 
-  if (mediaList.length === 0) {
+  if (!mediaList || mediaList.length === 0) {
     grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 50px 20px; background: rgba(15, 23, 42, 0.4); border-radius: 12px; border: 1px dashed var(--border-color);">
       <i class="fa-solid fa-folder-open" style="font-size: 2.8rem; color: #64748b; margin-bottom: 12px; display: block;"></i>
       <div style="font-weight: 600; font-size: 1rem; color: #fff; margin-bottom: 6px;">Kho này hiện chưa có ảnh nào</div>
@@ -3192,7 +3197,17 @@ function renderCustomMediaGrid(mediaList) {
     return;
   }
 
-  mediaList.forEach(m => {
+  // 1. Phân trang mượt mà (Chống lag tuyệt đối khi kho có hàng trăm ảnh)
+  const total = mediaList.length;
+  const totalPages = Math.ceil(total / mediaPageSize);
+  if (mediaPage > totalPages) mediaPage = totalPages;
+  if (mediaPage < 1) mediaPage = 1;
+
+  const startIndex = (mediaPage - 1) * mediaPageSize;
+  const endIndex = Math.min(startIndex + mediaPageSize, total);
+  const pagedItems = mediaList.slice(startIndex, endIndex);
+
+  pagedItems.forEach(m => {
     const card = document.createElement('div');
     card.className = 'custom-media-card';
     card.style.cssText = 'background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2);';
@@ -3203,12 +3218,13 @@ function renderCustomMediaGrid(mediaList) {
     );
 
     let badgeHtml = '';
+    const shortLabel = KHO_METADATA[mKho]?.shortName || mKho;
     if (mKho === 'kho_1') {
-      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(14, 165, 233, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-house-chimney"></i> Kho 1</span>`;
+      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(14, 165, 233, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-house-chimney"></i> ${escapeHtml(shortLabel)}</span>`;
     } else if (mKho === 'kho_2') {
-      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(245, 158, 11, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-industry"></i> Kho 2</span>`;
+      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(245, 158, 11, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-industry"></i> ${escapeHtml(shortLabel)}</span>`;
     } else if (mKho === 'kho_3') {
-      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(16, 185, 129, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-water"></i> Kho 3</span>`;
+      badgeHtml = `<span style="position: absolute; top: 8px; left: 32px; background: rgba(16, 185, 129, 0.95); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 2;"><i class="fa-solid fa-water"></i> ${escapeHtml(shortLabel)}</span>`;
     }
 
     const driveIcon = m.isDrive ? '<i class="fa-brands fa-google-drive" style="color: #4285f4; margin-right: 4px;"></i>' : '<i class="fa-solid fa-image" style="color: #10b981; margin-right: 4px;"></i>';
@@ -3222,7 +3238,7 @@ function renderCustomMediaGrid(mediaList) {
 
       <!-- Image Box -->
       <div style="width: 100%; height: 140px; background: #0b0f19; overflow: hidden; position: relative;">
-        <img src="${m.url}" alt="${escapeHtml(m.alt || m.tagKeyword || 'Ảnh công trình Hoa Sen')}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+        <img src="${m.url}" alt="${escapeHtml(m.alt || m.tagKeyword || 'Ảnh công trình Hoa Sen')}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
         <button class="btn-rotate-media" data-id="${m.id}" title="Xoay 90° sang phải" style="position: absolute; bottom: 6px; right: 6px; background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-color); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; z-index: 2;">
           <i class="fa-solid fa-rotate-right"></i>
         </button>
@@ -3250,15 +3266,61 @@ function renderCustomMediaGrid(mediaList) {
         <!-- Quick Kho Selector -->
         <div style="display: flex; align-items: center; gap: 4px;">
           <select class="select-change-kho" data-id="${m.id}" style="width: 100%; background: rgba(30, 41, 59, 0.95); border: 1px solid var(--border-color); color: #e2e8f0; font-size: 0.75rem; border-radius: 4px; padding: 3px 6px; cursor: pointer;">
-            <option value="kho_1" ${mKho === 'kho_1' ? 'selected' : ''}>📁 Kho 1: Sinh Hoạt / Giếng / Phèn</option>
-            <option value="kho_2" ${mKho === 'kho_2' ? 'selected' : ''}>🏭 Kho 2: Công Nghiệp</option>
-            <option value="kho_3" ${mKho === 'kho_3' ? 'selected' : ''}>💧 Kho 3: Mặn / RO Tinh Khiết</option>
+            <option value="kho_1" ${mKho === 'kho_1' ? 'selected' : ''}>📁 ${escapeHtml(KHO_METADATA.kho_1?.name || 'Kho 1')}</option>
+            <option value="kho_2" ${mKho === 'kho_2' ? 'selected' : ''}>🏭 ${escapeHtml(KHO_METADATA.kho_2?.name || 'Kho 2')}</option>
+            <option value="kho_3" ${mKho === 'kho_3' ? 'selected' : ''}>💧 ${escapeHtml(KHO_METADATA.kho_3?.name || 'Kho 3')}</option>
           </select>
         </div>
       </div>
     `;
     grid.appendChild(card);
   });
+
+  // 2. Render Thanh Phân Trang Siêu Mượt
+  if (paginContainer && totalPages > 1) {
+    paginContainer.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 12px 18px; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: 10px;">
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Đang hiển thị <strong style="color: #fff;">${startIndex + 1} - ${endIndex}</strong> trên tổng số <strong style="color: var(--accent-primary);">${total}</strong> ảnh
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button class="btn btn-sm btn-secondary btn-pagin-nav" data-page="1" ${mediaPage === 1 ? 'disabled' : ''} title="Trang đầu">&laquo;&laquo;</button>
+          <button class="btn btn-sm btn-secondary btn-pagin-nav" data-page="${mediaPage - 1}" ${mediaPage <= 1 ? 'disabled' : ''}>&laquo; Trước</button>
+          <span style="font-size: 0.85rem; font-weight: 700; color: #fff; padding: 4px 12px; background: rgba(255,255,255,0.08); border-radius: 6px;">Trang ${mediaPage} / ${totalPages}</span>
+          <button class="btn btn-sm btn-secondary btn-pagin-nav" data-page="${mediaPage + 1}" ${mediaPage >= totalPages ? 'disabled' : ''}>Sau &raquo;</button>
+          <button class="btn btn-sm btn-secondary btn-pagin-nav" data-page="${totalPages}" ${mediaPage === totalPages ? 'disabled' : ''} title="Trang cuối">&raquo;&raquo;</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Mỗi trang:</span>
+          <select id="select-media-page-size" style="background: rgba(30, 41, 59, 0.9); border: 1px solid var(--border-color); color: #fff; font-size: 0.8rem; border-radius: 6px; padding: 4px 8px; cursor: pointer;">
+            <option value="24" ${mediaPageSize === 24 ? 'selected' : ''}>24 ảnh</option>
+            <option value="48" ${mediaPageSize === 48 ? 'selected' : ''}>48 ảnh</option>
+            <option value="96" ${mediaPageSize === 96 ? 'selected' : ''}>96 ảnh</option>
+          </select>
+        </div>
+      </div>
+    `;
+
+    paginContainer.querySelectorAll('.btn-pagin-nav').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetPage = parseInt(e.currentTarget.getAttribute('data-page'));
+        if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= totalPages) {
+          mediaPage = targetPage;
+          renderCustomMediaGrid(mediaList);
+          document.getElementById('active-kho-workspace')?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    const pageSizeSelect = document.getElementById('select-media-page-size');
+    if (pageSizeSelect) {
+      pageSizeSelect.addEventListener('change', (e) => {
+        mediaPageSize = parseInt(e.currentTarget.value) || 24;
+        mediaPage = 1;
+        renderCustomMediaGrid(mediaList);
+      });
+    }
+  }
 
   // Checkbox item change
   grid.querySelectorAll('.check-media-item').forEach(chk => {

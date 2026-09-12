@@ -27,12 +27,13 @@
     "id": "kw_1789046097407_wk95",
     "keyword": "Lọc Nước Tinh Khiết",
     "topic": "Lọc Nước Tinh Khiết",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:59:27.708Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-tinh-khiet-r-o-1000-lit-1-gio/",
     "generatedPostId": "post_auto_1789045167708_3_xk6f",
     "pregenerated": true,
-    "isRotated": true
+    "isRotated": true,
+    "completedAt": "2026-09-12T01:18:43.338Z"
   },
   {
     "id": "kw_1789046097407_mal2",
@@ -104,5 +105,16 @@
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-cong-nghiep-cong-suat-2000-lit-1-gio/",
     "generatedPostId": "post_auto_1789045167709_5_l9xa",
     "pregenerated": true
+  },
+  {
+    "id": "kw_1789175923338_bdt8",
+    "keyword": "Lọc Nước Tinh Khiết",
+    "topic": "Lọc Nước Tinh Khiết",
+    "status": "pending",
+    "createdAt": "2026-09-12T01:18:43.339Z",
+    "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-tinh-khiet-r-o-1000-lit-1-gio/",
+    "generatedPostId": null,
+    "pregenerated": false,
+    "isRotated": true
   }
 ]
