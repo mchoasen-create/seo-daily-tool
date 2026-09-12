@@ -3273,6 +3273,30 @@ function renderCustomMediaGrid(mediaList) {
         </div>
       </div>
     `;
+
+    // Bấm vào bất kỳ đâu trên card (ngoại trừ nút/menu) để chọn ảnh ngay
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('button') || e.target.closest('select') || e.target.closest('input')) {
+        return;
+      }
+      const chk = card.querySelector('.check-media-item');
+      if (chk) {
+        chk.checked = !chk.checked;
+        const id = chk.getAttribute('data-id');
+        if (chk.checked) {
+          selectedMediaIds.add(id);
+          card.style.borderColor = '#0ea5e9';
+          card.style.boxShadow = '0 0 14px rgba(14, 165, 233, 0.45)';
+        } else {
+          selectedMediaIds.delete(id);
+          card.style.borderColor = 'var(--border-color)';
+          card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+        }
+        updateBulkToolbarUI();
+      }
+    });
+
     grid.appendChild(card);
   });
 
@@ -3326,10 +3350,19 @@ function renderCustomMediaGrid(mediaList) {
   grid.querySelectorAll('.check-media-item').forEach(chk => {
     chk.addEventListener('change', (e) => {
       const id = e.currentTarget.getAttribute('data-id');
+      const card = chk.closest('.custom-media-card');
       if (e.currentTarget.checked) {
         selectedMediaIds.add(id);
+        if (card) {
+          card.style.borderColor = '#0ea5e9';
+          card.style.boxShadow = '0 0 14px rgba(14, 165, 233, 0.45)';
+        }
       } else {
         selectedMediaIds.delete(id);
+        if (card) {
+          card.style.borderColor = 'var(--border-color)';
+          card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+        }
       }
       updateBulkToolbarUI();
     });
@@ -3506,7 +3539,19 @@ function initCustomMediaUI() {
       selectedMediaIds.clear();
       allCheckboxes.forEach(chk => {
         chk.checked = isChecked;
-        if (isChecked) selectedMediaIds.add(chk.getAttribute('data-id'));
+        const card = chk.closest('.custom-media-card');
+        if (isChecked) {
+          selectedMediaIds.add(chk.getAttribute('data-id'));
+          if (card) {
+            card.style.borderColor = '#0ea5e9';
+            card.style.boxShadow = '0 0 14px rgba(14, 165, 233, 0.45)';
+          }
+        } else {
+          if (card) {
+            card.style.borderColor = 'var(--border-color)';
+            card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+          }
+        }
       });
       updateBulkToolbarUI();
     });
@@ -3570,7 +3615,7 @@ function initCustomMediaUI() {
         btnBulkDelete.disabled = false;
       }
     });
-  });
+  }
 
   // 7. Edit Image Modal Save & Close
   const modalEdit = document.getElementById('edit-media-modal');
