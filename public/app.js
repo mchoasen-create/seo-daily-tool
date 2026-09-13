@@ -25,6 +25,19 @@ async function initApp() {
   loadSchedulerStatus();
   startCountdownLoop();
   loadWPConfig();
+
+  // Tự động kiểm tra & đồng bộ live với WordPress để dọn dẹp hàng chờ trùng lặp
+  fetch('/api/wordpress/sync', { method: 'POST' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.resolvedKeywords > 0 || res.resolvedPosts > 0) {
+        console.log('[WP Sync] Đã dọn dẹp bài trùng từ WP:', res);
+        loadKeywords();
+        loadPosts();
+        loadSchedulerStatus();
+      }
+    })
+    .catch(() => {});
 }
 
 /* --- Navigation & Tabs --- */
@@ -498,6 +511,29 @@ function setupAutoPilotEvents() {
       showToast('Không thể thực hiện đăng bài tự động.', 'error');
     }
   });
+
+  const syncWpBtn = document.getElementById('btn-sync-wp-now');
+  if (syncWpBtn) {
+    syncWpBtn.addEventListener('click', async () => {
+      syncWpBtn.disabled = true;
+      syncWpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đồng bộ từ WP...';
+      try {
+        const res = await fetch('/api/wordpress/sync', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Đã đồng bộ live với WordPress thành công!', 'success');
+          await Promise.all([loadKeywords(), loadPosts(), loadSchedulerStatus()]);
+        } else {
+          showToast(data.message || 'Lỗi đồng bộ WordPress', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi đồng bộ: ' + err.message, 'error');
+      } finally {
+        syncWpBtn.disabled = false;
+        syncWpBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> 🔄 Quét & Đồng Bộ Live Với WordPress';
+      }
+    });
+  }
 
   if (intervalSelect) {
     intervalSelect.addEventListener('change', async () => {

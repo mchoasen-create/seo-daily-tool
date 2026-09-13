@@ -39,72 +39,93 @@
     "id": "kw_1789046097407_mal2",
     "keyword": "Lọc Nước Sinh Hoạt",
     "topic": "Lọc Nước Sinh Hoạt",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:59:27.707Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/12529/",
     "generatedPostId": "post_auto_1789045167707_1_gsq2",
-    "pregenerated": true,
-    "isRotated": true
+    "pregenerated": false,
+    "isRotated": true,
+    "completedAt": "2026-09-12T02:00:40",
+    "wpPostId": 13522,
+    "wpLink": "https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat-dau-nguon-toan-dien-moi-nhat-2026/"
   },
   {
     "id": "kw_1789044601949_phen",
     "keyword": "Lọc Nước Phèn",
     "topic": "Lọc Nước Phèn",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:50:01.949Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/12529/",
     "generatedPostId": "post_auto_1789045167706_0_jepn",
-    "pregenerated": true
+    "pregenerated": false,
+    "completedAt": "2026-09-12T13:11:33",
+    "wpPostId": 13678,
+    "wpLink": "https://xulynuochoasen.com/giai-phap-loc-nuoc-phen-triet-de-cho-gia-dinh-chuan-byt-2026/"
   },
   {
     "id": "kw_1789044601949_sh",
     "keyword": "Lọc Nước Sinh Hoạt",
     "topic": "Lọc Nước Sinh Hoạt",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:50:01.949Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/12529/",
     "generatedPostId": "post_auto_1789045846449_xdld",
-    "pregenerated": true
+    "pregenerated": false,
+    "completedAt": "2026-09-12T14:04:04",
+    "wpPostId": 13679,
+    "wpLink": "https://xulynuochoasen.com/cam-nang-lap-dat-loc-nuoc-sinh-hoat-cho-biet-thu-nha-pho-2026/"
   },
   {
     "id": "kw_1789044601949_gk",
     "keyword": "Lọc Nước Giếng Khoan",
     "topic": "Lọc Nước Giếng Khoan",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:50:01.949Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/12529/",
     "generatedPostId": "post_auto_1789045849562_hg0f",
-    "pregenerated": true
+    "pregenerated": false,
+    "completedAt": "2026-09-12T18:05:06",
+    "wpPostId": 13682,
+    "wpLink": "https://xulynuochoasen.com/giai-phap-loc-nuoc-gieng-khoan-khong-can-xay-be-lang-ton-kem-2026/"
   },
   {
     "id": "kw_1789044601949_tk",
     "keyword": "Lọc Nước Tinh Khiết",
     "topic": "Lọc Nước Tinh Khiết",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:50:01.949Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-tinh-khiet-r-o-1000-lit-1-gio/",
     "generatedPostId": "post_auto_1789045872488_e4iv",
-    "pregenerated": true
+    "pregenerated": false,
+    "completedAt": "2026-09-12T23:27:34",
+    "wpPostId": 13686,
+    "wpLink": "https://xulynuochoasen.com/cam-nang-van-hanh-he-thong-loc-nuoc-tinh-khiet-dat-chuan-byt-2026/"
   },
   {
     "id": "kw_1789044601949_man",
     "keyword": "Lọc Nước Mặn",
     "topic": "Lọc Nước Mặn",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:50:01.949Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-nhiem-man-cong-suat-800-lit-1-gio/",
     "generatedPostId": "post_auto_1789045167709_4_3y1h",
-    "pregenerated": true
+    "pregenerated": false,
+    "completedAt": "2026-09-13T05:48:00",
+    "wpPostId": 13706,
+    "wpLink": "https://xulynuochoasen.com/cong-nghe-loc-nuoc-man-khu-muoi-thanh-nuoc-ngot-moi-nhat-2026/"
   },
   {
     "id": "kw_1789044601949_cn",
     "keyword": "Lọc Nước Công Nghiệp",
     "topic": "Lọc Nước Công Nghiệp",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-10T12:50:01.949Z",
     "targetUrl": "https://xulynuochoasen.com/san-pham/he-thong-loc-nuoc-cong-nghiep-cong-suat-2000-lit-1-gio/",
     "generatedPostId": "post_auto_1789045167709_5_l9xa",
-    "pregenerated": true
+    "pregenerated": false,
+    "completedAt": "2026-09-13T09:48:59",
+    "wpPostId": 13717,
+    "wpLink": "https://xulynuochoasen.com/he-thong-loc-nuoc-cong-nghiep-cong-suat-lon-cho-nha-may-2026/"
   },
   {
     "id": "kw_1789175923338_bdt8",
