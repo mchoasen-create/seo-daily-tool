@@ -2469,29 +2469,42 @@ ${research.knowledgeText}
         console.warn('[Worldwide Research] Bỏ qua cào nếu có lỗi:', rErr.message);
       }
 
-      const prompt = `Bạn là một Chuyên gia viết bài Content SEO và Kỹ sư Công nghệ Môi trường Xử lý Nước hàng đầu. 
-Hãy viết một bài viết chuẩn SEO ĐỈNH CAO (ĐIỂM SEO BẮT BUỘC TRÊN 90 - 100 ĐIỂM) bằng tiếng Việt cho chủ đề: "${topic}".
+      const prompt = `Bạn là một Nhà văn tiểu thuyết gia kiêm Kỹ sư Công nghệ Môi trường Xử lý Nước xuất sắc.
+Hãy viết một bài viết chuyên sâu đỉnh cao, có hồn, giàu chất đời sống thực tế và chuẩn SEO 100% (ĐIỂM SEO BẮT BUỘC TỪ 95 - 100 ĐIỂM) bằng tiếng Việt cho chủ đề: "${topic}".
 
-BẮT BUỘC TUÂN THỦ CÁC QUY TẮC TỐI ƯU SEO VÀ TỪ KHÓA CHÍNH:
-1. Từ khóa chính bắt buộc: "${keyword}"
-2. ĐỘ DÀI BÀI VIẾT: Bắt buộc dài trên 1100 từ (từ 1200 đến 1450 từ) để đạt điểm SEO tối đa (> 90 - 100 điểm).
-3. TIÊU ĐỀ H1: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài tiêu đề từ 50 đến 65 ký tự.
-4. META DESCRIPTION: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài 140 đến 158 ký tự.
-5. ĐOẠN MỞ BÀI (SAPO): Phải chèn từ khóa "${keyword}" ngay trong 100 từ đầu tiên.
-6. MẬT ĐỘ TỪ KHÓA: Từ khóa "${keyword}" phải xuất hiện rải rác tự nhiên từ 8 đến 12 lần trong toàn bộ thân bài (mật độ 1.5% - 2.5%).
-7. NỘI DUNG CHUYÊN SÂU & ĐỘC BẢN 100%: 
-   - Vận dụng triệt để kho dữ liệu thực tế Google Việt Nam và các tài liệu kỹ thuật toàn cầu (Hoa Kỳ NSF/EPA, Đức DVGW/DIN, Nhật Bản Toray/Kurita) được cung cấp dưới đây.
-   - Dịch và bản địa hóa 100% các thuật ngữ kỹ thuật đa quốc gia sang tiếng Việt chuyên ngành chuẩn xác (SDI, màng Polyamide, tỷ lệ thu hồi permeate, nước xả concentrate, rửa màng CIP, sục khí oxy hóa, hạt nhựa Cation, công nghệ EDI...).
-   - Đưa ra bảng thông số kỹ thuật chi tiết so sánh vận hành hoặc tiêu chuẩn nước đầu vào/đầu ra chuẩn Bộ Y Tế (QCVN 01-1:2018/BYT hoặc QCVN 6-1:2010/BYT).
-   - KHÔNG viết các câu giải thích quy tắc SEO hay lý thuyết SEO trong bài.
-8. CẤU TRÚC THẺ: Có ít nhất 3-5 thẻ H2, các thẻ H3 phụ, bảng biểu kỹ thuật và phần FAQ 3 câu hỏi liên quan.
-9. HÌNH ẢNH MINH HỌA:
+BỘ QUY TẮC NÂNG TẦM TRÍ TUỆ & PHONG CÁCH VIẾT ĐỘC BẢN:
+1. NGUYÊN TẮC VĂN PHONG & MỞ ĐẦU (ANTI-ROBOT / STORYTELLING):
+   - TUYỆT ĐỐI CẤM các câu mở đầu sáo rỗng kiểu bot AI: "Trong thời đại ngày nay...", "Nhu cầu ngày càng tăng...", "Nước là nguồn sống...", "Trong bối cảnh hiện nay...", "Hiện nay...".
+   - MỞ BÀI (SAPO) BẮT BUỘC bắt đầu bằng một trải nghiệm thực tế, đánh thức trực tiếp giác quan hoặc nỗi trăn trở có thật của đời sống:
+     + Mùi tanh nồng của kim loại rỉ sét như một đồng xu ướt sau cơn mưa rào.
+     + Vệt ố vàng dai dẳng loang lổ trên cổ áo sơ mi trắng hay bồn sứ cao cấp.
+     + Nỗi thất vọng của chiếc bể lắng lọc cát thủ công sau 3 tuần bị lớp bùn nhầy làm nghẹt thở.
+     + Chiếc ấm đun nước bám lớp cặn vôi trắng cứng đơ như đá vôi.
+   - Giọng văn: Điềm đạm, sâu sắc, có tính thuyết phục khoa học mãnh liệt nhưng gần gũi, ấm áp, thấu cảm sâu sắc nỗi vất vả của người dân và doanh nghiệp.
+
+2. CHIỀU SÂU ĐỊA HÓA & KHOA HỌC TỪ GỐC RỄ (FIRST-PRINCIPLES SCIENCE):
+   - Không chỉ nói bề nổi, hãy giải thích cơ chế sâu xa: Tại sao nước vừa bơm lên trong vắt nhưng để một lúc lại đổi màu vàng đục (ion sắt Fe2+ kỵ khí vô hình gặp oxy tự do chuyển hóa thành bông cặn Fe3+ kết tủa)? Hiện tượng phèn hữu cơ liên kết với axit humic? Tại sao cặn vôi Canxi/Magie lại bám nghẹt thanh nhiệt bình nóng lạnh? Cơ chế phân tách kích thước ion của màng siêu vi RO?...
+   - Đưa vào MẸO THỰC TẾ DÂN GIAN HOẶC THÍ NGHIỆM TẠI NHÀ mà người đọc có thể tự làm ngay (ví dụ: mẹo thử phèn sắt bằng nửa cốc nước chè xanh Thái Nguyên hóa đen như mực viết máy; mẹo thử độ cứng bằng bọt xà phòng...).
+
+3. ĐỘ DÀI & TỐI ƯU SEO VÀNG:
+   - Từ khóa chính bắt buộc: "${keyword}"
+   - ĐỘ DÀI BÀI VIẾT: Bắt buộc dài từ 1300 đến 1600 từ để đạt chiều sâu học thuật và điểm SEO tuyệt đối.
+   - TIÊU ĐỀ H1: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài tiêu đề từ 50 đến 65 ký tự, hấp dẫn, kích thích tỷ lệ nhấp (CTR).
+   - META DESCRIPTION: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài nghiêm ngặt từ 140 đến 158 ký tự.
+   - ĐOẠN MỞ BÀI: Chèn từ khóa "${keyword}" tự nhiên ngay trong 100 từ đầu tiên.
+   - MẬT ĐỘ TỪ KHÓA: Từ khóa "${keyword}" xuất hiện tự nhiên từ 8 đến 12 lần rải đều trong các mục thân bài (mật độ 1.5% - 2.5%).
+   - CẤU TRÚC THẺ: Có từ 4-6 thẻ H2 mạch lạc, các phân mục H3 chuyên sâu, bảng biểu so sánh định lượng hóa lý thực tế trước/sau lọc và chuẩn Bộ Y Tế (QCVN 01-1:2018/BYT hoặc QCVN 6-1:2010/BYT).
+   - Phần FAQ thực chiến giải đáp 2-3 câu hỏi cốt lõi mà khách hàng hay thắc mắc nhất.
+
+4. HÌNH ẢNH MINH HỌA:
    - Dưới thẻ H2 đầu tiên, chèn ảnh: ![Hình ảnh mô tả ${keyword}](${img1})
    - Ở phần thân bài kỹ thuật, chèn ảnh: ![Cấu tạo chi tiết ${keyword}](${img2})
-10. LƯU Ý BẢN QUYỀN & THƯƠNG HIỆU: TUYỆT ĐỐI KHÔNG chèn danh sách link nguồn ngoài hay mục "Nguồn Tham Khảo" vào thân bài (nguồn chỉ dùng làm dữ liệu đối chiếu nội bộ trong phần mềm).
-${customTargetUrl ? `11. LINK ĐÍCH SẢN PHẨM: Cuối bài phải chèn liên kết điều hướng sản phẩm: 👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${customTargetUrl}) - *Giải pháp kỹ thuật chuyên sâu đạt chuẩn Bộ Y Tế.*` : ''}${avoidanceNotice}${researchBlock}
 
-Trả về JSON thuần túy (không bọc markdown block):
+5. LƯU Ý BẢN QUYỀN & THƯƠNG HIỆU:
+   - TUYỆT ĐỐI KHÔNG chèn danh sách link nguồn ngoài hay mục "Nguồn Tham Khảo" vào thân bài.
+${customTargetUrl ? `6. LINK ĐÍCH SẢN PHẨM: Cuối bài chèn liên kết điều hướng sản phẩm: 👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${customTargetUrl}) - *Giải pháp kỹ thuật chuyên sâu đạt chuẩn Bộ Y Tế.*` : ''}${avoidanceNotice}${researchBlock}
+
+Trở về JSON thuần túy (không bọc markdown block):
 {
   "title": "...",
   "metaDescription": "...",
