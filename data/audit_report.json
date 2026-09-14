@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-09-14T07:05:10.454Z",
+  "durationMs": 26,
+  "summary": {
+    "totalPostsAudited": 14,
+    "totalLiveBlogPosts": 80,
+    "totalKeywordsInQueue": 16,
+    "duplicateContentCount": 0,
+    "duplicateTitleCount": 0,
+    "duplicateImageCount": 0,
+    "localDuplicateImageCount": 0,
+    "invalidLandingCount": 0,
+    "lowSeoScoreCount": 0,
+    "totalIssues": 0,
+    "healthScore": 100
+  },
+  "duplicateContentPairs": [],
+  "duplicateTitlePairs": [],
+  "duplicateImages": {},
+  "issues": []
+}

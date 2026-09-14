@@ -1,4 +1,5 @@
-const { generateSmartSeoTemplate, getRecentUsedImages } = require('./lib/generator');
+const { generateSmartSeoTemplate, getRecentUsedImages, getGoogleAdsTargetUrl, getCustomGoogleAdsLinks } = require('./lib/generator');
+const { getDuplicateReport, detectDuplicateGroups } = require('./lib/ai_generator');
 const { 
   getTwoDistinctRotatedImages, 
   getMediaGallery, 
@@ -30,6 +31,8 @@ const {
   searchSerperLive
 } = require('./lib/audit_tracker');
 const { generateKeywordCluster } = require('./lib/clustering');
+const { conductGlobalAndDomesticResearch, generateReferenceMarkdown } = require('./lib/google_researcher');
+const { runSystemAudit, getLatestAuditReport } = require('./lib/startup_auditor');
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -40,7 +43,13 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+app.use(express.static(path.join(__dirname, 'public'), { etag: false, maxAge: 0 }));
 
 const DATA_DIR = path.join(__dirname, 'data');
 const POSTS_FILE = path.join(DATA_DIR, 'posts.json');
@@ -58,14 +67,30 @@ if (!fs.existsSync(UPLOADS_DIR)) {
    CUSTOM MEDIA LIBRARY API ENDPOINTS (3 KHO ĐỘC LẬP & ĐỒNG BỘ)
    ========================================================================== */
 const CUSTOM_MEDIA_FILE = path.join(DATA_DIR, 'custom_media.json');
+const KHO_1_FILE = path.join(DATA_DIR, 'kho_1_sinh_hoat.json');
+const KHO_2_FILE = path.join(DATA_DIR, 'kho_2_cong_nghiep.json');
+const KHO_3_FILE = path.join(DATA_DIR, 'kho_3_tinh_khiet_ro.json');
 
 function getCustomMedia() {
-  if (!fs.existsSync(CUSTOM_MEDIA_FILE)) return [];
   try {
-    return JSON.parse(fs.readFileSync(CUSTOM_MEDIA_FILE, 'utf-8') || '[]');
+    if (fs.existsSync(KHO_1_FILE) && fs.existsSync(KHO_2_FILE) && fs.existsSync(KHO_3_FILE)) {
+      const k1 = JSON.parse(fs.readFileSync(KHO_1_FILE, 'utf-8') || '[]');
+      const k2 = JSON.parse(fs.readFileSync(KHO_2_FILE, 'utf-8') || '[]');
+      const k3 = JSON.parse(fs.readFileSync(KHO_3_FILE, 'utf-8') || '[]');
+      if (Array.isArray(k1) && Array.isArray(k2) && Array.isArray(k3)) {
+        k1.forEach(m => { m.kho = 'kho_1'; });
+        k2.forEach(m => { m.kho = 'kho_2'; });
+        k3.forEach(m => { m.kho = 'kho_3'; });
+        return [...k1, ...k2, ...k3];
+      }
+    }
+    if (fs.existsSync(CUSTOM_MEDIA_FILE)) {
+      return JSON.parse(fs.readFileSync(CUSTOM_MEDIA_FILE, 'utf-8') || '[]');
+    }
   } catch (e) {
     return [];
   }
+  return [];
 }
 
 function saveCustomMedia(list) {
@@ -599,6 +624,38 @@ app.get('/api/audit', (req, res) => {
   }
 });
 
+// Full System Startup & Anti-Duplicate Audit APIs
+app.get('/api/audit/system-report', (req, res) => {
+  const report = getLatestAuditReport();
+  if (report) {
+    return res.json({ success: true, report });
+  }
+  // If not yet generated, run live
+  runSystemAudit()
+    .then(newReport => res.json({ success: true, report: newReport }))
+    .catch(err => res.status(500).json({ success: false, message: err.message }));
+});
+
+app.get('/api/audit/report', (req, res) => {
+  const report = getLatestAuditReport();
+  if (report) {
+    return res.json({ success: true, report });
+  }
+  runSystemAudit()
+    .then(newReport => res.json({ success: true, report: newReport }))
+    .catch(err => res.status(500).json({ success: false, message: err.message }));
+});
+
+app.post('/api/audit/run', async (req, res) => {
+  try {
+    const report = await runSystemAudit();
+    res.json({ success: true, message: 'Đã hoàn tất rà soát toàn bộ hệ thống!', report });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi rà soát hệ thống: ' + err.message });
+  }
+});
+
+
 app.get('/api/google/config', (req, res) => {
   res.json({ success: true, data: getGoogleConfig() });
 });
@@ -611,6 +668,134 @@ app.post('/api/google/config', (req, res) => {
     res.status(500).json({ success: false, message: 'Lỗi khi lưu cấu hình Google: ' + err.message });
   }
 });
+
+/* ==========================================================================
+   GOOGLE ADS LANDING PAGES MANAGEMENT APIs
+   ========================================================================== */
+const GOOGLE_ADS_LINKS_FILE = path.join(DATA_DIR, 'google_ads_links.json');
+
+function getGoogleAdsLinks() {
+  try {
+    if (fs.existsSync(GOOGLE_ADS_LINKS_FILE)) {
+      return JSON.parse(fs.readFileSync(GOOGLE_ADS_LINKS_FILE, 'utf8') || '[]');
+    }
+  } catch (e) {}
+  return [];
+}
+
+function saveGoogleAdsLinks(list) {
+  fs.writeFileSync(GOOGLE_ADS_LINKS_FILE, JSON.stringify(list, null, 2), 'utf8');
+}
+
+app.get('/api/google-ads/links', (req, res) => {
+  res.json({ success: true, data: getGoogleAdsLinks() });
+});
+
+app.post('/api/google-ads/links', (req, res) => {
+  try {
+    const { name, url, keywords = [], isDefault = false } = req.body;
+    if (!name || !url) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập tên hiển thị và URL trang đích.' });
+    }
+    const list = getGoogleAdsLinks();
+    const id = 'gads_' + Date.now();
+    const kwArr = Array.isArray(keywords) ? keywords : String(keywords).split(',').map(k => k.trim()).filter(Boolean);
+    const newItem = {
+      id,
+      name: name.trim(),
+      url: url.trim(),
+      keywords: kwArr,
+      isDefault: !!isDefault
+    };
+    if (isDefault) {
+      list.forEach(l => l.isDefault = false);
+    }
+    list.push(newItem);
+    saveGoogleAdsLinks(list);
+    res.json({ success: true, message: 'Đã thêm trang đích Google Ads mới!', data: list });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/google-ads/links/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, url, keywords, isDefault } = req.body;
+    const list = getGoogleAdsLinks();
+    const item = list.find(l => l.id === id);
+    if (!item) return res.status(404).json({ success: false, message: 'Không tìm thấy trang đích.' });
+
+    if (name) item.name = name.trim();
+    if (url) item.url = url.trim();
+    if (keywords !== undefined) {
+      item.keywords = Array.isArray(keywords) ? keywords : String(keywords).split(',').map(k => k.trim()).filter(Boolean);
+    }
+    if (isDefault !== undefined) {
+      if (isDefault) list.forEach(l => l.isDefault = false);
+      item.isDefault = !!isDefault;
+    }
+    saveGoogleAdsLinks(list);
+    res.json({ success: true, message: 'Đã cập nhật trang đích thành công!', data: list });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete('/api/google-ads/links/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    let list = getGoogleAdsLinks();
+    list = list.filter(l => l.id !== id);
+    saveGoogleAdsLinks(list);
+    res.json({ success: true, message: 'Đã xóa trang đích.', data: list });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/google-ads/sync-all', (req, res) => {
+  try {
+    const keywords = getKeywords();
+    let kwUpdated = 0;
+    keywords.forEach(k => {
+      const correctUrl = getGoogleAdsTargetUrl(k.keyword + ' ' + (k.topic || ''));
+      if (k.targetUrl !== correctUrl) {
+        k.targetUrl = correctUrl;
+        kwUpdated++;
+      }
+    });
+    saveKeywords(keywords);
+
+    const posts = getPosts();
+    let postsUpdated = 0;
+    posts.forEach(p => {
+      const correctUrl = getGoogleAdsTargetUrl((p.targetKeyword || '') + ' ' + (p.title || ''));
+      p.targetProductUrl = correctUrl;
+      if (p.content) {
+        p.content = p.content.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (m, alt, img) => `[![${alt}](${img})](${correctUrl})`);
+        if (/👉 \*\*Sản Phẩm Đúng Chuyên Mục:\*\* \[.*?\]\(.*?\)/gi.test(p.content)) {
+          p.content = p.content.replace(
+            /👉 \*\*Sản Phẩm Đúng Chuyên Mục:\*\* \[.*?\]\(.*?\)/gi,
+            `👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${correctUrl})`
+          );
+        }
+      }
+      postsUpdated++;
+    });
+    savePosts(posts);
+
+    res.json({
+      success: true,
+      message: `Đã đồng bộ thành công ${kwUpdated} từ khóa trong hàng chờ và ${postsUpdated} bài viết theo đúng trang đích Google Ads!`,
+      kwUpdated,
+      postsUpdated
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 
 app.post('/api/keywords/cluster', (req, res) => {
   try {
@@ -634,11 +819,12 @@ app.post('/api/keywords/add-bulk', (req, res) => {
     let added = 0;
     lines.forEach(kw => {
       const id = 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+      const assignedTargetUrl = (targetUrl || '').trim() || getGoogleAdsTargetUrl(kw, topic || 'Cụm LSI');
       keywords.push({
         id,
         keyword: kw,
         topic: topic || 'Cụm LSI',
-        targetUrl: targetUrl || '',
+        targetUrl: assignedTargetUrl,
         status: 'pending',
         createdAt: new Date().toISOString()
       });
@@ -692,10 +878,11 @@ function getSchedulerConfig() {
       generateIntervalHours: cfg.generateIntervalHours || 2,
       lastPublishRun: cfg.lastPublishRun || cfg.lastRun || null,
       lastGenerateRun: cfg.lastGenerateRun || cfg.lastRun || null,
+      lastDedupRun: cfg.lastDedupRun || null,
       lastRun: cfg.lastRun || null
     };
   } catch (e) {
-    return { enabled: false, intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, lastPublishRun: null, lastGenerateRun: null, lastRun: null };
+    return { enabled: false, intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, lastPublishRun: null, lastGenerateRun: null, lastDedupRun: null, lastRun: null };
   }
 }
 function saveSchedulerConfig(config) {
@@ -716,8 +903,64 @@ function normalizeWpUrl(url) {
   return clean;
 }
 
+/* ============================================================
+   IMAGE URL RESOLVER — maps local /uploads/ paths to full WP media URLs
+   ============================================================ */
+function getWpImageMap() {
+  const map = {};
+  // 1. Load from verified_wp_images.json (contains full verified WordPress URLs)
+  try {
+    const VERIFIED_FILE = path.join(__dirname, 'data', 'verified_wp_images.json');
+    if (fs.existsSync(VERIFIED_FILE)) {
+      const verified = JSON.parse(fs.readFileSync(VERIFIED_FILE, 'utf8') || '[]');
+      verified.forEach(item => {
+        if (item.url) {
+          const fname = path.basename(item.url.split('?')[0]);
+          map[fname] = item.url;
+        }
+      });
+    }
+  } catch(e) {}
+
+  // 2. Load from wp_active_images.json
+  try {
+    const WP_ACTIVE_FILE = path.join(__dirname, 'data', 'wp_active_images.json');
+    if (fs.existsSync(WP_ACTIVE_FILE)) {
+      const arr = JSON.parse(fs.readFileSync(WP_ACTIVE_FILE, 'utf8') || '[]');
+      arr.forEach(p => {
+        const fname = path.basename(p.split('?')[0]);
+        if (!map[fname]) map[fname] = 'https://xulynuochoasen.com' + p;
+      });
+    }
+  } catch(e) {}
+
+  return map;
+}
+
+function resolveImageUrl(imgSrc) {
+  if (!imgSrc) return imgSrc;
+  // Already a full URL
+  if (imgSrc.startsWith('http')) return imgSrc;
+  // Local uploads path: /uploads/media_xxx.jpeg
+  if (imgSrc.startsWith('/uploads/')) {
+    const fname = path.basename(imgSrc.split('?')[0]);
+    const map = getWpImageMap();
+    if (map[fname]) return map[fname];
+    // Fallback to first available verified image to guarantee NO 404 broken image
+    const validUrls = Object.values(map);
+    if (validUrls.length > 0) return validUrls[0];
+    return 'https://xulynuochoasen.com/wp-content/uploads/2026/09/' + fname;
+  }
+  // WP relative path: /wp-content/uploads/...
+  if (imgSrc.startsWith('/wp-content/')) {
+    return 'https://xulynuochoasen.com' + imgSrc;
+  }
+  return imgSrc;
+}
+
 /* Helper to convert Markdown to HTML cleanly for WordPress REST API */
 function markdownToHtml(md, fallbackTargetUrl = 'https://xulynuochoasen.com/') {
+
   if (!md) return '';
   let src = md;
 
@@ -800,39 +1043,49 @@ function markdownToHtml(md, fallbackTargetUrl = 'https://xulynuochoasen.com/') {
       continue;
     }
 
-    // Images (Linked and Plain) - ALWAYS make images clickable links pointing to target landing page
+    // Images (Linked and Plain) - ALWAYS make images clickable links pointing to target Google Ads landing page
     if (line.includes('![') && line.includes('](')) {
       const linkedImgMatch = line.match(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/);
       if (linkedImgMatch) {
         const alt = linkedImgMatch[1];
         let imgSrc = linkedImgMatch[2];
-        const linkHref = (linkedImgMatch[3] || fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
-        if (imgSrc.startsWith('/uploads/')) {
-          imgSrc = 'https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgSrc);
-        }
-        result.push(`<p style="text-align:center; margin:20px 0;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt} - Nhấp để xem sản phẩm chi tiết"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
+        const linkHref = (fallbackTargetUrl && !fallbackTargetUrl.includes('/san-pham/') ? fallbackTargetUrl : (linkedImgMatch[3] || fallbackTargetUrl || 'https://xulynuochoasen.com/')).trim();
+        imgSrc = resolveImageUrl(imgSrc);
+        result.push(`<p style="text-align:center; margin:20px 0;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt} - Nhấp để xem giải pháp chi tiết"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
         continue;
       }
       const imgMatch = line.match(/!\[(.*?)\]\((.*?)\)/);
       if (imgMatch) {
         const alt = imgMatch[1];
-        let imgSrc = imgMatch[2];
+        let imgSrc = resolveImageUrl(imgMatch[2]);
         const linkHref = (fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
-        if (imgSrc.startsWith('/uploads/')) {
-          imgSrc = 'https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgSrc);
-        }
-        result.push(`<p style="text-align:center; margin:20px 0;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt} - Nhấp để xem sản phẩm chi tiết"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
+        result.push(`<p style="text-align:center; margin:20px 0;"><a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="${alt} - Nhấp để xem giải pháp chi tiết"><img src="${imgSrc}" alt="${alt}" title="${alt}" style="max-width:100%; height:auto; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition:transform 0.2s ease;" /></a></p>`);
         continue;
       }
     }
 
+    // HTML Images that are inside <a> - ensure their href points to Google Ads landing page
+    if (line.includes('<img') && line.includes('<a')) {
+      const linkHref = (fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
+      const updated = line.replace(/<a\s+[^>]*href="[^"]*"[^>]*>/gi, `<a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="Nhấp để xem giải pháp chi tiết">`);
+      result.push(updated);
+      continue;
+    }
+
     // HTML Images that are not yet wrapped in <a>
     if (line.includes('<img') && !line.includes('<a')) {
+      const linkHref = (fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
       const wrapped = line.replace(/<img([^>]+)>/gi, (match) => {
-        return `<a href="${fallbackTargetUrl}" target="_blank" rel="noopener noreferrer" title="Nhấp để xem sản phẩm chi tiết"><img${match.slice(4, -1)} style="cursor:pointer; max-width:100%; border-radius:8px;" /></a>`;
+        return `<a href="${linkHref}" target="_blank" rel="noopener noreferrer" title="Nhấp để xem giải pháp chi tiết"><img${match.slice(4, -1)} style="cursor:pointer; max-width:100%; border-radius:8px;" /></a>`;
       });
       result.push(`<p style="text-align:center; margin:20px 0;">${wrapped}</p>`);
       continue;
+    }
+
+    // CTA Link lines
+    if (line.includes('Sản Phẩm Đúng Chuyên Mục') || line.includes('Xem Sản Phẩm Tương Ứng')) {
+      const linkHref = (fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
+      line = line.replace(/\[Xem Sản Phẩm Tương Ứng\]\([^)]+\)/g, `[Xem Sản Phẩm Tương Ứng](${linkHref})`);
     }
 
     // HTML Block (like div)
@@ -854,19 +1107,22 @@ function markdownToHtml(md, fallbackTargetUrl = 'https://xulynuochoasen.com/') {
 function formatInlineMarkdown(text, fallbackTargetUrl = 'https://xulynuochoasen.com/') {
   if (!text) return '';
   let str = text;
-  // Linked images: [![alt](img)](url)
+  // Linked images: [![alt](img)](url) - force Google Ads landing page
   str = str.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (match, alt, imgUrl, linkUrl) => {
-    const finalImg = imgUrl.startsWith('/uploads/') ? ('https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(imgUrl)) : imgUrl;
-    const finalLink = (linkUrl || fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
+    const finalImg = resolveImageUrl(imgUrl);
+    const finalLink = (fallbackTargetUrl && !fallbackTargetUrl.includes('/san-pham/') ? fallbackTargetUrl : (linkUrl || fallbackTargetUrl || 'https://xulynuochoasen.com/')).trim();
     return `<a href="${finalLink}" target="_blank" rel="noopener noreferrer" title="${alt}"><img src="${finalImg}" alt="${alt}" style="max-width:100%; height:auto; cursor:pointer; border-radius:8px;" /></a>`;
   });
   // Plain images: ![alt](url)
   str = str.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
-    const finalUrl = url.startsWith('/uploads/') ? ('https://xulynuochoasen.com/wp-content/uploads/2026/09/' + path.basename(url)) : url;
+    const finalUrl = resolveImageUrl(url);
     const finalLink = (fallbackTargetUrl || 'https://xulynuochoasen.com/').trim();
     return `<a href="${finalLink}" target="_blank" rel="noopener noreferrer" title="${alt}"><img src="${finalUrl}" alt="${alt}" style="max-width:100%; height:auto; cursor:pointer; border-radius:8px;" /></a>`;
   });
-  str = str.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:600;">$1</a>');
+  str = str.replace(/\[(.*?)\]\((.*?)\)/g, (m, label, link) => {
+    const finalLink = (label.includes('Xem Sản Phẩm Tương Ứng') && fallbackTargetUrl && !fallbackTargetUrl.includes('/san-pham/')) ? fallbackTargetUrl : link;
+    return `<a href="${finalLink}" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:600;">${label}</a>`;
+  });
   str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
   return str;
@@ -936,6 +1192,32 @@ async function uploadLocalImageToWordPress(imgUrlOrPath, wpConfig, authHeader, f
   return null;
 }
 
+/* Helper to Scan & Ensure All Images in Post Content are Uploaded to WP */
+async function ensurePostImagesUploadedToWordPress(content, wpConfig, authHeader, fetchFn) {
+  if (!content) return content;
+  let updatedContent = content;
+
+  // Find all /uploads/media_xxx.(jpeg|jpg|png|webp)
+  const localImgRegex = /\/uploads\/(media_[a-zA-Z0-9_\.]+\.(?:jpe?g|png|webp))/gi;
+  const matches = [...new Set(updatedContent.match(localImgRegex) || [])];
+
+  for (const match of matches) {
+    const filename = path.basename(match.split('?')[0]);
+    const uploaded = await uploadLocalImageToWordPress(filename, wpConfig, authHeader, fetchFn);
+    if (uploaded && uploaded.url) {
+      updatedContent = updatedContent.split(match).join(uploaded.url);
+      console.log(`[Image Auto-Upload] Replaced local path ${match} -> live WP URL ${uploaded.url}`);
+    } else {
+      const map = getWpImageMap();
+      if (map[filename]) {
+        updatedContent = updatedContent.split(match).join(map[filename]);
+      }
+    }
+  }
+
+  return updatedContent;
+}
+
 /* Helper to Publish to WordPress via REST API */
 async function publishToWordPress(postData) {
   const wpConfig = getWPConfig();
@@ -979,9 +1261,19 @@ async function publishToWordPress(postData) {
     console.warn('Lỗi kiểm tra trùng lặp trên WordPress:', checkErr.message);
   }
 
-  // 2. Ensure Featured Image & Content Images exist on WordPress
   let mediaId = null;
   let updatedContent = postData.content || '';
+
+  // BẢO VỆ TUYỆT ĐỐI: Không bao giờ đăng mục nguồn tham khảo lên WordPress
+  if (updatedContent.includes('## Nguồn Tham Khảo')) {
+    const refIdx = updatedContent.indexOf('## Nguồn Tham Khảo');
+    const brandIdx = updatedContent.indexOf('👉 **Sản Phẩm', refIdx);
+    if (brandIdx !== -1) {
+      updatedContent = updatedContent.substring(0, refIdx).trim() + '\n\n' + updatedContent.substring(brandIdx).trim();
+    } else {
+      updatedContent = updatedContent.substring(0, refIdx).trim();
+    }
+  }
 
   // Process Featured Image
   const targetImg = postData.imageUrl || postData.featured_image;
@@ -1060,6 +1352,42 @@ async function publishToWordPress(postData) {
    ========================================================================== */
 app.get('/api/posts', (req, res) => {
   res.json({ success: true, data: getPosts() });
+});
+
+app.get('/api/posts/:id', (req, res) => {
+  const posts = getPosts();
+  const post = posts.find(p => p.id === req.params.id);
+  if (post) {
+    res.json({ success: true, post });
+  } else {
+    res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
+  }
+});
+
+app.get('/api/posts/:id/sources', async (req, res) => {
+  const posts = getPosts();
+  const post = posts.find(p => p.id === req.params.id);
+  if (!post) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
+  }
+
+  if (req.query.force !== 'true' && post.sources && post.sources.length > 0) {
+    return res.json({ success: true, sources: post.sources });
+  }
+
+  try {
+    const kw = post.targetKeyword || post.title || '';
+    const research = await conductGlobalAndDomesticResearch(kw, post.title);
+    if (research && research.sourcesList && research.sourcesList.length > 0) {
+      post.sources = research.sourcesList;
+      savePosts(posts);
+      return res.json({ success: true, sources: post.sources });
+    }
+  } catch (err) {
+    console.warn('[Get Sources] Lỗi quét nguồn:', err.message);
+  }
+
+  res.json({ success: true, sources: post.sources || [] });
 });
 
 app.get('/api/settings/gemini-key', (req, res) => {
@@ -1313,6 +1641,7 @@ app.post('/api/keywords', (req, res) => {
     const isPending = keywords.some(k => k.keyword.toLowerCase() === trimmed.toLowerCase() && k.status === 'pending');
 
     if (!isPending) {
+      const assignedTargetUrl = (defaultTargetUrl || '').trim() || getGoogleAdsTargetUrl(trimmed, topicCategory);
       const kwObj = {
         id: 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         keyword: trimmed,
@@ -1320,7 +1649,7 @@ app.post('/api/keywords', (req, res) => {
         status: 'pending',
         createdAt: new Date().toISOString(),
         generatedPostId: null,
-        targetUrl: (defaultTargetUrl || '').trim()
+        targetUrl: assignedTargetUrl
       };
       keywords.push(kwObj);
       newItems.push(kwObj);
@@ -1350,6 +1679,8 @@ app.post('/api/keywords/update-target-url', (req, res) => {
     if (post) {
       post.targetProductUrl = cleanUrl;
       if (cleanUrl) {
+        // Also update all image links in post.content
+        post.content = post.content.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (match, alt, imgUrl) => `[![${alt}](${imgUrl})](${cleanUrl})`);
         if (/👉 \*\*Sản Phẩm Đúng Chuyên Mục:\*\* \[.*?\]\(.*?\)/gi.test(post.content)) {
           post.content = post.content.replace(
             /👉 \*\*Sản Phẩm Đúng Chuyên Mục:\*\* \[.*?\]\(.*?\)/gi,
@@ -1612,7 +1943,8 @@ async function pregenerateNextKeywordInQueue(apiKey = '') {
     status: 'ready',
     date: new Date().toISOString().split('T')[0],
     updatedAt: new Date().toISOString(),
-    isAutoGenerated: true
+    isAutoGenerated: true,
+    sources: generated.sources || []
   };
 
   posts.unshift(newPost);
@@ -1676,7 +2008,8 @@ app.post('/api/keywords/pregenerate-all', async (req, res) => {
           status: 'ready',
           date: new Date().toISOString().split('T')[0],
           updatedAt: new Date().toISOString(),
-          isAutoGenerated: true
+          isAutoGenerated: true,
+          sources: generated.sources || []
         };
 
         posts.unshift(newPost);
@@ -1722,7 +2055,8 @@ app.post('/api/keywords/pregenerate/:id', async (req, res) => {
       status: 'ready',
       date: new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString(),
-      isAutoGenerated: true
+      isAutoGenerated: true,
+      sources: generated.sources || []
     };
 
     posts.unshift(existingPost);
@@ -1884,29 +2218,69 @@ async function generateContentForKeyword(topic, keyword, customApiKey = '', cust
 
       const avoidance = getAvoidanceContextForKeyword(keyword);
       let avoidanceNotice = '';
+
+      // === LOP 1: Tat ca bai WP live cung keyword (titles + content snippets that) ===
       if (avoidance.count > 0) {
-        avoidanceNotice = `\n11. CHỐNG TRÙNG LẶP NỘI DUNG & ĂN THỊT TỪ KHÓA (WEBSITE ĐÃ CÓ ${avoidance.count} BÀI LIÊN QUAN):
-Trên trang https://xulynuochoasen.com/blog-chia-se/ đã có các bài viết sau:
-${avoidance.titles.slice(0, 15).map(t => `- "${t}"`).join('\n')}
-YÊU CẦU BẮT BUỘC: Tiêu đề và góc độ nội dung mới TUYỆT ĐỐI KHÔNG ĐƯỢC trùng lặp ý tưởng hay câu từ với các bài trên. Phải khai thác góc nhìn mới mẻ, độc quyền và chuyên sâu.`;
+        const titleList = avoidance.titles.slice(0, 15).map(t => `- "${t}"`).join('\n');
+        const snippetList = avoidance.contentSnippets.slice(0, 5).join('\n\n');
+        avoidanceNotice = `\n11. CHONG TRUNG LAP VOI BAI TREN WEBSITE (${avoidance.count} BAI CUNG KEYWORD):\n${titleList}\n\nCAC DOAN NOI DUNG DA CO TREN WEB (BAT BUOC VIET KHAC HOAN TOAN):\n${snippetList}\n\nYEU CAU BAT BUOC: Khong dung cung cau mo dau, khong dung cung headings H2, khong dung cung cau truc bai. Goc do hoan toan moi (case study thuc te, so lieu cu the, vi du vung mien khac nhau).`;
       }
 
-      const prompt = `Bạn là một Chuyên gia viết bài Content SEO đỉnh cao. 
-Hãy viết một bài viết chuẩn SEO 100% bằng tiếng Việt cho chủ đề: "${topic}".
+      // === LOP 2: Bai cung keyword trong posts.json local ===
+      const localPosts = getPosts();
+      const sameKwPosts = localPosts.filter(p =>
+        p.targetKeyword && p.targetKeyword.trim().toLowerCase() === keyword.trim().toLowerCase() && p.content
+      );
+      if (sameKwPosts.length > 0) {
+        const existingTitles = sameKwPosts.map(p => `- "${p.title}" (đã ${p.wpPublished ? 'đăng WP' : 'lưu local'})`).join('\n');
+        const existingSnippets = sameKwPosts.slice(0, 3).map(p => {
+          const bodyStart = p.content.replace(/^#.*\n/, '').trim().substring(0, 250);
+          return `=== BÀI "${p.title}" ===\n${bodyStart}\n`;
+        }).join('\n');
+        avoidanceNotice += `\n\n⚠️ CỰC KỲ QUAN TRỌNG — CHỐNG DUPLICATE NỘI DUNG NỘI BỘ:\nĐã có ${sameKwPosts.length} bài viết cùng từ khóa "${keyword}" trong hệ thống:\n${existingTitles}\n\nCÁC ĐOẠN NỘI DUNG HIỆN CÓ (PHẢI VIẾT KHÁC HOÀN TOÀN):\n${existingSnippets}\nQUAN TRỌNG: Bài mới PHẢI có cấu trúc sections hoàn toàn khác, góc độ tiếp cận khác, ví dụ thực tế khác, không được dùng cùng câu mở đầu hay headings. Google sẽ penalize nặng nếu nội dung trùng lặp!`;
+      }
+
+      // === LOP 3: THU THẬP DỮ LIỆU ĐA CHIỀU (TOP 1-10 GOOGLE.VN + QUỐC TẾ NSF/EPA/WQA/DUPONT) ===
+      let researchBlock = '';
+      let researchData = null;
+      try {
+        const research = await conductGlobalAndDomesticResearch(keyword, topic);
+        if (research && research.knowledgeText) {
+          researchData = research;
+          researchBlock = `\n\n══════════════════════════════════════════════════════════════════════════
+NGUỒN DỮ LIỆU ĐA TẦNG TOÀN CẦU (VIỆT NAM + HOA KỲ + ĐỨC + NHẬT BẢN):
+Bạn PHẢI sử dụng toàn bộ kho tri thức đa quốc gia này để tổng hợp bài viết:
+- DỊCH VÀ CHUYỂN NGỮ 100% CÁC TÀI LIỆU KỸ THUẬT TIẾNG ANH, TIẾNG ĐỨC, TIẾNG NHẬT SANG TIẾNG VIỆT CHUYÊN NGÀNH NƯỚC CHUẨN XÁC THEO BẢNG HƯỚNG DẪN DƯỚI ĐÂY.
+- KẾT HỢP DỮ LIỆU THỰC TẾ TẠI VIỆT NAM VỚI TIÊU CHUẨN KỸ THUẬT ĐỨC (DVGW, DIN EN), NHẬT BẢN (TORAY, KURITA) VÀ QUỐC TẾ (NSF/ANSI, EPA, WHO, DUPONT) ĐỂ TẠO NÊN BÀI VIẾT MASTER SEO ĐỘC BẢN, SÂU SẮC, VƯỢT TRỘI MỌI ĐỐI THỦ.
+- TUYỆT ĐỐI KHÔNG COPY NGUYÊN VĂN MÀ PHẢI TỔNG HỢP, DIỄN ĐẠT LẠI HOÀN TOÀN MỚI.
+${research.knowledgeText}
+══════════════════════════════════════════════════════════════════════════\n`;
+        }
+      } catch (rErr) {
+        console.warn('[Worldwide Research] Bỏ qua cào nếu có lỗi:', rErr.message);
+      }
+
+      const prompt = `Bạn là một Chuyên gia viết bài Content SEO và Kỹ sư Công nghệ Môi trường Xử lý Nước hàng đầu. 
+Hãy viết một bài viết chuẩn SEO ĐỈNH CAO (ĐIỂM SEO BẮT BUỘC TRÊN 90 - 100 ĐIỂM) bằng tiếng Việt cho chủ đề: "${topic}".
 
 BẮT BUỘC TUÂN THỦ CÁC QUY TẮC TỐI ƯU SEO VÀ TỪ KHÓA CHÍNH:
 1. Từ khóa chính bắt buộc: "${keyword}"
-2. ĐỘ DÀI BÀI VIẾT: Bắt buộc dài trên 1050 từ (từ 1100 đến 1400 từ) để đạt điểm SEO tối đa (> 90 - 100 điểm).
+2. ĐỘ DÀI BÀI VIẾT: Bắt buộc dài trên 1100 từ (từ 1200 đến 1450 từ) để đạt điểm SEO tối đa (> 90 - 100 điểm).
 3. TIÊU ĐỀ H1: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài tiêu đề từ 50 đến 65 ký tự.
 4. META DESCRIPTION: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài 140 đến 158 ký tự.
 5. ĐOẠN MỞ BÀI (SAPO): Phải chèn từ khóa "${keyword}" ngay trong 100 từ đầu tiên.
 6. MẬT ĐỘ TỪ KHÓA: Từ khóa "${keyword}" phải xuất hiện rải rác tự nhiên từ 8 đến 12 lần trong toàn bộ thân bài (mật độ 1.5% - 2.5%).
-7. NỘI DUNG THỰC TẾ: Bài viết tập trung 100% vào kiến thức, giải pháp thực tế của chủ đề "${topic}". KHÔNG viết các câu giải thích quy tắc SEO hay lý thuyết SEO trong bài.
+7. NỘI DUNG CHUYÊN SÂU & ĐỘC BẢN 100%: 
+   - Vận dụng triệt để kho dữ liệu thực tế Google Việt Nam và các tài liệu kỹ thuật toàn cầu (Hoa Kỳ NSF/EPA, Đức DVGW/DIN, Nhật Bản Toray/Kurita) được cung cấp dưới đây.
+   - Dịch và bản địa hóa 100% các thuật ngữ kỹ thuật đa quốc gia sang tiếng Việt chuyên ngành chuẩn xác (SDI, màng Polyamide, tỷ lệ thu hồi permeate, nước xả concentrate, rửa màng CIP, sục khí oxy hóa, hạt nhựa Cation, công nghệ EDI...).
+   - Đưa ra bảng thông số kỹ thuật chi tiết so sánh vận hành hoặc tiêu chuẩn nước đầu vào/đầu ra chuẩn Bộ Y Tế (QCVN 01-1:2018/BYT hoặc QCVN 6-1:2010/BYT).
+   - KHÔNG viết các câu giải thích quy tắc SEO hay lý thuyết SEO trong bài.
 8. CẤU TRÚC THẺ: Có ít nhất 3-5 thẻ H2, các thẻ H3 phụ, bảng biểu kỹ thuật và phần FAQ 3 câu hỏi liên quan.
 9. HÌNH ẢNH MINH HỌA:
    - Dưới thẻ H2 đầu tiên, chèn ảnh: ![Hình ảnh mô tả ${keyword}](${img1})
    - Ở phần thân bài kỹ thuật, chèn ảnh: ![Cấu tạo chi tiết ${keyword}](${img2})
-${customTargetUrl ? `10. LINK ĐÍCH SẢN PHẨM: Cuối bài phải chèn liên kết điều hướng sản phẩm: 👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${customTargetUrl}) - *Giải pháp kỹ thuật chuyên sâu đạt chuẩn Bộ Y Tế.*` : ''}${avoidanceNotice}
+10. LƯU Ý BẢN QUYỀN & THƯƠNG HIỆU: TUYỆT ĐỐI KHÔNG chèn danh sách link nguồn ngoài hay mục "Nguồn Tham Khảo" vào thân bài (nguồn chỉ dùng làm dữ liệu đối chiếu nội bộ trong phần mềm).
+${customTargetUrl ? `11. LINK ĐÍCH SẢN PHẨM: Cuối bài phải chèn liên kết điều hướng sản phẩm: 👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${customTargetUrl}) - *Giải pháp kỹ thuật chuyên sâu đạt chuẩn Bộ Y Tế.*` : ''}${avoidanceNotice}${researchBlock}
 
 Trả về JSON thuần túy (không bọc markdown block):
 {
@@ -1915,28 +2289,42 @@ Trả về JSON thuần túy (không bọc markdown block):
   "content": "...(Nội dung Markdown đầy đủ với #, ##, ###, bảng biểu và hình ảnh)..."
 }`;
 
-      const candidateModels = ['gemini-3.6-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+      const candidateModels = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.5-flash-lite', 'gemini-2.5-pro'];
       let data = null;
 
       for (const model of candidateModels) {
-        try {
-          const res = await fetchFn(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-          });
-          if (res.ok) {
-            data = await res.json();
-            if (data.candidates && data.candidates[0]?.content?.parts) {
-              console.log(`[Gemini AI] Soạn bài viết thành công bằng model: ${model}`);
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const res = await fetchFn(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                  temperature: 0.85
+                }
+              })
+            });
+            if (res.ok) {
+              data = await res.json();
+              if (data.candidates && data.candidates[0]?.content?.parts) {
+                console.log(`[Gemini AI] Soạn bài viết thành công bằng model: ${model}`);
+                break;
+              }
+            } else if (res.status === 503 && attempt === 1) {
+              console.warn(`[Gemini AI] Model ${model} 503 quá tải, chờ 2s thử lại...`);
+              await new Promise(r => setTimeout(r, 2000));
+            } else {
+              console.warn(`[Gemini AI] Model ${model} trả về status ${res.status}`);
               break;
             }
-          } else {
-            console.warn(`[Gemini AI] Model ${model} trả về status ${res.status}`);
+          } catch (mErr) {
+            console.warn(`[Gemini AI] Lỗi kết nối model ${model}:`, mErr.message);
+            break;
           }
-        } catch (mErr) {
-          console.warn(`[Gemini AI] Lỗi kết nối model ${model}:`, mErr.message);
         }
+        if (data && data.candidates && data.candidates[0]?.content?.parts) break;
       }
 
       if (data && data.candidates && data.candidates[0]?.content?.parts) {
@@ -1966,20 +2354,22 @@ Trả về JSON thuần túy (không bọc markdown block):
           // If title has overlap, tweak title instead of throwing away the unique AI content!
           const dupCheck = checkDuplicateTitle(parsed.title);
           if (dupCheck.isDuplicate) {
-            console.log(`[Anti-Cannibalization] Tiêu đề Gemini "${parsed.title}" bị trùng ${Math.round(dupCheck.similarity * 100)}% với bài live: "${dupCheck.matchedLiveTitle}". Tự động tinh chỉnh tiêu đề để đảm bảo tính độc bản 100%!`);
+            const matchedTitle = dupCheck.mostSimilarPost?.title || dupCheck.matchedLiveTitle || 'bài viết trên web';
+            console.log(`[Anti-Cannibalization] Tiêu đề Gemini "${parsed.title}" bị trùng ${Math.round(dupCheck.similarity * 100)}% với bài live: "${matchedTitle}". Tự động tinh chỉnh tiêu đề để đảm bảo tính độc bản 100%!`);
             parsed.title = `${parsed.title.replace(/\s*2026\s*$/i, '')} Chuyên Sâu 2026`;
             if (parsed.title.length > 65) {
               parsed.title = parsed.title.substring(0, 62).trim() + '...';
             }
           }
 
-          const targetBrandLink = customTargetUrl || 'https://xulynuochoasen.com';
+          const targetBrandLink = (customTargetUrl && !customTargetUrl.includes('/san-pham/')) ? customTargetUrl : getGoogleAdsTargetUrl(keyword || topic, topic || keyword);
           parsed.imageUrl = img1;
           parsed.secondaryImageUrl = img2;
           parsed.targetProductUrl = targetBrandLink;
 
-          // Auto-wrap any plain markdown images with target brand link
+          // Auto-wrap any plain markdown images or update existing linked images with target Google Ads link
           if (parsed.content) {
+            parsed.content = parsed.content.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, `[![$1]($2)](${targetBrandLink})`);
             parsed.content = parsed.content.replace(/(?<!\[)!\[(.*?)\]\((.*?)\)(?!\))/g, `[![$1]($2)](${targetBrandLink})`);
           }
 
@@ -1997,8 +2387,48 @@ Trả về JSON thuần túy (không bọc markdown block):
             parsed.content += `\n\n[![Chi tiết cấu tạo ${keyword}](${img2})](${targetBrandLink})\n\n`;
           }
 
+          // Attach sources strictly to post object for software UI inspection ONLY (never publish to WP)
+          if (researchData && researchData.sourcesList && researchData.sourcesList.length > 0) {
+            parsed.sources = researchData.sourcesList;
+          }
+          // Strip reference section if Gemini generated it
+          if (parsed.content && parsed.content.includes('## Nguồn Tham Khảo')) {
+            const refIdx = parsed.content.indexOf('## Nguồn Tham Khảo');
+            const brandIdx = parsed.content.indexOf('👉 **Sản Phẩm', refIdx);
+            if (brandIdx !== -1) {
+              parsed.content = parsed.content.substring(0, refIdx).trim() + '\n\n' + parsed.content.substring(brandIdx).trim();
+            } else {
+              parsed.content = parsed.content.substring(0, refIdx).trim();
+            }
+          }
+
           if (customTargetUrl && parsed.content && !parsed.content.includes(customTargetUrl)) {
             parsed.content += `\n\n👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${customTargetUrl}) - *Giải pháp kỹ thuật chuyên sâu đạt chuẩn Bộ Y Tế.*`;
+          }
+
+          // === LOP 3: Tu dong kiem tra similarity SAU khi generate ===
+          // Neu content moi giong > 55% voi bat ky bai cung keyword -> danh dau de tu dong rewrite
+          const { calculateJaccardSimilarity } = require('./lib/crawler');
+          const allExistingBodies = [
+            ...sameKwPosts.map(p => p.content || ''),
+            ...(avoidance.contentSnippets || [])
+          ].filter(Boolean);
+
+          let maxDupSim = 0;
+          for (const existingBody of allExistingBodies) {
+            const sim = calculateJaccardSimilarity(
+              parsed.content.substring(0, 1200),
+              existingBody.substring(0, 1200)
+            );
+            if (sim > maxDupSim) maxDupSim = sim;
+          }
+
+          if (maxDupSim > 0.55) {
+            console.warn(`[Auto-DupGuard] Content moi tuong dong ${(maxDupSim*100).toFixed(0)}% voi bai hien co! Danh dau _needsRewrite de scheduler tu dong fix.`);
+            parsed._needsRewrite = true;
+            parsed._dupSimilarity = Math.round(maxDupSim * 100);
+          } else {
+            console.log(`[Auto-DupGuard] Content OK - similarity max ${(maxDupSim*100).toFixed(0)}% (nguong an toan < 55%)`);
           }
 
           // Quality check: ensure valid score
@@ -2012,7 +2442,7 @@ Trả về JSON thuần túy (không bọc markdown block):
     }
   }
 
-  return generateSmartSeoTemplate(topic, keyword, 'Thuyết phục & Chuẩn SEO', customTargetUrl);
+  return generateSmartSeoTemplate(topic, keyword, 'Thuyet phuc & Chuan SEO', customTargetUrl);
 }
 
 /* ==========================================================================
@@ -2193,6 +2623,146 @@ app.post('/api/generate-ai', async (req, res) => {
 
 
 
+/* ==========================================================================
+   DUPLICATE CONTENT DETECTION & AI REWRITE ENDPOINTS
+   ========================================================================== */
+
+// GET /api/duplicate-check — phân tích toàn bộ posts.json, trả về report các nhóm duplicate
+app.get('/api/duplicate-check', (req, res) => {
+  try {
+    const report = getDuplicateReport();
+    res.json({ success: true, ...report });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/posts/rewrite-ai — rewrite một post bị duplicate bằng Gemini hoặc re-push với HTML đúng
+// Body: { postId, updateWordPress?, keepContent? }
+app.post('/api/posts/rewrite-ai', async (req, res) => {
+  const { postId, updateWordPress = false, keepContent = false } = req.body;
+  if (!postId) return res.status(400).json({ success: false, message: 'Thiếu postId' });
+
+  try {
+    const posts = getPosts();
+    const postIdx = posts.findIndex(p => p.id === postId);
+    if (postIdx === -1) return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
+
+    let post = posts[postIdx];
+    const keyword = post.targetKeyword || '';
+    const topic = post.title || keyword;
+    const customTargetUrl = post.targetProductUrl || '';
+
+    if (!keepContent) {
+      if (!keyword) return res.status(400).json({ success: false, message: 'Bài viết thiếu targetKeyword' });
+
+      // Lấy all existing content cùng keyword (trừ bài đang rewrite) để Gemini tránh trùng
+      const existingContents = posts
+        .filter(p => p.id !== postId && p.targetKeyword && p.targetKeyword.trim().toLowerCase() === keyword.trim().toLowerCase() && p.content)
+        .map(p => `=== BÀI "${p.title}" ===\n${p.content.substring(0, 500)}`);
+
+      // Generate content mới hoàn toàn
+      const newResult = await generateContentForKeyword(topic, keyword, '', customTargetUrl);
+      if (!newResult || !newResult.content) {
+        return res.status(500).json({ success: false, message: 'Gemini không trả về content' });
+      }
+
+      // Cập nhật post trong posts.json
+      posts[postIdx] = {
+        ...post,
+        title: newResult.title || post.title,
+        content: newResult.content,
+        metaDescription: newResult.metaDescription || post.metaDescription,
+        imageUrl: newResult.imageUrl || post.imageUrl,
+        secondaryImageUrl: newResult.secondaryImageUrl || post.secondaryImageUrl,
+        score: newResult.score || post.score,
+        updatedAt: new Date().toISOString(),
+        rewrittenAt: new Date().toISOString(),
+        rewriteReason: 'AI rewrite - chống duplicate content'
+      };
+      savePosts(posts);
+      post = posts[postIdx];
+    }
+
+    const updatedPost = posts[postIdx];
+
+    // Nếu updateWordPress = true và bài đã publish, update lên WP
+    if (updateWordPress && post.wpPublished) {
+      try {
+        const wpConfig = getWPConfig();
+        if (wpConfig.enabled && wpConfig.siteUrl && wpConfig.appPassword) {
+          const wpAuth = 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword.replace(/\s+/g, '')}`).toString('base64');
+          let fetchFn = globalThis.fetch;
+          try { fetchFn = (await import('node-fetch')).default || globalThis.fetch; } catch(e) {}
+
+          // Resolve wpPostId từ wpLink nếu chưa có
+          let wpPostId = post.wpPostId;
+          if (!wpPostId && post.wpLink) {
+            try {
+              const slug = post.wpLink.replace(/\/$/, '').split('/').pop();
+              const slugRes = await fetchFn(`${wpConfig.siteUrl}/wp-json/wp/v2/posts?slug=${slug}&_fields=id`, {
+                headers: { Authorization: wpAuth }
+              });
+              if (slugRes.ok) {
+                const slugData = await slugRes.json();
+                if (slugData && slugData[0] && slugData[0].id) {
+                  wpPostId = slugData[0].id;
+                  posts[postIdx].wpPostId = wpPostId;
+                  savePosts(posts);
+                  console.log(`[Rewrite] Resolved wpPostId=${wpPostId} from slug "${slug}"`);
+                }
+              }
+            } catch(slugErr) {
+              console.warn('[Rewrite] Could not resolve wpPostId from wpLink:', slugErr.message);
+            }
+          }
+
+          if (wpPostId) {
+            // Đảm bảo tất cả ảnh trong bài viết đã được tải lên WordPress Media Library
+            const finalContent = await ensurePostImagesUploadedToWordPress(updatedPost.content, wpConfig, wpAuth, fetchFn);
+            if (finalContent !== updatedPost.content) {
+              posts[postIdx].content = finalContent;
+              savePosts(posts);
+            }
+
+            const targetLink = (updatedPost.targetProductUrl || wpConfig.siteUrl || 'https://xulynuochoasen.com/').trim();
+            const htmlContent = markdownToHtml(finalContent, targetLink);
+
+            const wpRes = await fetchFn(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${wpPostId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': wpAuth
+              },
+              body: JSON.stringify({
+                title: updatedPost.title,
+                content: htmlContent,
+                excerpt: updatedPost.metaDescription || '',
+                status: 'publish'
+              })
+            });
+
+            if (wpRes.ok) {
+              posts[postIdx].wpUpdatedAt = new Date().toISOString();
+              savePosts(posts);
+              console.log(`[Rewrite] Updated WP post ${wpPostId} with clean HTML & live images for: ${keyword}`);
+            } else {
+              console.warn(`[Rewrite] WP update failed for post ${wpPostId}: status ${wpRes.status}`);
+            }
+          }
+        }
+      } catch (wpErr) {
+        console.error('[Rewrite] WP update error:', wpErr.message);
+      }
+    }
+
+    res.json({ success: true, post: updatedPost, message: `Đã rewrite bài "${updatedPost.title}" thành công!` });
+  } catch (err) {
+    console.error('[Rewrite API] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi rewrite: ' + err.message });
+  }
+});
+
 /* Cron Endpoint for External Callers (e.g. cron-job.org or UptimeRobot) */
 app.all('/api/cron/trigger', async (req, res) => {
   console.log('⚡ External Cron Webhook triggered!');
@@ -2248,24 +2818,254 @@ async function checkAndRunAutoScheduler() {
     const keywords = getKeywords();
     const hasPending = keywords.some(k => k.status === 'pending');
     if (hasPending && wpConfig.enabled && wpConfig.autoPublish) {
-      console.log('🤖 Auto-Scheduler: Auto-Publishing next keyword to WordPress...');
+      console.log('Auto-Scheduler: Auto-Publishing next keyword to WordPress...');
       try {
         const res = await processNextKeywordInQueue();
-        console.log('🤖 Auto-Scheduler result:', res.message);
+        console.log('Auto-Scheduler result:', res.message);
       } catch (err) {
         console.error('Error in auto-publishing cycle:', err.message);
       }
     }
   }
+
+  // === LOP 4: TU DONG SCAN + FIX DUPLICATE (chay moi 60 phut) ===
+  // Quet bai danh dau _needsRewrite va bai duplicate theo keyword
+  const lastDedupTime = config.lastDedupRun ? new Date(config.lastDedupRun).getTime() : 0;
+  const dedupIntervalMs = 60 * 60 * 1000; // moi 1 gio
+  if (!lastDedupTime || (now - lastDedupTime) >= dedupIntervalMs) {
+    config.lastDedupRun = new Date().toISOString();
+    saveSchedulerConfig(config);
+
+    try {
+      const allPosts = getPosts();
+
+      // A. Tim bai danh dau _needsRewrite (bi phat hien duplicate ngay luc generate)
+      const needsRewrite = allPosts.filter(p => p._needsRewrite && !p.rewrittenAt);
+      if (needsRewrite.length > 0) {
+        console.log(`[Auto-DedupFix] Phat hien ${needsRewrite.length} bai can rewrite (da bi flag). Tu dong fix...`);
+        for (const post of needsRewrite.slice(0, 2)) { // Xu ly toi da 2 bai moi lan chay
+          try {
+            const newContent = await generateContentForKeyword(post.title || post.targetKeyword, post.targetKeyword, '', post.targetProductUrl || '');
+            if (newContent && newContent.content && !newContent._needsRewrite) {
+              const idx = allPosts.findIndex(p => p.id === post.id);
+              if (idx !== -1) {
+                allPosts[idx] = {
+                  ...allPosts[idx],
+                  title: newContent.title || allPosts[idx].title,
+                  content: newContent.content,
+                  metaDescription: newContent.metaDescription || allPosts[idx].metaDescription,
+                  score: newContent.score || allPosts[idx].score,
+                  updatedAt: new Date().toISOString(),
+                  rewrittenAt: new Date().toISOString(),
+                  _needsRewrite: false,
+                  rewriteReason: `Auto-fix ${new Date().toISOString()} (dupSim was ${post._dupSimilarity}%)`
+                };
+                savePosts(allPosts);
+                console.log(`[Auto-DedupFix] Da rewrite: "${allPosts[idx].title}"`);
+
+                // Neu bai da WP-publish, update len WP luon
+                if (allPosts[idx].wpPublished && allPosts[idx].wpPostId && wpConfig.enabled) {
+                  try {
+                    const wpAuth = 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword}`).toString('base64');
+                    let fetchFn = globalThis.fetch;
+                    try { fetchFn = (await import('node-fetch')).default || globalThis.fetch; } catch(e) {}
+                    const htmlContent = markdownToHtml(allPosts[idx].content, allPosts[idx].targetProductUrl || wpConfig.siteUrl);
+                    const wpRes = await fetchFn(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${allPosts[idx].wpPostId}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': wpAuth },
+                      body: JSON.stringify({ title: allPosts[idx].title, content: htmlContent, excerpt: allPosts[idx].metaDescription || '', status: 'publish' })
+                    });
+                    if (wpRes.ok) console.log(`[Auto-DedupFix] WP updated: post ${allPosts[idx].wpPostId}`);
+                  } catch(wpE) { console.warn('[Auto-DedupFix] WP update err:', wpE.message); }
+                }
+              }
+            }
+            await new Promise(r => setTimeout(r, 4000)); // delay tranh spam Gemini
+          } catch(rewriteErr) {
+            console.error('[Auto-DedupFix] Loi rewrite:', rewriteErr.message);
+          }
+        }
+      }
+
+      // B. Scan theo keyword group: neu > 1 bai cung keyword co similarity > 60%, tu dong rewrite bai thu 2 tro di
+      const { detectDuplicateGroups } = require('./lib/ai_generator');
+      const dupReport = detectDuplicateGroups();
+      if (dupReport && dupReport.length > 0) {
+        console.log(`[Auto-DedupFix] Quet thay ${dupReport.length} nhom duplicate. Tu dong rewrite bai bi anh huong...`);
+        let fixCount = 0;
+        for (const group of dupReport) {
+          if (fixCount >= 1) break; // Moi chu ky chi fix 1 nhom de tranh qua tai Gemini
+          const toFix = group.posts.slice(1).filter(p => !p.rewrittenAt || (new Date() - new Date(p.rewrittenAt)) > 24*60*60*1000);
+          for (const postMeta of toFix.slice(0, 1)) {
+            const postIdx = allPosts.findIndex(p => p.id === postMeta.id);
+            if (postIdx === -1) continue;
+            const post = allPosts[postIdx];
+            try {
+              const newContent = await generateContentForKeyword(post.title, post.targetKeyword, '', post.targetProductUrl || '');
+              if (newContent && newContent.content && !newContent._needsRewrite) {
+                allPosts[postIdx] = {
+                  ...post,
+                  title: newContent.title || post.title,
+                  content: newContent.content,
+                  metaDescription: newContent.metaDescription || post.metaDescription,
+                  updatedAt: new Date().toISOString(),
+                  rewrittenAt: new Date().toISOString(),
+                  rewriteReason: `Auto-scan fix ${new Date().toISOString()}`
+                };
+                savePosts(allPosts);
+                fixCount++;
+                console.log(`[Auto-DedupFix] Da fix bai trong nhom "${group.keyword}": "${allPosts[postIdx].title}"`);
+
+                if (allPosts[postIdx].wpPublished && allPosts[postIdx].wpPostId && wpConfig.enabled) {
+                  try {
+                    const wpAuth = 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword}`).toString('base64');
+                    let fetchFn = globalThis.fetch;
+                    try { fetchFn = (await import('node-fetch')).default || globalThis.fetch; } catch(e) {}
+                    const htmlContent = markdownToHtml(allPosts[postIdx].content, allPosts[postIdx].targetProductUrl || wpConfig.siteUrl);
+                    await fetchFn(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${allPosts[postIdx].wpPostId}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': wpAuth },
+                      body: JSON.stringify({ title: allPosts[postIdx].title, content: htmlContent, excerpt: allPosts[postIdx].metaDescription || '', status: 'publish' })
+                    });
+                    console.log(`[Auto-DedupFix] WP updated: ${allPosts[postIdx].wpPostId}`);
+                  } catch(wpE) { console.warn('[Auto-DedupFix] WP update err:', wpE.message); }
+                }
+                await new Promise(r => setTimeout(r, 4000));
+              }
+            } catch(e) { console.error('[Auto-DedupFix] Fix error:', e.message); }
+          }
+        }
+        if (fixCount === 0) console.log('[Auto-DedupFix] Tat ca bai trong cac nhom da duoc fix gan day, bo qua.');
+      }
+    } catch(dedupErr) {
+      console.error('[Auto-DedupFix] Loi chu ky dedup:', dedupErr.message);
+    }
+  }
 }
 
-// Execute immediately when server starts: sync WP and check scheduler
+
+/* ==========================================================================
+   SELF-HEALING MOTOR: Tự động kiểm tra và sửa toàn bộ bài đã đăng trên WP
+   Fix lỗi markdown thô và hình ảnh hỏng 404 trực tiếp từ phần mềm
+   ========================================================================== */
+async function selfHealPublishedPosts() {
+  const wpConfig = getWPConfig();
+  if (!wpConfig.enabled || !wpConfig.siteUrl || !wpConfig.appPassword) return;
+
+  const authHeader = 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword.replace(/\s+/g, '')}`).toString('base64');
+  let fetchFn = globalThis.fetch;
+  try { fetchFn = (await import('node-fetch')).default || globalThis.fetch; } catch(e) {}
+
+  const posts = getPosts();
+  const published = posts.filter(p => p.wpPublished && (p.wpPostId || p.wpLink));
+  let healed = 0;
+
+  for (const post of published) {
+    let wpPostId = post.wpPostId;
+    if (!wpPostId && post.wpLink) {
+      try {
+        const slug = post.wpLink.replace(/\/$/, '').split('/').pop();
+        const slugRes = await fetchFn(`${wpConfig.siteUrl}/wp-json/wp/v2/posts?slug=${slug}&_fields=id`, {
+          headers: { Authorization: authHeader }
+        });
+        if (slugRes.ok) {
+          const sData = await slugRes.json();
+          if (sData && sData[0]?.id) {
+            wpPostId = sData[0].id;
+            const pIdx = posts.findIndex(x => x.id === post.id);
+            if (pIdx !== -1) { posts[pIdx].wpPostId = wpPostId; savePosts(posts); }
+          }
+        }
+      } catch(e) {}
+    }
+    if (!wpPostId) continue;
+
+    try {
+      const res = await fetchFn(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${wpPostId}`, {
+        headers: { Authorization: authHeader }
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const content = data.content?.rendered || '';
+
+      const hasRawMd = content.includes('## ') || content.includes('[![') || content.includes('**');
+      const hasLocalImg = content.includes('/uploads/media_');
+      const targetLink = (post.targetProductUrl || getGoogleAdsTargetUrl(post.targetKeyword || post.title) || 'https://xulynuochoasen.com/').trim();
+      const hasWrongTarget = content.includes('/san-pham/') || (targetLink && !content.includes(targetLink));
+
+      if (hasRawMd || hasLocalImg || hasWrongTarget) {
+        console.log(`[Self-Heal] Phát hiện bài [${wpPostId}] "${post.title?.substring(0, 35)}..." cần đồng bộ (rawMd: ${hasRawMd}, localImg: ${hasLocalImg}, wrongTarget: ${hasWrongTarget}). Tự động khắc phục...`);
+        const pIdx = posts.findIndex(x => x.id === post.id);
+
+        let cleanContent = await ensurePostImagesUploadedToWordPress(post.content, wpConfig, authHeader, fetchFn);
+        // Ensure image links in markdown point to targetLink
+        cleanContent = cleanContent.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (match, alt, imgUrl) => `[![${alt}](${imgUrl})](${targetLink})`);
+        // Ensure CTA points to targetLink
+        if (/👉 \*\*Sản Phẩm Đúng Chuyên Mục:\*\* \[.*?\]\(.*?\)/gi.test(cleanContent)) {
+          cleanContent = cleanContent.replace(/👉 \*\*Sản Phẩm Đúng Chuyên Mục:\*\* \[.*?\]\(.*?\)/gi, `👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${targetLink})`);
+        }
+
+        if (pIdx !== -1) {
+          posts[pIdx].content = cleanContent;
+          posts[pIdx].targetProductUrl = targetLink;
+          savePosts(posts);
+        }
+
+        const htmlContent = markdownToHtml(cleanContent, targetLink);
+
+        const updateRes = await fetchFn(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${wpPostId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader
+          },
+          body: JSON.stringify({
+            title: post.title,
+            content: htmlContent,
+            excerpt: post.metaDescription || '',
+            status: 'publish'
+          })
+        });
+
+        if (updateRes.ok) {
+          if (pIdx !== -1) {
+            posts[pIdx].wpUpdatedAt = new Date().toISOString();
+            savePosts(posts);
+          }
+          healed++;
+          console.log(`[Self-Heal] ✅ Đã sửa và cập nhật thành công bài WP [${wpPostId}]!`);
+        }
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    } catch(err) {
+      console.warn(`[Self-Heal] Lỗi kiểm tra bài ${wpPostId}:`, err.message);
+    }
+  }
+
+  if (healed > 0) {
+    console.log(`[Self-Heal] Hoàn tất tự động chuẩn hóa ${healed} bài viết WordPress!`);
+  }
+}
+
+// Execute immediately when server starts: sync WP, self-heal published posts, and check scheduler
 setTimeout(async () => {
   try {
     console.log('🔄 Đang kiểm tra và đồng bộ trạng thái trực tiếp từ WordPress REST API...');
     await syncWordPressLivePosts();
   } catch (err) {
     console.warn('Lỗi đồng bộ WP khi khởi động:', err.message);
+  }
+  try {
+    console.log('🛡️ [Startup Audit] Tự động rà soát toàn bộ hệ thống, phát hiện trùng lặp & kiểm tra sức khỏe...');
+    await runSystemAudit();
+  } catch (auditErr) {
+    console.warn('Lỗi rà soát hệ thống khi khởi động:', auditErr.message);
+  }
+  try {
+    console.log('🛡️ [Self-Heal] Tự động kiểm tra tính toàn vẹn hình ảnh & format HTML của các bài viết đã đăng...');
+    await selfHealPublishedPosts();
+  } catch (healErr) {
+    console.warn('Lỗi self-heal khi khởi động:', healErr.message);
   }
   checkAndRunAutoScheduler().catch(err => console.error('Error in initial auto-scheduler check:', err));
 }, 2000);

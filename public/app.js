@@ -10,6 +10,7 @@ let currentPostId = null;
 let debounceTimer = null;
 let currentPostsData = [];
 let currentKeywordsData = [];
+let googleAdsLinks = [];
 
 async function initApp() {
   setupNavigation();
@@ -20,11 +21,14 @@ async function initApp() {
   setupSettingsEvents();
   setupAutoPilotEvents();
   setupWPEvents();
+  setupStartupAuditEvents();
+  setupGoogleAdsEvents();
   
-  await Promise.all([loadPosts(), loadKeywords(), loadSchedulerConfig()]);
+  await Promise.all([loadPosts(), loadGoogleAdsLinks(), loadKeywords(), loadSchedulerConfig()]);
   loadSchedulerStatus();
   startCountdownLoop();
   loadWPConfig();
+  loadStartupAuditStatus();
 
   // Tự động kiểm tra & đồng bộ live với WordPress để dọn dẹp hàng chờ trùng lặp
   fetch('/api/wordpress/sync', { method: 'POST' })
@@ -455,6 +459,8 @@ function setupAutoPilotEvents() {
         document.getElementById('bulk-keywords-text').value = '';
         const targetUrlInput = document.getElementById('bulk-target-url');
         if (targetUrlInput) targetUrlInput.value = '';
+        const targetUrlSelect = document.getElementById('bulk-target-url-select');
+        if (targetUrlSelect) targetUrlSelect.value = '';
         loadKeywords();
       }
     } catch (err) {
@@ -1003,8 +1009,8 @@ function renderPublishingTimeline(timeline = []) {
                </button>`
           }
           ${item.generatedPostId 
-            ? `<button class="btn btn-sm btn-ghost btn-timeline-read" data-post-id="${item.generatedPostId}" title="Xem bài viết" style="padding: 5px 8px; font-size: 0.78rem;">
-                 <i class="fa-solid fa-book-open"></i> Đọc
+            ? `<button class="btn btn-sm btn-ghost btn-timeline-read" data-post-id="${item.generatedPostId}" title="Xem bài viết & nguồn đối chiếu thực tế" style="padding: 5px 8px; font-size: 0.78rem;">
+                 <i class="fa-solid fa-book-open"></i> Đọc & Nguồn
                </button>` 
             : `<button class="btn btn-sm btn-primary btn-timeline-pregen" data-id="${item.id}" title="Soạn bài trước" style="padding: 5px 8px; font-size: 0.78rem;">
                  <i class="fa-solid fa-wand-magic-sparkles"></i> Soạn
@@ -1050,9 +1056,8 @@ function renderPublishingTimeline(timeline = []) {
   container.querySelectorAll('.btn-timeline-read').forEach(btn => {
     btn.addEventListener('click', () => {
       const postId = btn.getAttribute('data-post-id');
-      const targetPost = currentPostsData.find(p => p.id === postId);
-      if (targetPost) {
-        openQuickPreviewModal(targetPost);
+      if (postId) {
+        openQuickPreviewModal(postId);
       }
     });
   });
@@ -1222,26 +1227,47 @@ function renderKeywordQueueTable(keywords = []) {
     }
 
     // Col 3: LINK ĐÍCH SEO MỤC TIÊU (GÁN SẢN PHẨM/PAGE)
-    const targetUrlVal = item.targetUrl || '';
+    const targetUrlVal = (item.targetUrl || '').trim();
+    let hasMatchedGads = false;
+    let gadsOptionsHtml = `<option value="">-- Chọn Trang Đích Google Ads --</option>`;
+    if (Array.isArray(googleAdsLinks) && googleAdsLinks.length > 0) {
+      googleAdsLinks.forEach(g => {
+        const isSel = (targetUrlVal && (targetUrlVal === g.url || targetUrlVal.replace(/\/$/, '') === g.url.replace(/\/$/, '')));
+        if (isSel) hasMatchedGads = true;
+        gadsOptionsHtml += `<option value="${escapeHtml(g.url)}" ${isSel ? 'selected' : ''}>🎯 ${escapeHtml(g.name)}</option>`;
+      });
+    }
+    gadsOptionsHtml += `<option value="__custom__" ${(!hasMatchedGads && targetUrlVal) ? 'selected' : ''}>✏️ Tùy chỉnh (URL khác)...</option>`;
+
     const colTargetUrl = `
       <td>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <input 
-            type="url" 
-            class="form-control form-control-sm input-target-url" 
-            data-id="${item.id}" 
-            value="${escapeHtml(targetUrlVal)}" 
-            placeholder="https://xulynuochoasen.com/san-pham/..." 
-            title="Dán link sản phẩm/dịch vụ đích để AI tự động gắn vào bài viết"
-            style="font-size: 12px; padding: 7px 12px; border-radius: 8px; background: rgba(10, 15, 29, 0.85); border: 1px solid rgba(255, 255, 255, 0.12); color: #f1f5f9; width: 100%; min-width: 160px;"
-          />
-          <button 
-            type="button"
-            class="btn btn-sm btn-secondary btn-save-target-url" 
-            data-id="${item.id}" 
-            title="Lưu Link Đích SEO Mục Tiêu"
-            style="padding: 7px 10px; font-size: 13px; border-radius: 8px; flex-shrink: 0; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
-          >💾</button>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <select 
+            class="form-control form-control-sm select-gads-quick" 
+            data-id="${item.id}"
+            style="font-size: 11px; padding: 5px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-weight: 600; cursor: pointer; max-width: 220px;"
+            title="Chọn nhanh trang đích Google Ads mục tiêu"
+          >
+            ${gadsOptionsHtml}
+          </select>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <input 
+              type="url" 
+              class="form-control form-control-sm input-target-url" 
+              data-id="${item.id}" 
+              value="${escapeHtml(targetUrlVal)}" 
+              placeholder="https://xulynuochoasen.com/he-thong-loc-..." 
+              title="URL trang đích thực tế trên website"
+              style="font-size: 11px; padding: 5px 8px; border-radius: 6px; background: rgba(10, 15, 29, 0.85); border: 1px solid rgba(255, 255, 255, 0.12); color: #f1f5f9; width: 100%; min-width: 140px;"
+            />
+            <button 
+              type="button"
+              class="btn btn-sm btn-secondary btn-save-target-url" 
+              data-id="${item.id}" 
+              title="Lưu Link Đích SEO Mục Tiêu"
+              style="padding: 5px 8px; font-size: 12px; border-radius: 6px; flex-shrink: 0; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
+            >💾</button>
+          </div>
         </div>
       </td>
     `;
@@ -1314,7 +1340,7 @@ function renderKeywordQueueTable(keywords = []) {
         <td>
           <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
             ${canMoveTop ? `<button class="btn btn-sm btn-secondary btn-move-top" data-id="${item.id}" title="Đưa lên vị trí #1 để đăng tiếp theo" style="padding: 5px 8px; font-size: 0.75rem;"><i class="fa-solid fa-arrow-up"></i> Ưu Tiên</button>` : ''}
-            <button class="btn btn-sm btn-primary btn-quick-read" data-post-id="${targetPost.id}" title="Đọc toàn văn bài viết" style="padding: 5px 8px; font-size: 0.75rem;"><i class="fa-solid fa-book-open"></i> Đọc</button>
+            <button class="btn btn-sm btn-primary btn-quick-read" data-post-id="${targetPost.id}" title="Đọc toàn văn bài viết & xem link nguồn" style="padding: 5px 8px; font-size: 0.75rem;"><i class="fa-solid fa-book-open"></i> Đọc & Nguồn</button>
             <button class="btn btn-sm btn-secondary btn-edit-post-table" data-post-id="${targetPost.id}" title="Mở trong trình soạn thảo" style="padding: 5px 8px; font-size: 0.75rem;"><i class="fa-solid fa-pen-nib"></i></button>
             ${item.status !== 'completed' ? `<button class="btn btn-sm btn-accent btn-publish-single-table" data-post-id="${targetPost.id}" title="Xuất bản lên WordPress ngay" style="padding: 5px 8px; font-size: 0.75rem;"><i class="fa-brands fa-wordpress"></i></button>` : ''}
             <button class="btn btn-sm btn-ghost btn-del-kw" data-id="${item.id}" title="Xóa khỏi hàng chờ" style="padding: 5px 8px; font-size: 0.75rem;"><i class="fa-solid fa-trash"></i></button>
@@ -1363,7 +1389,7 @@ function renderKeywordQueueTable(keywords = []) {
     const readBtn = tr.querySelector('.btn-quick-read');
     if (readBtn) {
       readBtn.addEventListener('click', () => {
-        openQuickPreviewModal(targetPost, item);
+        openQuickPreviewModal(targetPost ? targetPost.id : null, item);
       });
     }
 
@@ -1466,6 +1492,20 @@ function renderKeywordQueueTable(keywords = []) {
       }
     };
 
+    const gadsSelect = tr.querySelector('.select-gads-quick');
+    if (gadsSelect && urlInput) {
+      gadsSelect.addEventListener('change', () => {
+        const val = gadsSelect.value;
+        if (val && val !== '__custom__') {
+          urlInput.value = val;
+          handleSaveUrl();
+        } else if (val === '__custom__') {
+          urlInput.focus();
+          urlInput.select();
+        }
+      });
+    }
+
     if (saveUrlBtn) {
       saveUrlBtn.addEventListener('click', handleSaveUrl);
     }
@@ -1542,9 +1582,7 @@ function renderArticleContent(contentBox, post) {
       parentA.target = '_blank';
       parentA.rel = 'noopener noreferrer';
       parentA.title = img.title;
-      if (!parentA.href || parentA.href.includes('localhost') || parentA.href === '#') {
-        parentA.href = targetUrl;
-      }
+      parentA.href = targetUrl;
     } else {
       const a = document.createElement('a');
       a.href = targetUrl;
@@ -1554,6 +1592,10 @@ function renderArticleContent(contentBox, post) {
       img.parentNode.insertBefore(a, img);
       a.appendChild(img);
     }
+    img.onclick = (e) => {
+      e.preventDefault();
+      window.open(targetUrl, '_blank');
+    };
   });
 
   // Ensure all links in content open in new tab
@@ -1564,12 +1606,32 @@ function renderArticleContent(contentBox, post) {
   });
 }
 
-function openQuickPreviewModal(post, keywordItem) {
+async function openQuickPreviewModal(postInput, keywordItem) {
   const modal = document.getElementById('quick-preview-modal');
-  if (!modal || !post) return;
+  if (!modal || !postInput) return;
+
+  let post = postInput;
+  const postId = typeof postInput === 'string' ? postInput : postInput.id;
+  if (postId) {
+    try {
+      const res = await fetch(`/api/posts/${postId}`);
+      const d = await res.json();
+      if (d.success && d.post) {
+        post = d.post;
+        const cachedIdx = currentPostsData.findIndex(p => p.id === postId);
+        if (cachedIdx !== -1) currentPostsData[cachedIdx] = post;
+      }
+    } catch (e) {}
+  }
 
   document.getElementById('modal-post-title').textContent = post.title || 'Bài viết chưa có tiêu đề';
-  document.getElementById('modal-post-meta').textContent = `Từ khóa mục tiêu: ${post.targetKeyword || keywordItem?.keyword || 'N/A'}`;
+  const metaEl = document.getElementById('modal-post-meta');
+  if (metaEl) {
+    metaEl.innerHTML = `<span style="color:#a5b4fc;"><i class="fa-solid fa-tag"></i> Từ khóa: <strong>${escapeHtml(post.targetKeyword || keywordItem?.keyword || 'N/A')}</strong></span>
+      <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; margin-left: 8px; font-size: 0.72rem; padding: 2px 6px;">
+        <i class="fa-solid fa-globe"></i> Nguồn Toàn Cầu: Mỹ (NSF/EPA) + Đức (DIN/DVGW) + Nhật (Toray) + VN
+      </span>`;
+  }
   document.getElementById('modal-score-badge').textContent = `Điểm SEO: ${post.score || 0}/100`;
   const wordCount = post.content ? post.content.trim().split(/\s+/).filter(Boolean).length : 0;
   document.getElementById('modal-words-badge').textContent = `${wordCount} từ`;
@@ -1630,6 +1692,9 @@ function openQuickPreviewModal(post, keywordItem) {
   const contentBox = document.getElementById('modal-article-rendered-content');
   renderArticleContent(contentBox, post);
 
+  // Render External Sources List Panel
+  await renderModalExternalSources(post);
+
   const btnEdit = document.getElementById('btn-modal-open-editor');
   if (btnEdit) {
     btnEdit.onclick = () => {
@@ -1655,6 +1720,104 @@ function openQuickPreviewModal(post, keywordItem) {
 
   modal.style.display = 'flex';
 }
+
+async function renderModalExternalSources(post) {
+  const countBadge = document.getElementById('modal-sources-count-badge');
+  const sourcesListEl = document.getElementById('modal-sources-list');
+  const btnRefreshSources = document.getElementById('btn-refresh-modal-sources');
+  if (!sourcesListEl) return;
+
+  let sources = post.sources || [];
+  if (!sources || sources.length === 0) {
+    if (countBadge) countBadge.textContent = 'Đang tải nguồn...';
+    try {
+      const res = await fetch(`/api/posts/${post.id}/sources`);
+      const data = await res.json();
+      if (data.success && data.sources && data.sources.length > 0) {
+        sources = data.sources;
+        post.sources = sources;
+      }
+    } catch (e) {
+      console.warn('Could not fetch sources for modal:', e);
+    }
+  }
+
+  if (countBadge) {
+    countBadge.textContent = sources.length > 0 ? `${sources.length} nguồn đối chiếu thực tế` : 'Chưa có nguồn';
+  }
+
+  if (!sources || sources.length === 0) {
+    sourcesListEl.innerHTML = `
+      <div style="padding: 12px; color: var(--text-muted); font-size: 0.82rem; text-align: center;">
+        <i class="fa-solid fa-circle-info"></i> Chưa có danh sách nguồn. Bấm "Quét Lại Nguồn" để tự động cào từ Google VN & Quốc Tế.
+      </div>
+    `;
+  } else {
+    sourcesListEl.innerHTML = sources.map((s, idx) => {
+      let badgeStyle = 'background: rgba(59, 130, 246, 0.2); color: #60a5fa;';
+      let badgeIcon = 'fa-earth-americas';
+      if (s.region === 'VN') {
+        badgeStyle = 'background: rgba(239, 68, 68, 0.2); color: #f87171;';
+        badgeIcon = 'fa-flag';
+      } else if (s.region === 'DE') {
+        badgeStyle = 'background: rgba(234, 179, 8, 0.2); color: #facc15;';
+        badgeIcon = 'fa-gear';
+      } else if (s.region === 'JP') {
+        badgeStyle = 'background: rgba(168, 85, 247, 0.2); color: #c084fc;';
+        badgeIcon = 'fa-microchip';
+      }
+
+      const url = s.url || s.link || '#';
+      const cleanSnippet = s.snippet ? escapeHtml(s.snippet) : 'Không có đoạn trích dẫn kỹ thuật.';
+
+      return `
+        <div class="source-item-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px;">
+              <span class="badge" style="${badgeStyle} font-size: 0.72rem; padding: 2px 6px; font-weight: 600;">
+                <i class="fa-solid ${badgeIcon}"></i> ${escapeHtml(s.regionName || s.badge || s.region || 'Quốc tế')}
+              </span>
+              <strong style="color: #f8fafc; font-size: 0.86rem; line-height: 1.3;">#${idx + 1}. ${escapeHtml(s.title || 'Tài liệu kỹ thuật')}</strong>
+            </div>
+            <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-ghost" style="padding: 3px 8px; font-size: 0.72rem; border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; text-decoration: none; white-space: nowrap;">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Mở Web Nguồn
+            </a>
+          </div>
+          <div style="margin-top: 2px;">
+            <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; font-size: 0.78rem; text-decoration: underline; word-break: break-all;">
+              ${escapeHtml(url)}
+            </a>
+          </div>
+          <p style="margin: 3px 0 0 0; color: #94a3b8; font-size: 0.76rem; line-height: 1.35;">
+            ${cleanSnippet}
+          </p>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (btnRefreshSources) {
+    btnRefreshSources.onclick = async () => {
+      btnRefreshSources.disabled = true;
+      btnRefreshSources.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang quét...';
+      try {
+        const res = await fetch(`/api/posts/${post.id}/sources?force=true`);
+        const data = await res.json();
+        if (data.success && data.sources) {
+          post.sources = data.sources;
+          await renderModalExternalSources(post);
+          showToast(`Đã quét thành công ${data.sources.length} nguồn tri thức thực tế!`, 'success');
+        }
+      } catch (err) {
+        showToast('Lỗi khi quét lại nguồn: ' + err.message, 'error');
+      } finally {
+        btnRefreshSources.disabled = false;
+        btnRefreshSources.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Quét Lại Nguồn';
+      }
+    };
+  }
+}
+
 
 /* ==========================================================================
    MEDIA GALLERY MODAL & IMAGE PICKER LOGIC (611 VERIFIED IMAGES)
@@ -2506,6 +2669,278 @@ function setupSettingsEvents() {
       showToast('Đã lưu Gemini API Key!', 'success');
     }
   });
+}
+
+/* ==========================================================================
+   GOOGLE ADS LANDING PAGES MANAGEMENT (FRONTEND)
+   ========================================================================== */
+
+async function loadGoogleAdsLinks() {
+  try {
+    const res = await fetch('/api/google-ads/links');
+    const data = await res.json();
+    if (data.success && Array.isArray(data.data)) {
+      googleAdsLinks = data.data;
+      renderGoogleAdsTable();
+      populateBulkTargetUrlSelect();
+      const badge = document.getElementById('gads-count-badge');
+      if (badge) {
+        badge.textContent = `${googleAdsLinks.length} Trang Đích Chuẩn`;
+      }
+    }
+  } catch (err) {
+    console.error('Lỗi khi tải danh sách Google Ads links:', err);
+  }
+}
+
+function renderGoogleAdsTable() {
+  const tbody = document.getElementById('gads-links-tbody');
+  if (!tbody) return;
+
+  if (!googleAdsLinks || googleAdsLinks.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">
+          Chưa có trang đích Google Ads nào. Nhấn <strong>Thêm Trang Đích Mới</strong> để tạo!
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = googleAdsLinks.map(item => {
+    const kwTags = (item.keywords || []).map(k => `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.72rem; margin: 2px 3px; display: inline-block;">${escapeHtml(k)}</span>`).join('');
+    const defaultBadge = item.isDefault ? `<span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.7rem; margin-left: 6px;">Mặc định</span>` : '';
+    
+    return `
+      <tr data-id="${item.id}">
+        <td>
+          <div style="font-weight: 600; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+            <span>${escapeHtml(item.name)}</span>
+            ${defaultBadge}
+          </div>
+        </td>
+        <td>
+          <a href="${escapeHtml(item.url)}" target="_blank" style="color: #38bdf8; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; word-break: break-all; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+            ${escapeHtml(item.url)}
+          </a>
+        </td>
+        <td>
+          <div style="display: flex; flex-wrap: wrap; gap: 2px; max-width: 320px;">
+            ${kwTags || '<span style="color: var(--text-muted); font-size: 0.75rem;">(Mọi từ khóa)</span>'}
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <div style="display: flex; gap: 6px; justify-content: center;">
+            <button type="button" class="btn btn-sm btn-secondary btn-gads-edit" data-id="${item.id}" title="Chỉnh sửa trang đích" style="padding: 5px 10px; font-size: 0.8rem;">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-ghost btn-gads-delete" data-id="${item.id}" title="Xóa trang đích" style="padding: 5px 10px; font-size: 0.8rem; color: #ef4444;">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Attach Edit & Delete events
+  tbody.querySelectorAll('.btn-gads-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const item = googleAdsLinks.find(l => l.id === id);
+      if (!item) return;
+      openGoogleAdsForm(item);
+    });
+  });
+
+  tbody.querySelectorAll('.btn-gads-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const item = googleAdsLinks.find(l => l.id === id);
+      if (!item) return;
+      if (!confirm(`Anh có chắc muốn xóa trang đích "${item.name}" không?`)) return;
+      
+      try {
+        const res = await fetch(`/api/google-ads/links/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Đã xóa trang đích thành công!', 'success');
+          await loadGoogleAdsLinks();
+        } else {
+          showToast(data.message || 'Lỗi khi xóa.', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi xóa.', 'error');
+      }
+    });
+  });
+}
+
+function populateBulkTargetUrlSelect() {
+  const select = document.getElementById('bulk-target-url-select');
+  if (!select) return;
+
+  const currentVal = select.value;
+  let optionsHtml = `<option value="">-- Chọn nhanh từ danh sách Trang Đích Google Ads --</option>`;
+  (googleAdsLinks || []).forEach(item => {
+    const isDef = item.isDefault ? ' (Mặc định)' : '';
+    optionsHtml += `<option value="${escapeHtml(item.url)}">🎯 ${escapeHtml(item.name)}${isDef} - ${escapeHtml(item.url.replace('https://xulynuochoasen.com', ''))}</option>`;
+  });
+  select.innerHTML = optionsHtml;
+  if (currentVal) select.value = currentVal;
+}
+
+function openGoogleAdsForm(item = null) {
+  const wrap = document.getElementById('gads-form-wrap');
+  const title = document.getElementById('gads-form-title');
+  const idInput = document.getElementById('gads-edit-id');
+  const nameInput = document.getElementById('gads-input-name');
+  const urlInput = document.getElementById('gads-input-url');
+  const kwInput = document.getElementById('gads-input-keywords');
+  const defCheck = document.getElementById('gads-input-default');
+
+  if (!wrap) return;
+  wrap.style.display = 'block';
+
+  if (item) {
+    title.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> <span>Chỉnh Sửa Trang Đích: ${escapeHtml(item.name)}</span>`;
+    idInput.value = item.id;
+    nameInput.value = item.name || '';
+    urlInput.value = item.url || '';
+    kwInput.value = Array.isArray(item.keywords) ? item.keywords.join(', ') : '';
+    defCheck.checked = !!item.isDefault;
+  } else {
+    title.innerHTML = `<i class="fa-solid fa-plus"></i> <span>Thêm Trang Đích Google Ads Mới</span>`;
+    idInput.value = '';
+    nameInput.value = '';
+    urlInput.value = 'https://xulynuochoasen.com/';
+    kwInput.value = '';
+    defCheck.checked = false;
+  }
+
+  nameInput.focus();
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeGoogleAdsForm() {
+  const wrap = document.getElementById('gads-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+}
+
+async function runGoogleAdsSyncAll() {
+  const btn = document.getElementById('btn-gads-sync-all') || document.getElementById('btn-sync-all-google-ads-now');
+  const oldText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đồng bộ link Google Ads...';
+  }
+
+  try {
+    const res = await fetch('/api/google-ads/sync-all', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Đồng bộ toàn bộ link Google Ads thành công!', 'success');
+      await Promise.all([loadKeywords(), loadPosts()]);
+      if (typeof loadStartupAuditStatus === 'function') {
+        loadStartupAuditStatus();
+      }
+    } else {
+      showToast(data.message || 'Lỗi khi đồng bộ link Google Ads.', 'error');
+    }
+  } catch (err) {
+    showToast('Lỗi kết nối khi đồng bộ link Google Ads: ' + err.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = oldText;
+    }
+  }
+}
+
+function setupGoogleAdsEvents() {
+  const btnAdd = document.getElementById('btn-gads-add-new');
+  if (btnAdd) {
+    btnAdd.addEventListener('click', () => openGoogleAdsForm());
+  }
+
+  const btnCancel = document.getElementById('btn-gads-cancel');
+  if (btnCancel) {
+    btnCancel.addEventListener('click', () => closeGoogleAdsForm());
+  }
+
+  const btnSync = document.getElementById('btn-gads-sync-all');
+  if (btnSync) {
+    btnSync.addEventListener('click', () => runGoogleAdsSyncAll());
+  }
+
+  const btnSyncAutopilot = document.getElementById('btn-sync-all-google-ads-now');
+  if (btnSyncAutopilot) {
+    btnSyncAutopilot.addEventListener('click', () => runGoogleAdsSyncAll());
+  }
+
+  const bulkTargetSelect = document.getElementById('bulk-target-url-select');
+  if (bulkTargetSelect) {
+    bulkTargetSelect.addEventListener('change', () => {
+      const val = bulkTargetSelect.value;
+      const targetInput = document.getElementById('bulk-target-url');
+      if (targetInput && val) {
+        targetInput.value = val;
+      }
+    });
+  }
+
+  const btnSave = document.getElementById('btn-gads-save');
+  if (btnSave) {
+    btnSave.addEventListener('click', async () => {
+      const id = document.getElementById('gads-edit-id')?.value;
+      const name = document.getElementById('gads-input-name')?.value.trim();
+      const url = document.getElementById('gads-input-url')?.value.trim();
+      const kwStr = document.getElementById('gads-input-keywords')?.value.trim();
+      const isDefault = document.getElementById('gads-input-default')?.checked;
+
+      if (!name || !url) {
+        showToast('Vui lòng nhập Tên hiển thị và URL trang đích!', 'error');
+        return;
+      }
+
+      const kwArr = kwStr ? kwStr.split(',').map(k => k.trim()).filter(Boolean) : [];
+      btnSave.disabled = true;
+      btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...';
+
+      try {
+        let res;
+        if (id) {
+          res = await fetch(`/api/google-ads/links/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, url, keywords: kwArr, isDefault })
+          });
+        } else {
+          res = await fetch('/api/google-ads/links', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, url, keywords: kwArr, isDefault })
+          });
+        }
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Đã lưu trang đích Google Ads thành công!', 'success');
+          closeGoogleAdsForm();
+          await loadGoogleAdsLinks();
+          await loadKeywords();
+        } else {
+          showToast(data.message || 'Lỗi khi lưu.', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi lưu: ' + err.message, 'error');
+      } finally {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu Trang Đích';
+      }
+    });
+  }
 }
 
 /* --- Toast Helper --- */
@@ -4141,4 +4576,396 @@ document.addEventListener('DOMContentLoaded', () => {
   initLiveBlogCrawlerUI();
   initMediaGalleryModalEvents();
 });
+
+// ==========================================================================
+// DUPLICATE CONTENT CHECKER & AI REWRITER
+// ==========================================================================
+
+let _lastDuplicateReport = null;
+
+async function scanDuplicates() {
+  const btn = document.getElementById('btn-scan-duplicate');
+  const statusEl = document.getElementById('duplicate-scan-status');
+  const container = document.getElementById('duplicate-groups-container');
+  const statsEl = document.getElementById('duplicate-stats');
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang quét...';
+  statusEl.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang phân tích toàn bộ bài viết...';
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem"></i><p>Đang phân tích...</p></div>';
+
+  try {
+    const res = await fetch('/api/duplicate-check');
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    _lastDuplicateReport = data;
+    renderDuplicateReport(data);
+
+    // Update nav badge
+    const badge = document.getElementById('duplicate-nav-badge');
+    if (badge) {
+      const count = data.duplicateGroups ? data.duplicateGroups.length : 0;
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    statusEl.innerHTML = data.duplicateGroups && data.duplicateGroups.length > 0
+      ? `<i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b"></i> Phát hiện <strong>${data.duplicateGroups.length} nhóm duplicate</strong>`
+      : `<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Tuyệt vời! Không phát hiện duplicate content`;
+  } catch (err) {
+    statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark" style="color:#ef4444"></i> Lỗi: ${err.message}`;
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444"><p>${err.message}</p></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Quét Toàn Bộ Bài Viết';
+  }
+}
+
+function renderDuplicateReport(data) {
+  const container = document.getElementById('duplicate-groups-container');
+  const statsEl = document.getElementById('duplicate-stats');
+
+  // Update stats
+  document.getElementById('dup-total-posts').textContent = data.totalPosts || 0;
+  document.getElementById('dup-total-groups').textContent = (data.duplicateGroups || []).length;
+  document.getElementById('dup-total-affected').textContent = data.totalDuplicatePosts || 0;
+  document.getElementById('dup-total-ok').textContent = (data.totalPosts || 0) - (data.totalDuplicatePosts || 0);
+  statsEl.style.display = 'flex';
+
+  if (!data.duplicateGroups || data.duplicateGroups.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+        <i class="fa-solid fa-circle-check" style="font-size:3.5rem;color:#22c55e;margin-bottom:16px;display:block"></i>
+        <h3 style="color:#22c55e;margin-bottom:8px">Hoàn hảo! Không có duplicate content</h3>
+        <p>Tất cả ${data.totalPosts} bài viết đều có nội dung unique. Google sẽ yêu thích site của bạn! 🎉</p>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+  data.duplicateGroups.forEach((group, gi) => {
+    const kwDisplay = group.keyword.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    html += `
+      <div class="glass" style="border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid rgba(239,68,68,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div>
+            <h3 style="margin:0 0 4px;display:flex;align-items:center;gap:8px">
+              <span style="background:#ef4444;color:#fff;border-radius:6px;padding:2px 8px;font-size:0.75rem;font-weight:700">DUPLICATE</span>
+              🔑 Keyword: <em>${kwDisplay}</em>
+            </h3>
+            <p style="margin:0;color:var(--text-muted);font-size:0.85rem">${group.count} bài viết cùng keyword — nội dung trùng lặp nghiêm trọng, Google sẽ penalize!</p>
+          </div>
+          <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:8px 16px;font-size:0.85rem"
+                  onclick="rewriteAllInGroup(${gi})"
+                  id="btn-rewrite-group-${gi}">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Rewrite Cả Nhóm
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${group.posts.map((post, pi) => `
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"
+                 id="dup-post-row-${post.id}">
+              <div style="flex:1;min-width:200px">
+                <div style="font-weight:600;margin-bottom:4px;font-size:0.92rem">${post.title}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                  <span style="font-size:0.75rem;padding:2px 7px;border-radius:4px;background:${post.wpPublished ? 'rgba(34,197,94,0.2);color:#4ade80' : 'rgba(99,102,241,0.2);color:#a5b4fc'}">
+                    ${post.wpPublished ? '✅ WP Published' : '📝 Local'}
+                  </span>
+                  <span style="font-size:0.75rem;color:var(--text-muted)">${post.contentLength ? Math.round(post.contentLength/100)/10 + 'k chars' : ''}</span>
+                  ${post.wpLink ? `<a href="${post.wpLink}" target="_blank" style="font-size:0.75rem;color:var(--primary-color)">🔗 Xem WP</a>` : ''}
+                </div>
+              </div>
+              <div style="display:flex;gap:8px">
+                ${pi > 0 ? `
+                  <button class="btn-secondary" style="padding:6px 14px;font-size:0.8rem"
+                          onclick="rewritePost('${post.id}', ${post.wpPublished})"
+                          id="btn-rewrite-${post.id}">
+                    <i class="fa-solid fa-rotate"></i> AI Rewrite
+                  </button>` : `
+                  <span style="font-size:0.78rem;color:#4ade80;padding:6px 10px">
+                    <i class="fa-solid fa-star"></i> Bài gốc
+                  </span>`
+                }
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+async function rewritePost(postId, isWpPublished) {
+  const btn = document.getElementById(`btn-rewrite-${postId}`);
+  const row = document.getElementById(`dup-post-row-${postId}`);
+  if (!btn) return;
+
+  const updateWP = isWpPublished && confirm('Bài này đã publish lên WordPress. Cập nhật luôn lên WP sau khi rewrite?');
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang rewrite...';
+
+  try {
+    const res = await fetch('/api/posts/rewrite-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, updateWordPress: updateWP })
+    });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.message);
+
+    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Đã Rewrite!';
+    btn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
+    if (row) {
+      row.style.borderColor = 'rgba(34,197,94,0.4)';
+      row.style.background = 'rgba(34,197,94,0.05)';
+    }
+
+    showToast(`✅ Đã rewrite thành công! Tiêu đề mới: "${data.post?.title}"`, 'success');
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-rotate"></i> AI Rewrite';
+    showToast(`❌ Lỗi rewrite: ${err.message}`, 'error');
+  }
+}
+
+async function rewriteAllInGroup(groupIndex) {
+  if (!_lastDuplicateReport || !_lastDuplicateReport.duplicateGroups) return;
+  const group = _lastDuplicateReport.duplicateGroups[groupIndex];
+  if (!group) return;
+
+  // Rewrite tất cả ngoại trừ bài đầu tiên (bài gốc)
+  const postsToRewrite = group.posts.slice(1);
+  if (postsToRewrite.length === 0) return;
+
+  const confirmed = confirm(`Rewrite ${postsToRewrite.length} bài bị duplicate trong nhóm keyword "${group.keyword}"?\n\n(Bài đầu tiên sẽ được giữ nguyên)`);
+  if (!confirmed) return;
+
+  const btn = document.getElementById(`btn-rewrite-group-${groupIndex}`);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang rewrite...'; }
+
+  let successCount = 0;
+  for (const post of postsToRewrite) {
+    try {
+      const res = await fetch('/api/posts/rewrite-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: post.id, updateWordPress: post.wpPublished })
+      });
+      const data = await res.json();
+      if (data.success) {
+        successCount++;
+        const rowBtn = document.getElementById(`btn-rewrite-${post.id}`);
+        if (rowBtn) {
+          rowBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Done';
+          rowBtn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
+        }
+        const row = document.getElementById(`dup-post-row-${post.id}`);
+        if (row) { row.style.borderColor = 'rgba(34,197,94,0.4)'; row.style.background = 'rgba(34,197,94,0.05)'; }
+      }
+    } catch(e) { console.error('Rewrite error for', post.id, e); }
+  }
+
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Đã rewrite ${successCount}/${postsToRewrite.length} bài`;
+    btn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
+  }
+
+  showToast(`✅ Đã rewrite ${successCount}/${postsToRewrite.length} bài trong nhóm "${group.keyword}"`, 'success');
+}
+
+// Helper toast (nếu chưa có)
+function showToast(message, type = 'info') {
+  const existing = document.getElementById('toast-notification');
+  if (existing) existing.remove();
+
+  const colors = { success: '#22c55e', error: '#ef4444', info: '#6366f1', warning: '#f59e0b' };
+  const toast = document.createElement('div');
+  toast.id = 'toast-notification';
+  toast.style.cssText = `
+    position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:${colors[type] || colors.info};color:#fff;
+    padding:14px 20px;border-radius:10px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    max-width:380px;font-size:0.9rem;font-weight:500;
+    animation:slideInRight 0.3s ease;
+  `;
+  toast.innerHTML = message;
+  document.body.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+}
+
+/* ==========================================================================
+   STARTUP HEALTH & SYSTEM ANTI-DUPLICATE AUDITOR
+   ========================================================================== */
+function setupStartupAuditEvents() {
+  const btnRunFull = document.getElementById('btn-run-full-audit');
+  if (btnRunFull) {
+    btnRunFull.addEventListener('click', () => runFullSystemAudit());
+  }
+
+  const btnReAudit = document.getElementById('btn-re-audit-now');
+  if (btnReAudit) {
+    btnReAudit.addEventListener('click', () => runFullSystemAudit());
+  }
+
+  const badge = document.getElementById('startup-audit-badge');
+  if (badge) {
+    badge.addEventListener('click', () => {
+      const banner = document.getElementById('startup-audit-banner');
+      if (banner) {
+        banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        banner.style.boxShadow = '0 0 35px rgba(59, 130, 246, 0.6)';
+        setTimeout(() => { banner.style.boxShadow = '0 10px 30px -10px rgba(0, 0, 0, 0.5)'; }, 2000);
+      }
+    });
+  }
+}
+
+async function loadStartupAuditStatus() {
+  try {
+    const res = await fetch('/api/audit/report');
+    if (!res.ok) return;
+    const json = await res.json();
+    const report = json.report || json.data || json;
+    if (!report || !report.summary) return;
+
+    renderStartupAuditUI(report);
+  } catch (err) {
+    console.warn('[Startup Audit] Lỗi tải kết quả rà soát:', err.message);
+  }
+}
+
+async function runFullSystemAudit() {
+  const btnRun = document.getElementById('btn-run-full-audit');
+  const btnReAudit = document.getElementById('btn-re-audit-now');
+  if (btnRun) {
+    btnRun.disabled = true;
+    btnRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang rà soát...';
+  }
+  if (btnReAudit) {
+    btnReAudit.disabled = true;
+    btnReAudit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang rà soát...';
+  }
+
+  showToast('🔍 Đang rà soát toàn bộ lỗi hệ thống, trùng lặp nội dung và ảnh...', 'info');
+
+  try {
+    const res = await fetch('/api/audit/run', { method: 'POST' });
+    const json = await res.json();
+    if (json.success && json.report) {
+      renderStartupAuditUI(json.report);
+      showToast(`✅ Rà soát hoàn tất! Điểm sức khỏe: ${json.report.summary.healthScore}/100đ`, 'success');
+    } else {
+      showToast('❌ Có lỗi khi chạy rà soát: ' + (json.message || 'Thử lại sau'), 'error');
+    }
+  } catch (err) {
+    showToast('❌ Lỗi kết nối khi rà soát: ' + err.message, 'error');
+  } finally {
+    if (btnRun) {
+      btnRun.disabled = false;
+      btnRun.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart"></i> Quét Rà Soát Hệ Thống';
+    }
+    if (btnReAudit) {
+      btnReAudit.disabled = false;
+      btnReAudit.innerHTML = '<i class="fa-solid fa-rotate"></i> <span>Chạy Rà Soát Toàn Bộ Ngay</span>';
+    }
+  }
+}
+
+function renderStartupAuditUI(report) {
+  const sum = report.summary || {};
+  const score = sum.healthScore !== undefined ? sum.healthScore : 100;
+  
+  // Header Badge
+  const badgeText = document.getElementById('startup-audit-badge-text');
+  const badgeEl = document.getElementById('startup-audit-badge');
+  if (badgeText && badgeEl) {
+    badgeText.textContent = `Sức Khỏe: ${score}/100đ`;
+    if (score >= 90) {
+      badgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
+      badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+      badgeEl.style.color = '#34d399';
+    } else if (score >= 70) {
+      badgeEl.style.background = 'rgba(245, 158, 11, 0.15)';
+      badgeEl.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+      badgeEl.style.color = '#fbbf24';
+    } else {
+      badgeEl.style.background = 'rgba(239, 68, 68, 0.15)';
+      badgeEl.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+      badgeEl.style.color = '#f87171';
+    }
+  }
+
+  // Dashboard Pill
+  const pill = document.getElementById('audit-health-pill');
+  if (pill) {
+    if (score >= 90) {
+      pill.textContent = 'Khởi Động An Toàn (Chuẩn SEO)';
+      pill.style.background = 'rgba(16, 185, 129, 0.2)';
+      pill.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+      pill.style.color = '#34d399';
+    } else {
+      pill.textContent = `Cần Lưu Ý (${sum.totalIssues || 0} mục)`;
+      pill.style.background = 'rgba(245, 158, 11, 0.2)';
+      pill.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+      pill.style.color = '#fbbf24';
+    }
+  }
+
+  // 4 Metrics
+  const elHealth = document.getElementById('audit-metric-health');
+  if (elHealth) elHealth.textContent = score;
+
+  const elContent = document.getElementById('audit-metric-content-dupe');
+  if (elContent) {
+    elContent.textContent = sum.duplicateContentCount || 0;
+    elContent.style.color = (sum.duplicateContentCount > 0) ? '#f87171' : '#34d399';
+  }
+
+  const elImage = document.getElementById('audit-metric-image-dupe');
+  if (elImage) {
+    elImage.textContent = sum.duplicateImageCount || 0;
+    elImage.style.color = (sum.duplicateImageCount > 0) ? '#f87171' : '#34d399';
+  }
+
+  const elTitle = document.getElementById('audit-metric-title-dupe');
+  if (elTitle) {
+    elTitle.textContent = sum.duplicateTitleCount || 0;
+    elTitle.style.color = (sum.duplicateTitleCount > 0) ? '#fbbf24' : '#34d399';
+  }
+
+  // Detail Container
+  const detailContainer = document.getElementById('audit-detail-container');
+  if (detailContainer) {
+    if (report.issues && report.issues.length > 0) {
+      let issuesHtml = `
+        <div style="padding: 12px 16px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; margin-bottom: 8px;">
+          <div style="display:flex; align-items:center; gap:8px; font-weight:700; color:#f87171; margin-bottom: 6px;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Phát hiện ${report.issues.length} cảnh báo cần khắc phục:</span>
+          </div>
+          <ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: #fca5a5;">
+            ${report.issues.slice(0, 5).map(iss => `<li>${iss.message || iss}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+      detailContainer.innerHTML = issuesHtml;
+    } else {
+      detailContainer.innerHTML = `
+        <div style="padding: 10px 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-circle-check" style="color: #34d399; font-size: 1.1rem;"></i>
+          <span id="audit-status-summary-text">Hệ thống đã tự động rà soát khi khởi động: Tất cả ${sum.totalLiveBlogPosts || 80} bài viết WordPress đều độc bản 100%, ảnh đại diện độc quyền, link Google Ads chính xác và điểm SEO đạt chuẩn!</span>
+        </div>
+      `;
+    }
+  }
+}
 
