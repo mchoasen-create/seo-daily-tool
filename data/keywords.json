@@ -1,25 +1,43 @@
 [
   {
+    "id": "kw_1789385007185_8744",
+    "keyword": "Lọc Nước Tinh Khiết",
+    "topic": "Lọc Nước Tinh Khiết",
+    "status": "completed",
+    "createdAt": "2026-09-14T11:23:27.185Z",
+    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
+    "generatedPostId": "post_auto_1789385051596_lpoo",
+    "pregenerated": false,
+    "isRotated": true,
+    "completedAt": "2026-09-14T11:20:32",
+    "wpPostId": 13963,
+    "wpLink": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet-mang-ro-tach-loc-phan-tu-sieu-vi/"
+  },
+  {
     "id": "kw_1789377720370_864u",
     "keyword": "Lọc Nước Giếng Khoan",
     "topic": "Lọc Nước Giếng Khoan",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-14T09:22:00.370Z",
     "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-nhiem-phen/",
     "generatedPostId": "post_auto_1789377755963_it5o",
-    "pregenerated": true,
-    "isRotated": true
+    "pregenerated": false,
+    "isRotated": true,
+    "completedAt": "2026-09-14T11:20:14",
+    "wpPostId": 13961,
+    "wpLink": "https://xulynuochoasen.com/cam-nang-loc-nuoc-gieng-khoan-sau-nhiem-phen-asen-dat-chuan-2026/"
   },
   {
     "id": "kw_1789370458027_l3cd",
     "keyword": "Lọc Nước Tinh Khiết",
     "topic": "Lọc Nước Tinh Khiết",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-14T07:20:58.027Z",
     "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
     "generatedPostId": "post_auto_1789370493819_d801",
     "pregenerated": true,
-    "isRotated": true
+    "isRotated": true,
+    "completedAt": "2026-09-14T11:20:32.534Z"
   },
   {
     "id": "kw_1789363204725_2spk",
@@ -236,5 +254,19 @@
     "completedAt": "2026-09-14T07:20:05",
     "wpPostId": 13921,
     "wpLink": "https://xulynuochoasen.com/loc-nuoc-sinh-hoat-dau-nguon-cao-cap-chuan-duc-cho-gia-dinh/"
+  },
+  {
+    "id": "kw_1789384832534_s9t4",
+    "keyword": "Lọc Nước Tinh Khiết",
+    "topic": "Lọc Nước Tinh Khiết",
+    "status": "completed",
+    "createdAt": "2026-09-14T11:20:32.534Z",
+    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
+    "generatedPostId": null,
+    "pregenerated": false,
+    "isRotated": true,
+    "completedAt": "2026-09-14T11:20:32",
+    "wpPostId": 13963,
+    "wpLink": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet-mang-ro-tach-loc-phan-tu-sieu-vi/"
   }
 ]

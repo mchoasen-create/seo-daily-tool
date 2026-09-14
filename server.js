@@ -1597,12 +1597,13 @@ app.get('/api/posts/:id/sources', async (req, res) => {
 
 app.get('/api/settings/gemini-key', (req, res) => {
   const GEMINI_FILE = path.join(DATA_DIR, 'gemini.json');
+  let key = '';
   try {
     const data = JSON.parse(fs.readFileSync(GEMINI_FILE, 'utf-8') || '{}');
-    res.json({ success: true, apiKey: data.apiKey || '' });
-  } catch (e) {
-    res.json({ success: true, apiKey: '' });
-  }
+    key = data.apiKey || '';
+  } catch (e) {}
+  if (!key) key = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY || '';
+  res.json({ success: true, apiKey: key });
 });
 
 app.post('/api/settings/gemini-key', (req, res) => {
@@ -2406,6 +2407,9 @@ async function generateContentForKeyword(topic, keyword, customApiKey = '', cust
       const gData = JSON.parse(fs.readFileSync(GEMINI_FILE, 'utf-8') || '{}');
       apiKey = gData.apiKey || '';
     } catch (e) {}
+  }
+  if (!apiKey) {
+    apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY || '';
   }
 
   // Get dynamic rotated non-repeating images
