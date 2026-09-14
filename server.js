@@ -2469,22 +2469,58 @@ ${research.knowledgeText}
         console.warn('[Worldwide Research] Bỏ qua cào nếu có lỗi:', rErr.message);
       }
 
+      // === MA TRẬN 5 LĂNG KÍNH TIẾP CẬN ĐA CHIỀU (CHỐNG DẬP KHUÔN 100%) ===
+      const EDITORIAL_ANGLES = [
+        {
+          name: "Trải nghiệm Đời sống & Giác quan Thực tế",
+          directive: "Tiếp cận từ những va chạm giác quan chân thực trong sinh hoạt: Cảm giác thô ráp rít rịt của làn da sau khi tắm, mùi tanh nồng hoặc mùi clo sặc sụa bốc lên từ vòi nước, bọt xà phòng bị triệt tiêu, hay vệt ố màu bám trên đồ đạc hàng ngày."
+        },
+        {
+          name: "Kinh tế Gia đình & Chi phí Âm thầm",
+          directive: "Tiếp cận từ bài toán tài chính thực tế: Sự hao tổn vô hình hàng chục triệu đồng tiền điện do lớp cặn vôi/rỉ sét cách nhiệt trên thanh đốt bình nước nóng, chi phí sửa chữa thay mới vòi sen sen tắm nhập khẩu, và lãng phí xà phòng/chất tẩy rửa gấp 3 lần."
+        },
+        {
+          name: "Sinh học Y khoa & Sức khỏe Tế bào",
+          directive: "Tiếp cận từ góc nhìn khoa học da liễu và tế bào: Cơ chế tổn thương lớp màng lipid bảo vệ da mặt, sự phá vỡ cấu trúc keratin của sợi tóc, và tác động của các tạp chất hóa học/kim loại nặng ngấm qua biểu bì hoặc đi vào cơ thể khi đun nấu."
+        },
+        {
+          name: "Địa chất Thủy văn & Đặc thù Vùng miền",
+          directive: "Tiếp cận từ bản đồ địa chất tự nhiên của Việt Nam: Sự khác biệt sâu sắc giữa các tầng ngậm nước (vùng phù sa châu thổ Mekong, đất phèn chua trũng Đồng Tháp Mười, dải đá vôi vùng cao phía Bắc, đất đỏ bazan Tây Nguyên hay nguồn nước ven biển xâm nhập mặn)."
+        },
+        {
+          name: "Điều tra Chuyên gia & Lật tẩy Lầm tưởng",
+          directive: "Tiếp cận từ góc độ phản biện khoa học: Bóc tách những sai lầm kinh điển mà đa số người tiêu dùng hay mắc phải (như quan niệm 'nước nhìn trong veo là nước sạch', hay lầm tưởng 'đun sôi nước giếng là diệt sạch phèn và kim loại nặng')."
+        }
+      ];
+
+      const seedStr = (topic || '') + ' ' + (keyword || '') + ' ' + Date.now();
+      let angleHash = 0;
+      for (let i = 0; i < seedStr.length; i++) {
+        angleHash = (angleHash << 5) - angleHash + seedStr.charCodeAt(i);
+        angleHash |= 0;
+      }
+      const activeAngle = EDITORIAL_ANGLES[Math.abs(angleHash) % EDITORIAL_ANGLES.length];
+
       const prompt = `Bạn là một Nhà văn tiểu thuyết gia kiêm Kỹ sư Công nghệ Môi trường Xử lý Nước xuất sắc.
 Hãy viết một bài viết chuyên sâu đỉnh cao, có hồn, giàu chất đời sống thực tế và chuẩn SEO 100% (ĐIỂM SEO BẮT BUỘC TỪ 95 - 100 ĐIỂM) bằng tiếng Việt cho chủ đề: "${topic}".
 
-BỘ QUY TẮC NÂNG TẦM TRÍ TUỆ & PHONG CÁCH VIẾT ĐỘC BẢN:
-1. NGUYÊN TẮC VĂN PHONG & MỞ ĐẦU (ANTI-ROBOT / STORYTELLING):
-   - TUYỆT ĐỐI CẤM các câu mở đầu sáo rỗng kiểu bot AI: "Trong thời đại ngày nay...", "Nhu cầu ngày càng tăng...", "Nước là nguồn sống...", "Trong bối cảnh hiện nay...", "Hiện nay...".
-   - MỞ BÀI (SAPO) BẮT BUỘC bắt đầu bằng một trải nghiệm thực tế, đánh thức trực tiếp giác quan hoặc nỗi trăn trở có thật của đời sống:
-     + Mùi tanh nồng của kim loại rỉ sét như một đồng xu ướt sau cơn mưa rào.
-     + Vệt ố vàng dai dẳng loang lổ trên cổ áo sơ mi trắng hay bồn sứ cao cấp.
-     + Nỗi thất vọng của chiếc bể lắng lọc cát thủ công sau 3 tuần bị lớp bùn nhầy làm nghẹt thở.
-     + Chiếc ấm đun nước bám lớp cặn vôi trắng cứng đơ như đá vôi.
-   - Giọng văn: Điềm đạm, sâu sắc, có tính thuyết phục khoa học mãnh liệt nhưng gần gũi, ấm áp, thấu cảm sâu sắc nỗi vất vả của người dân và doanh nghiệp.
+LĂNG KÍNH TIẾP CẬN CHỦ ĐẠO CỦA BÀI VIẾT NÀY (BẮT BUỘC KHAI THÁC THEO HƯỚNG NÀY ĐỂ TRÁNH DẬP KHUÔN):
+👉 HƯỚNG TIẾP CẬN: [${activeAngle.name}]
+👉 CHỈ ĐẠO NỘI DUNG: ${activeAngle.directive}
 
-2. CHIỀU SÂU ĐỊA HÓA & KHOA HỌC TỪ GỐC RỄ (FIRST-PRINCIPLES SCIENCE):
-   - Không chỉ nói bề nổi, hãy giải thích cơ chế sâu xa: Tại sao nước vừa bơm lên trong vắt nhưng để một lúc lại đổi màu vàng đục (ion sắt Fe2+ kỵ khí vô hình gặp oxy tự do chuyển hóa thành bông cặn Fe3+ kết tủa)? Hiện tượng phèn hữu cơ liên kết với axit humic? Tại sao cặn vôi Canxi/Magie lại bám nghẹt thanh nhiệt bình nóng lạnh? Cơ chế phân tách kích thước ion của màng siêu vi RO?...
-   - Đưa vào MẸO THỰC TẾ DÂN GIAN HOẶC THÍ NGHIỆM TẠI NHÀ mà người đọc có thể tự làm ngay (ví dụ: mẹo thử phèn sắt bằng nửa cốc nước chè xanh Thái Nguyên hóa đen như mực viết máy; mẹo thử độ cứng bằng bọt xà phòng...).
+BỘ QUY TẮC NÂNG TẦM TRÍ TUỆ & CHỐNG RẬP KHUÔN (ANTI-ANCHORING):
+1. NGUYÊN TẮC VĂN PHONG & MỞ ĐẦU (ANTI-ROBOT & TUYỆT ĐỐI KHÔNG COPY ẨN DỤ CŨ):
+   - CẤM các câu mở đầu sáo rỗng: "Trong thời đại ngày nay...", "Nhu cầu ngày càng tăng...", "Nước là nguồn sống...", "Trong bối cảnh hiện nay...".
+   - BẮT BUỘC MỞ BÀI (SAPO) bằng một câu chuyện, tình huống hay cảm xúc đời thực phù hợp với hướng tiếp cận [${activeAngle.name}].
+   - TUYỆT ĐỐI KHÔNG DẬP KHUÔN các ví dụ của bài trước: Mỗi bài viết bạn PHẢI TỰ SÁNG TẠO RA ẩn dụ và ví dụ đời sống MỚI phù hợp với đề tài riêng biệt (ví dụ: nếu viết về nước cứng thì nói về ấm đun hay vách kính; nếu viết về lọc tổng thì nói về da tóc hay sen tắm; nếu viết về nước mặn thì nói về rễ cây táp lá hay mặn xâm nhập; nếu viết về nước giếng thì nói về mùi bùn rỉ sét hay tầng đất sâu...). Tuyệt đối không lặp lại cùng một ẩn dụ qua các bài khác nhau!
+
+2. CHIỀU SÂU KHOA HỌC TỪ BẢN CHẤT GỐC RỄ:
+   - Tùy vào bản chất của từ khóa "${keyword}", hãy giải thích tường tận nguyên nhân khoa học thích ứng:
+     + Nếu liên quan đến phèn/sắt: Cơ chế oxy hóa khử kỵ khí, sự chuyển hóa ion sắt hòa tan thành kết tủa khi tiếp xúc oxy.
+     + Nếu liên quan đến nước cứng/đá vôi: Cơ chế kết tinh cáu cặn của Canxi/Magie khi gia nhiệt và nguyên lý trao đổi ion làm mềm.
+     + Nếu liên quan đến nước tinh khiết/RO: Cơ chế phân tách kích thước phân tử siêu vi 0.0001 micron và chỉ số tổng chất rắn TDS.
+     + Nếu liên quan đến nước máy sinh hoạt: Tác động của Clo dư khử trùng và nguy cơ thôi nhiễm rỉ sét từ đường ống đô thị cũ kỹ.
+   - Luôn đưa ra lời khuyên thực tế hoặc một mẹo nhận biết trực quan mà người đọc có thể tự kiểm chứng tại nhà phù hợp với chủ đề đó.
 
 3. ĐỘ DÀI & TỐI ƯU SEO VÀNG:
    - Từ khóa chính bắt buộc: "${keyword}"
