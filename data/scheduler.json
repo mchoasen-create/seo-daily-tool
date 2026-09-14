@@ -2,9 +2,9 @@
   "enabled": true,
   "intervalHours": 4,
   "publishIntervalHours": 4,
-  "generateIntervalHours": 2,
-  "lastPublishRun": "2026-09-14T11:20:32.535Z",
-  "lastGenerateRun": "2026-09-14T11:24:11.599Z",
-  "lastDedupRun": "2026-09-14T11:30:25.194Z",
-  "lastRun": "2026-09-14T11:20:32.535Z"
+  "generateIntervalHours": 4,
+  "lastPublishRun": "2026-09-14T15:21:04.698Z",
+  "lastGenerateRun": "2026-09-14T15:26:50.321Z",
+  "lastDedupRun": "2026-09-14T16:32:01.646Z",
+  "lastRun": "2026-09-14T15:21:04.698Z"
 }

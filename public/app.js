@@ -109,7 +109,7 @@ function setupDateDisplay() {
 /* --- API: Posts Loading & Storage --- */
 async function loadPosts() {
   try {
-    const response = await fetch('/api/posts');
+    const response = await fetch('/api/posts?_t=' + Date.now(), { cache: 'no-store' });
     const result = await response.json();
     if (result.success) {
       currentPostsData = result.data || [];
@@ -1118,7 +1118,7 @@ function startCountdownLoop() {
 
 async function loadKeywords() {
   try {
-    const res = await fetch('/api/keywords');
+    const res = await fetch('/api/keywords?_t=' + Date.now(), { cache: 'no-store' });
     const data = await res.json();
     if (data.success) {
       currentKeywordsData = data.data || [];
@@ -1186,7 +1186,13 @@ function renderKeywordQueueTable(keywords = []) {
 
   displayItems.forEach(item => {
     const tr = document.createElement('tr');
-    const targetPost = item.generatedPostId ? currentPostsData.find(p => p.id === item.generatedPostId) : null;
+    let targetPost = item.generatedPostId ? currentPostsData.find(p => p.id === item.generatedPostId) : null;
+    if (!targetPost && item.wpPostId) {
+      targetPost = currentPostsData.find(p => p.wpPostId === item.wpPostId || p.wpPostId === Number(item.wpPostId));
+    }
+    if (!targetPost && item.wpLink) {
+      targetPost = currentPostsData.find(p => p.wpLink && p.wpLink.replace(/\/$/, '') === item.wpLink.replace(/\/$/, ''));
+    }
     const pendingIdx = pending.findIndex(k => k.id === item.id);
 
     // Col 1: Từ khóa mục tiêu
