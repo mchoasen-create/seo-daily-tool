@@ -2845,22 +2845,20 @@ app.get('/api/duplicate-check', (req, res) => {
 // POST /api/posts/rewrite-ai — rewrite một post bị duplicate bằng Gemini hoặc re-push với HTML đúng
 // Body: { postId, updateWordPress?, keepContent? }
 app.post('/api/posts/rewrite-ai', async (req, res) => {
-  const { postId, updateWordPress = false, keepContent = false } = req.body;
+  const { postId, updateWordPress = true, keepContent = false } = req.body;
   if (!postId) return res.status(400).json({ success: false, message: 'Thiếu postId' });
 
   try {
     const posts = getPosts();
-    const postIdx = posts.findIndex(p => p.id === postId);
+    const postIdx = posts.findIndex(p => p.id === postId || p.wpPostId == postId || p.wp_post_id == postId);
     if (postIdx === -1) return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
 
     let post = posts[postIdx];
-    const keyword = post.targetKeyword || '';
+    const keyword = post.targetKeyword || post.keyword || post.topic || (post.title ? post.title.split(' ')[0] : 'lọc nước');
     const topic = post.title || keyword;
     const customTargetUrl = post.targetProductUrl || '';
 
     if (!keepContent) {
-      if (!keyword) return res.status(400).json({ success: false, message: 'Bài viết thiếu targetKeyword' });
-
       // Lấy all existing content cùng keyword (trừ bài đang rewrite) để Gemini tránh trùng
       const existingContents = posts
         .filter(p => p.id !== postId && p.targetKeyword && p.targetKeyword.trim().toLowerCase() === keyword.trim().toLowerCase() && p.content)
@@ -2892,7 +2890,7 @@ app.post('/api/posts/rewrite-ai', async (req, res) => {
     const updatedPost = posts[postIdx];
 
     // Nếu updateWordPress = true và bài đã publish, update lên WP
-    if (updateWordPress && post.wpPublished) {
+    if (updateWordPress && (post.wpPublished || post.wpPostId || post.wp_post_id)) {
       try {
         const wpConfig = getWPConfig();
         if (wpConfig.enabled && wpConfig.siteUrl && wpConfig.appPassword) {
@@ -2901,7 +2899,7 @@ app.post('/api/posts/rewrite-ai', async (req, res) => {
           try { fetchFn = (await import('node-fetch')).default || globalThis.fetch; } catch(e) {}
 
           // Resolve wpPostId từ wpLink nếu chưa có
-          let wpPostId = post.wpPostId;
+          let wpPostId = post.wpPostId || post.wp_post_id;
           if (!wpPostId && post.wpLink) {
             try {
               const slug = post.wpLink.replace(/\/$/, '').split('/').pop();
@@ -2961,7 +2959,20 @@ app.post('/api/posts/rewrite-ai', async (req, res) => {
       }
     }
 
-    res.json({ success: true, post: updatedPost, message: `Đã rewrite bài "${updatedPost.title}" thành công!` });
+    // Tự động rà soát lại hệ thống ngay sau khi rewrite
+    let freshReport = null;
+    try {
+      freshReport = await runSystemAudit();
+    } catch (e) {
+      console.warn('[Rewrite] Error running system audit after rewrite:', e.message);
+    }
+
+    res.json({
+      success: true,
+      post: updatedPost,
+      report: freshReport,
+      message: `Đã dùng AI viết lại bài "${updatedPost.title}" thành công và đồng bộ hệ thống!`
+    });
   } catch (err) {
     console.error('[Rewrite API] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi rewrite: ' + err.message });
