@@ -1,21 +1,98 @@
 {
-  "timestamp": "2026-09-14T07:05:10.454Z",
-  "durationMs": 26,
+  "timestamp": "2026-09-14T10:19:46.642Z",
+  "durationMs": 43,
   "summary": {
-    "totalPostsAudited": 14,
-    "totalLiveBlogPosts": 80,
-    "totalKeywordsInQueue": 16,
-    "duplicateContentCount": 0,
+    "totalPostsAudited": 16,
+    "totalLiveBlogPosts": 82,
+    "totalKeywordsInQueue": 19,
+    "duplicateContentCount": 1,
     "duplicateTitleCount": 0,
-    "duplicateImageCount": 0,
+    "duplicateImageCount": 2,
     "localDuplicateImageCount": 0,
     "invalidLandingCount": 0,
     "lowSeoScoreCount": 0,
-    "totalIssues": 0,
+    "totalIssues": 3,
     "healthScore": 100
   },
-  "duplicateContentPairs": [],
+  "duplicateContentPairs": [
+    {
+      "post1": {
+        "id": "post_auto_1789045167708_3_xk6f",
+        "title": "Hệ Thống Lọc Nước Tinh Khiết Công Nghệ RO Siêu Vi 2026"
+      },
+      "post2": {
+        "id": "post_auto_1789045167709_4_3y1h",
+        "title": "Công Nghệ Lọc Nước Mặn Khử Muối Thành Nước Ngọt Mới Nhất Chuyê..."
+      },
+      "similarity": 45
+    }
+  ],
   "duplicateTitlePairs": [],
-  "duplicateImages": {},
-  "issues": []
+  "duplicateImages": {
+    "https://xulynuochoasen.com/wp-content/uploads/2026/09/media_1788941523585_l3w2.jpeg": [
+      {
+        "type": "live",
+        "id": 13706,
+        "title": "Công Nghệ Lọc Nước Mặn Khử Muối Thành Nước Ngọt Mới Nhất Chuyê..."
+      },
+      {
+        "type": "live",
+        "id": 13239,
+        "title": "Giải Pháp Lọc Nước Tinh Khiết RO Gia Đình Đạt Chuẩn Bộ Y Tế Mới Nhất 2026"
+      }
+    ],
+    "https://xulynuochoasen.com/wp-content/uploads/2026/09/media_1788941524083_gwmb.jpeg": [
+      {
+        "type": "live",
+        "id": 13519,
+        "title": "Hệ Thống Lọc Nước Tinh Khiết Công Nghệ RO Siêu Vi 2026"
+      },
+      {
+        "type": "live",
+        "id": 13337,
+        "title": "So Sánh Hiệu Quả & Chi Phí Đầu Tư Lọc Nước Mặn Thành Nước Ngọt..."
+      }
+    ]
+  },
+  "issues": [
+    {
+      "level": "warning",
+      "category": "duplicate_image",
+      "message": "Ảnh \"media_1788941523585_l3w2.jpeg\" bị dùng trùng lặp trong 2 bài viết.",
+      "posts": [
+        {
+          "type": "live",
+          "id": 13706,
+          "title": "Công Nghệ Lọc Nước Mặn Khử Muối Thành Nước Ngọt Mới Nhất Chuyê..."
+        },
+        {
+          "type": "live",
+          "id": 13239,
+          "title": "Giải Pháp Lọc Nước Tinh Khiết RO Gia Đình Đạt Chuẩn Bộ Y Tế Mới Nhất 2026"
+        }
+      ]
+    },
+    {
+      "level": "warning",
+      "category": "duplicate_image",
+      "message": "Ảnh \"media_1788941524083_gwmb.jpeg\" bị dùng trùng lặp trong 2 bài viết.",
+      "posts": [
+        {
+          "type": "live",
+          "id": 13519,
+          "title": "Hệ Thống Lọc Nước Tinh Khiết Công Nghệ RO Siêu Vi 2026"
+        },
+        {
+          "type": "live",
+          "id": 13337,
+          "title": "So Sánh Hiệu Quả & Chi Phí Đầu Tư Lọc Nước Mặn Thành Nước Ngọt..."
+        }
+      ]
+    },
+    {
+      "level": "danger",
+      "category": "duplicate_content",
+      "message": "Nội dung bài \"Hệ Thống Lọc Nước Tinh Khiết Công Nghệ RO Siêu Vi 2026\" trùng 45% với bài \"Công Nghệ Lọc Nước Mặn Khử Muối Thành Nước Ngọt Mới Nhất Chuyê...\". Cần viết lại độc bản!"
+    }
+  ]
 }

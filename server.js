@@ -655,6 +655,211 @@ app.post('/api/audit/run', async (req, res) => {
   }
 });
 
+// GET /api/audit/warehouse-candidates: Lấy danh sách ảnh độc bản từ Kho để đổi thủ công
+app.get('/api/audit/warehouse-candidates', (req, res) => {
+  try {
+    const khoId = req.query.kho || 'kho_1';
+    const khoFiles = {
+      kho_1: path.join(DATA_DIR, 'kho_1_sinh_hoat.json'),
+      kho_2: path.join(DATA_DIR, 'kho_2_cong_nghiep.json'),
+      kho_3: path.join(DATA_DIR, 'kho_3_tinh_khiet_ro.json')
+    };
+
+    const targetFile = khoFiles[khoId] || khoFiles.kho_1;
+    let pool = [];
+    if (fs.existsSync(targetFile)) {
+      pool = JSON.parse(fs.readFileSync(targetFile, 'utf8') || '[]');
+    }
+
+    // Load active/locked images to exclude used ones
+    const posts = getPosts();
+    let livePosts = [];
+    try {
+      const liveData = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'live_blog_posts.json'), 'utf8') || '{}');
+      livePosts = liveData.posts || [];
+    } catch (e) {}
+
+    const usedCleanNames = new Set();
+    posts.forEach(p => {
+      if (p.imageUrl) usedCleanNames.add(path.basename(p.imageUrl).toLowerCase());
+      if (p.secondaryImageUrl) usedCleanNames.add(path.basename(p.secondaryImageUrl).toLowerCase());
+    });
+    livePosts.forEach(lp => {
+      if (lp.featuredImageUrl) usedCleanNames.add(path.basename(lp.featuredImageUrl).toLowerCase());
+    });
+
+    // WP Media cache
+    let wpCache = {};
+    const cachePath = path.join(__dirname, 'scratch/wp_media_cache.json');
+    if (fs.existsSync(cachePath)) {
+      try { wpCache = JSON.parse(fs.readFileSync(cachePath, 'utf8') || '{}'); } catch (e) {}
+    }
+
+    const available = pool.filter(m => {
+      const fn = path.basename(m.url || '').toLowerCase();
+      return !usedCleanNames.has(fn);
+    }).map(m => {
+      const fn = path.basename(m.url || '').toLowerCase();
+      const cleanFn = fn.replace(/-\d+x\d+(\.[a-z]+)$/i, '$1').replace(/-\d+(\.[a-z]+)$/i, '$1');
+      const wp = wpCache[fn] || wpCache[cleanFn] || null;
+      return {
+        id: m.id,
+        url: m.url,
+        title: m.title || fn,
+        filename: fn,
+        wpMediaId: wp ? wp.id : null,
+        wpSourceUrl: wp ? wp.source_url : null
+      };
+    });
+
+    res.json({
+      success: true,
+      kho: khoId,
+      totalWarehouse: pool.length,
+      availableCount: available.length,
+      candidates: available.slice(0, 50)
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/audit/swap-post-image: Đổi ảnh thủ công cho bài viết bị cảnh báo trùng lặp
+app.post('/api/audit/swap-post-image', async (req, res) => {
+  try {
+    const { postId, postType, oldImageUrl, newImageUrl, newImageWpId } = req.body;
+    if (!postId || !newImageUrl) {
+      return res.status(400).json({ success: false, message: 'Thiếu thông tin postId hoặc newImageUrl.' });
+    }
+
+    const posts = getPosts();
+    const wpConfig = getWordPressConfig();
+    const auth = (wpConfig.username && wpConfig.appPassword)
+      ? 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword.replace(/\s+/g, '')}`).toString('base64')
+      : null;
+
+    let updated = false;
+
+    // 1. Cập nhật local posts.json nếu có
+    const localPost = posts.find(p => p.id === postId || p.wpPostId == postId || p.wp_post_id == postId);
+    if (localPost) {
+      localPost.imageUrl = newImageUrl;
+      localPost.featured_image = newImageUrl;
+      if (localPost.content && oldImageUrl) {
+        localPost.content = localPost.content.replaceAll(oldImageUrl, newImageUrl);
+      }
+      savePosts(posts);
+      updated = true;
+    }
+
+    // 2. Cập nhật cache live_blog_posts.json
+    const liveBlogFile = path.join(DATA_DIR, 'live_blog_posts.json');
+    if (fs.existsSync(liveBlogFile)) {
+      try {
+        const liveData = JSON.parse(fs.readFileSync(liveBlogFile, 'utf8') || '{}');
+        const lp = (liveData.posts || []).find(p => p.id == postId || p.id == localPost?.wpPostId);
+        if (lp) {
+          lp.featuredImageUrl = newImageUrl;
+          fs.writeFileSync(liveBlogFile, JSON.stringify(liveData, null, 2), 'utf8');
+        }
+      } catch (e) {}
+    }
+
+    // 3. Nếu là bài WordPress (có wpPostId hoặc postId dạng số) -> Đồng bộ trực tiếp lên WP
+    const targetWpId = localPost?.wpPostId || localPost?.wp_post_id || (!isNaN(Number(postId)) ? Number(postId) : null);
+    if (targetWpId && auth && wpConfig.siteUrl) {
+      try {
+        const wpUpdateBody = {};
+        if (newImageWpId) {
+          wpUpdateBody.featured_media = Number(newImageWpId);
+        }
+
+        // Lấy bài viết từ WP để thay thế ảnh trong content
+        const wpGetRes = await fetch(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${targetWpId}?context=edit`, {
+          headers: { Authorization: auth }
+        });
+        if (wpGetRes.ok) {
+          const wpData = await wpGetRes.json();
+          let html = wpData.content?.raw || wpData.content?.rendered || '';
+          if (oldImageUrl && html.includes(path.basename(oldImageUrl))) {
+            const oldFn = path.basename(oldImageUrl);
+            const newFn = path.basename(newImageUrl);
+            html = html.replaceAll(oldFn, newFn);
+            wpUpdateBody.content = html;
+          }
+        }
+
+        if (Object.keys(wpUpdateBody).length > 0) {
+          await fetch(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${targetWpId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: auth },
+            body: JSON.stringify(wpUpdateBody)
+          });
+        }
+      } catch (e) {
+        console.error('Lỗi khi cập nhật ảnh lên WordPress:', e.message);
+      }
+    }
+
+    // Chạy lại rà soát hệ thống ngay lập tức
+    const newReport = await runSystemAudit();
+    res.json({
+      success: true,
+      message: `Đã đổi sang ảnh "${path.basename(newImageUrl)}" thành công!`,
+      report: newReport
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/audit/save-manual-content: Lưu nội dung sửa thủ công cho bài viết
+app.post('/api/audit/save-manual-content', async (req, res) => {
+  try {
+    const { postId, content } = req.body;
+    if (!postId || !content) {
+      return res.status(400).json({ success: false, message: 'Thiếu postId hoặc nội dung bài viết.' });
+    }
+
+    const posts = getPosts();
+    const wpConfig = getWordPressConfig();
+    const auth = (wpConfig.username && wpConfig.appPassword)
+      ? 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword.replace(/\s+/g, '')}`).toString('base64')
+      : null;
+
+    const localPost = posts.find(p => p.id === postId || p.wpPostId == postId || p.wp_post_id == postId);
+    if (localPost) {
+      localPost.content = content;
+      savePosts(posts);
+    }
+
+    const targetWpId = localPost?.wpPostId || localPost?.wp_post_id || (!isNaN(Number(postId)) ? Number(postId) : null);
+    if (targetWpId && auth && wpConfig.siteUrl) {
+      let htmlContent = content;
+      htmlContent = htmlContent.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%; height:auto;" />');
+      htmlContent = htmlContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:600;">$1</a>');
+      htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      htmlContent = htmlContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+      await fetch(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${targetWpId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: auth },
+        body: JSON.stringify({ content: htmlContent })
+      });
+    }
+
+    const newReport = await runSystemAudit();
+    res.json({
+      success: true,
+      message: 'Đã lưu nội dung bài viết và đồng bộ lên WordPress thành công!',
+      report: newReport
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+
 
 app.get('/api/google/config', (req, res) => {
   res.json({ success: true, data: getGoogleConfig() });

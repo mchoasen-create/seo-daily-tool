@@ -4946,26 +4946,341 @@ function renderStartupAuditUI(report) {
   const detailContainer = document.getElementById('audit-detail-container');
   if (detailContainer) {
     if (report.issues && report.issues.length > 0) {
+      window._currentAuditIssues = report.issues;
       let issuesHtml = `
-        <div style="padding: 12px 16px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; margin-bottom: 8px;">
-          <div style="display:flex; align-items:center; gap:8px; font-weight:700; color:#f87171; margin-bottom: 6px;">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span>Phát hiện ${report.issues.length} cảnh báo cần khắc phục:</span>
+        <div style="padding: 14px 18px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 10px; margin-bottom: 8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div style="display:flex; align-items:center; gap:8px; font-weight:700; color:#f87171; font-size: 0.95rem;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>Phát hiện ${report.issues.length} cảnh báo cần khắc phục:</span>
+            </div>
+            <span style="font-size: 0.78rem; color: #94a3b8;"><i class="fa-solid fa-circle-info"></i> Bấm "Xem & Đổi Thủ Công" để tự chọn ảnh hoặc sửa bài</span>
           </div>
-          <ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: #fca5a5;">
-            ${report.issues.slice(0, 5).map(iss => `<li>${iss.message || iss}</li>`).join('')}
-          </ul>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            ${report.issues.map((iss, idx) => {
+              const isImg = iss.category === 'duplicate_image';
+              const isContent = iss.category === 'duplicate_content';
+              const icon = isImg ? 'fa-solid fa-image' : (isContent ? 'fa-solid fa-file-lines' : 'fa-solid fa-circle-exclamation');
+              const iconColor = isImg ? '#38bdf8' : (isContent ? '#f87171' : '#fbbf24');
+              const thumb = iss.image ? `<img src="${iss.image}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0;">` : '';
+
+              return `
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; flex-wrap: wrap;">
+                  <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 250px;">
+                    ${thumb}
+                    <div style="font-size: 0.84rem; color: #f1f5f9; line-height: 1.4;">
+                      <i class="${icon}" style="color: ${iconColor}; margin-right: 6px;"></i>
+                      <span>${escapeHtml(iss.message || '')}</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-sm btn-primary btn-open-audit-fix" data-index="${idx}" style="font-size: 0.78rem; padding: 5px 12px; display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #0284c7, #2563eb); border: none; font-weight: 600; border-radius: 6px; cursor: pointer; white-space: nowrap;">
+                    <i class="fa-solid fa-sliders"></i> Xem &amp; Đổi Thủ Công
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
         </div>
       `;
       detailContainer.innerHTML = issuesHtml;
+
+      // Bind buttons
+      detailContainer.querySelectorAll('.btn-open-audit-fix').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+          if (!isNaN(idx) && window._currentAuditIssues && window._currentAuditIssues[idx]) {
+            openAuditManualFixModal(window._currentAuditIssues[idx]);
+          }
+        });
+      });
     } else {
       detailContainer.innerHTML = `
         <div style="padding: 10px 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
           <i class="fa-solid fa-circle-check" style="color: #34d399; font-size: 1.1rem;"></i>
-          <span id="audit-status-summary-text">Hệ thống đã tự động rà soát khi khởi động: Tất cả ${sum.totalLiveBlogPosts || 80} bài viết WordPress đều độc bản 100%, ảnh đại diện độc quyền, link Google Ads chính xác và điểm SEO đạt chuẩn!</span>
+          <span id="audit-status-summary-text">Hệ thống đã tự động rà soát khi khởi động: Tất cả ${sum.totalLiveBlogPosts || 82} bài viết WordPress đều độc bản 100%, ảnh đại diện độc quyền, link Google Ads chính xác và điểm SEO đạt chuẩn!</span>
         </div>
       `;
     }
   }
 }
+
+// BẬT MODAL XỬ LÝ & ĐỔI THỦ CÔNG
+async function openAuditManualFixModal(issue) {
+  const modal = document.getElementById('audit-manual-fix-modal');
+  const title = document.getElementById('audit-modal-title');
+  const subtitle = document.getElementById('audit-modal-subtitle');
+  const body = document.getElementById('audit-modal-body');
+  const iconGlow = document.getElementById('audit-modal-icon-glow');
+  if (!modal || !body) return;
+
+  if (issue.category === 'duplicate_image') {
+    if (title) title.textContent = 'Đổi Ảnh Trùng Lặp Thủ Công';
+    if (subtitle) subtitle.textContent = `Ảnh "${issue.filename || 'này'}" đang được dùng chung giữa các bài viết. Anh có thể chọn ảnh khác để thay thế ngay.`;
+    if (iconGlow) {
+      iconGlow.innerHTML = '<i class="fa-solid fa-images"></i>';
+      iconGlow.style.background = 'rgba(14, 165, 233, 0.2)';
+      iconGlow.style.color = '#38bdf8';
+    }
+
+    body.innerHTML = `
+      <div style="display: flex; gap: 18px; margin-bottom: 20px; align-items: center; background: rgba(15, 23, 42, 0.6); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border-color);">
+        <img src="${issue.image}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #ef4444;">
+        <div style="flex: 1;">
+          <div style="font-weight: 700; color: #f87171; font-size: 0.95rem; margin-bottom: 4px;">
+            <i class="fa-solid fa-triangle-exclamation"></i> Tấm ảnh này đang bị trùng ở các bài viết bên dưới:
+          </div>
+          <div style="font-size: 0.8rem; color: #94a3b8; word-break: break-all;">File: <strong>${escapeHtml(issue.filename || issue.image)}</strong></div>
+        </div>
+      </div>
+
+      <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 12px;"><i class="fa-solid fa-list-check" style="color: var(--accent-primary);"></i> Chọn bài viết anh muốn đổi ảnh sang ảnh khác:</h4>
+      <div id="audit-fix-posts-list" style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="text-align: center; padding: 20px; color: #94a3b8;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu ảnh từ Kho...</div>
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    // Fetch warehouse candidates
+    const posts = issue.posts || [];
+    const postsListContainer = document.getElementById('audit-fix-posts-list');
+    if (!postsListContainer) return;
+
+    let postsHtml = '';
+    for (let i = 0; i < posts.length; i++) {
+      const p = posts[i];
+      const targetKho = (p.title || '').toLowerCase().includes('công nghiệp') ? 'kho_2' :
+        (((p.title || '').toLowerCase().includes('mặn') || (p.title || '').toLowerCase().includes('tinh khiết') || (p.title || '').toLowerCase().includes('ro')) ? 'kho_3' : 'kho_1');
+      
+      postsHtml += `
+        <div class="audit-post-card-fix" style="background: rgba(30, 41, 59, 0.7); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px;">
+            <div>
+              <div style="font-size: 0.75rem; color: var(--accent-primary); font-weight: 700; text-transform: uppercase;">
+                ${p.type === 'live' ? '🟢 Bài Viết WordPress Live [ID: ' + p.id + ']' : '📝 Bản Nháp Hệ Thống'}
+              </div>
+              <div style="font-size: 0.92rem; font-weight: 700; color: #fff; margin-top: 2px;">${escapeHtml(p.title || 'Bài viết')}</div>
+            </div>
+            <span style="font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 600; white-space: nowrap;">Kho: ${targetKho}</span>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select class="form-control select-swap-img-candidate" data-post-id="${p.id}" data-post-type="${p.type}" data-old-img="${issue.image}" style="flex: 1; min-width: 250px; font-size: 0.82rem; padding: 8px 12px;">
+              <option value="">-- Đang nạp danh sách ảnh từ Kho ${targetKho}... --</option>
+            </select>
+            <button class="btn btn-primary btn-sm btn-confirm-swap-image" data-post-id="${p.id}" data-post-type="${p.type}" data-old-img="${issue.image}" style="padding: 8px 16px; font-weight: 600; white-space: nowrap;">
+              <i class="fa-solid fa-arrow-right-arrow-left"></i> Xác Nhận Đổi Ảnh Này
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    postsListContainer.innerHTML = postsHtml;
+
+    // Load available candidates for each select
+    postsListContainer.querySelectorAll('.select-swap-img-candidate').forEach(async sel => {
+      const pTitle = sel.closest('.audit-post-card-fix').querySelector('div[style*="font-weight: 700"]').textContent;
+      const targetKho = pTitle.toLowerCase().includes('công nghiệp') ? 'kho_2' :
+        ((pTitle.toLowerCase().includes('mặn') || pTitle.toLowerCase().includes('tinh khiết') || pTitle.toLowerCase().includes('ro')) ? 'kho_3' : 'kho_1');
+      
+      try {
+        const res = await fetch(`/api/audit/warehouse-candidates?kho=${targetKho}`);
+        const data = await res.json();
+        if (data.success && data.candidates && data.candidates.length > 0) {
+          sel.innerHTML = `
+            <option value="">-- Chọn 1 tấm ảnh độc bản từ Kho ${targetKho} (${data.availableCount} ảnh sẵn sàng) --</option>
+            ${data.candidates.map(c => `
+              <option value="${c.url}" data-wp-id="${c.wpMediaId || ''}">
+                ${c.wpMediaId ? '✅ [WP ' + c.wpMediaId + '] ' : '📁 '} ${escapeHtml(c.title || c.filename)}
+              </option>
+            `).join('')}
+          `;
+        } else {
+          sel.innerHTML = `<option value="">Kho ${targetKho} không còn ảnh trống</option>`;
+        }
+      } catch (err) {
+        sel.innerHTML = `<option value="">Lỗi tải ảnh từ Kho</option>`;
+      }
+    });
+
+    // Bind confirm swap buttons
+    postsListContainer.querySelectorAll('.btn-confirm-swap-image').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const card = e.currentTarget.closest('.audit-post-card-fix');
+        const sel = card.querySelector('.select-swap-img-candidate');
+        const newImgUrl = sel.value;
+        const selectedOpt = sel.options[sel.selectedIndex];
+        const newImageWpId = selectedOpt ? selectedOpt.getAttribute('data-wp-id') : null;
+
+        if (!newImgUrl) {
+          return showToast('Vui lòng chọn 1 tấm ảnh từ danh sách trước khi bấm xác nhận.', 'error');
+        }
+
+        const postId = e.currentTarget.getAttribute('data-post-id');
+        const postType = e.currentTarget.getAttribute('data-post-type');
+        const oldImageUrl = e.currentTarget.getAttribute('data-old-img');
+
+        e.currentTarget.disabled = true;
+        e.currentTarget.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang Đổi Ảnh...`;
+
+        try {
+          const res = await fetch('/api/audit/swap-post-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              postId,
+              postType,
+              oldImageUrl,
+              newImageUrl: newImgUrl,
+              newImageWpId
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(data.message || 'Đã đổi ảnh thủ công thành công!', 'success');
+            modal.style.display = 'none';
+            if (data.report) renderStartupAuditUI(data.report);
+            loadPostsList();
+          } else {
+            showToast(data.message || 'Lỗi khi đổi ảnh', 'error');
+            e.currentTarget.disabled = false;
+            e.currentTarget.innerHTML = `<i class="fa-solid fa-arrow-right-arrow-left"></i> Xác Nhận Đổi Ảnh Này`;
+          }
+        } catch (err) {
+          showToast('Lỗi kết nối khi đổi ảnh', 'error');
+          e.currentTarget.disabled = false;
+          e.currentTarget.innerHTML = `<i class="fa-solid fa-arrow-right-arrow-left"></i> Xác Nhận Đổi Ảnh Này`;
+        }
+      });
+    });
+
+  } else if (issue.category === 'duplicate_content') {
+    if (title) title.textContent = 'Sửa Nội Dung Trùng Lặp Thủ Công';
+    if (subtitle) subtitle.textContent = `Phát hiện mức độ tương đồng ${issue.similarity || 45}% giữa 2 bài viết. Anh có thể trực tiếp sửa lại câu chữ hoặc bấm viết lại độc bản.`;
+    if (iconGlow) {
+      iconGlow.innerHTML = '<i class="fa-solid fa-file-pen"></i>';
+      iconGlow.style.background = 'rgba(239, 68, 68, 0.2)';
+      iconGlow.style.color = '#f87171';
+    }
+
+    const p1 = issue.post1 || {};
+    const p2 = issue.post2 || {};
+
+    body.innerHTML = `
+      <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; color: #fca5a5;">
+        <i class="fa-solid fa-triangle-exclamation"></i> <strong>Cảnh báo tương đồng nội dung: ${issue.similarity || 45}%</strong> giữa:<br>
+        1. <strong>"${escapeHtml(p1.title || 'Bài 1')}"</strong><br>
+        2. <strong>"${escapeHtml(p2.title || 'Bài 2')}"</strong>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="color: #fff; font-weight: 700; font-size: 0.9rem; display: block; margin-bottom: 6px;">
+          Sửa nội dung bài viết 2 để biến thành độc bản: <em>"${escapeHtml(p2.title || '')}"</em>
+        </label>
+        <textarea id="audit-manual-content-textarea" class="form-control" rows="12" style="font-family: monospace; font-size: 0.84rem; line-height: 1.5; padding: 12px;">${escapeHtml(p2.content || '')}</textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <button class="btn btn-secondary" id="btn-audit-rewrite-ai" data-post-id="${p2.id}" style="background: rgba(147, 51, 234, 0.2); border: 1px solid rgba(147, 51, 234, 0.5); color: #c084fc; font-weight: 600;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Tự Động Viết Lại Độc Bản Bằng AI (Gemini)
+        </button>
+        <button class="btn btn-primary" id="btn-audit-save-manual-content" data-post-id="${p2.id}" style="font-weight: 600; padding: 8px 20px;">
+          <i class="fa-solid fa-floppy-disk"></i> Lưu Nội Dung Mới Lên WordPress
+        </button>
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    // Bind AI Rewrite
+    const btnAi = document.getElementById('btn-audit-rewrite-ai');
+    if (btnAi) {
+      btnAi.addEventListener('click', async () => {
+        if (!confirm('Anh có chắc muốn dùng Gemini để viết lại bài viết này thành 100% độc bản không?')) return;
+        btnAi.disabled = true;
+        btnAi.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> AI Đang Viết Lại...`;
+
+        try {
+          const res = await fetch('/api/posts/rewrite-ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: p2.id })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('AI đã viết lại bài viết độc bản thành công!', 'success');
+            modal.style.display = 'none';
+            // Re-run audit
+            const auditRes = await fetch('/api/audit/run', { method: 'POST' });
+            const auditData = await auditRes.json();
+            if (auditData.report) renderStartupAuditUI(auditData.report);
+            loadPostsList();
+          } else {
+            showToast(data.message || 'Lỗi khi AI viết lại', 'error');
+            btnAi.disabled = false;
+            btnAi.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Tự Động Viết Lại Độc Bản Bằng AI (Gemini)`;
+          }
+        } catch (err) {
+          showToast('Lỗi kết nối khi gọi AI', 'error');
+          btnAi.disabled = false;
+          btnAi.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Tự Động Viết Lại Độc Bản Bằng AI (Gemini)`;
+        }
+      });
+    }
+
+    // Bind Save Manual
+    const btnSave = document.getElementById('btn-audit-save-manual-content');
+    if (btnSave) {
+      btnSave.addEventListener('click', async () => {
+        const text = document.getElementById('audit-manual-content-textarea').value;
+        if (!text || text.length < 200) {
+          return showToast('Nội dung bài viết quá ngắn, vui lòng nhập đầy đủ.', 'error');
+        }
+
+        btnSave.disabled = true;
+        btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang Lưu Lên WordPress...`;
+
+        try {
+          const res = await fetch('/api/audit/save-manual-content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: p2.id, content: text })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Đã lưu nội dung mới và đồng bộ WordPress thành công!', 'success');
+            modal.style.display = 'none';
+            if (data.report) renderStartupAuditUI(data.report);
+            loadPostsList();
+          } else {
+            showToast(data.message || 'Lỗi khi lưu nội dung', 'error');
+            btnSave.disabled = false;
+            btnSave.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Lưu Nội Dung Mới Lên WordPress`;
+          }
+        } catch (err) {
+          showToast('Lỗi kết nối khi lưu nội dung', 'error');
+          btnSave.disabled = false;
+          btnSave.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Lưu Nội Dung Mới Lên WordPress`;
+        }
+      });
+    }
+  }
+}
+
+// Close Modal event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('audit-manual-fix-modal');
+  const btnClose = document.getElementById('btn-close-audit-modal');
+  const btnCloseFooter = document.getElementById('btn-close-audit-modal-footer');
+
+  if (btnClose && modal) btnClose.addEventListener('click', () => { modal.style.display = 'none'; });
+  if (btnCloseFooter && modal) btnCloseFooter.addEventListener('click', () => { modal.style.display = 'none'; });
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+  }
+});
+
 
