@@ -5459,4 +5459,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+/* ==========================================================================
+   24/7 AUTO HEARTBEAT KEEP-ALIVE
+   Tự động gửi nhịp tim mỗi 3 phút để giữ Render không bao giờ ngủ đông (Sleep)
+   khi có bất kỳ máy nào mở trang web
+   ========================================================================== */
+setInterval(() => {
+  fetch('/api/keywords?_hb=' + Date.now(), { cache: 'no-store' })
+    .then(() => console.log('[Heartbeat 24/7] Server kept awake!'))
+    .catch(() => {});
+}, 3 * 60 * 1000); // Mỗi 3 phút (Render sleep sau 15 phút không có request)
+
+
 

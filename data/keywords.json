@@ -1,14 +1,41 @@
 [
   {
+    "id": "kw_1789436454827_k3r3",
+    "keyword": "Lọc Nước Tinh Khiết",
+    "topic": "Lọc Nước Tinh Khiết",
+    "status": "completed",
+    "createdAt": "2026-09-15T01:40:54.828Z",
+    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
+    "generatedPostId": "post_auto_1789436501441_ery1",
+    "pregenerated": true,
+    "isRotated": true,
+    "completedAt": "2026-09-15T01:42:05.727Z"
+  },
+  {
+    "id": "kw_1789436394639_02os",
+    "keyword": "Lọc Nước Sinh Hoạt",
+    "topic": "Lọc Nước Sinh Hoạt",
+    "status": "completed",
+    "createdAt": "2026-09-15T01:39:54.639Z",
+    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat/",
+    "generatedPostId": "post_auto_1789436441929_8612",
+    "pregenerated": true,
+    "isRotated": true,
+    "completedAt": "2026-09-15T01:40:47.768Z"
+  },
+  {
     "id": "kw_1789399560697_per5",
     "keyword": "Lọc Nước Tinh Khiết",
     "topic": "Lọc Nước Tinh Khiết",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-09-14T15:26:00.697Z",
     "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
     "generatedPostId": "post_auto_1789399610316_fah0",
-    "pregenerated": true,
-    "isRotated": true
+    "pregenerated": false,
+    "isRotated": true,
+    "completedAt": "2026-09-14T19:22:07",
+    "wpPostId": 13981,
+    "wpLink": "https://xulynuochoasen.com/quy-trinh-san-xuat-nuoc-dong-binh-voi-loc-nuoc-tinh-khiet-2026/"
   },
   {
     "id": "kw_1789392305635_f7f0",
@@ -254,5 +281,33 @@
     "completedAt": "2026-09-14T15:20:44",
     "wpPostId": 13974,
     "wpLink": "https://xulynuochoasen.com/quy-trinh-loc-nuoc-tinh-khiet-dong-binh-chuan-chuyen-sau-2026/"
+  },
+  {
+    "id": "kw_1789436447768_7ws6",
+    "keyword": "Lọc Nước Sinh Hoạt",
+    "topic": "Lọc Nước Sinh Hoạt",
+    "status": "completed",
+    "createdAt": "2026-09-15T01:40:47.768Z",
+    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat/",
+    "generatedPostId": null,
+    "pregenerated": false,
+    "isRotated": true,
+    "completedAt": "2026-09-15T01:40:47",
+    "wpPostId": 13987,
+    "wpLink": "https://xulynuochoasen.com/loc-nuoc-sinh-hoat-lo-hong-tai-chinh-am-tham-trong-moi-nha/"
+  },
+  {
+    "id": "kw_1789436525728_4iuy",
+    "keyword": "Lọc Nước Tinh Khiết",
+    "topic": "Lọc Nước Tinh Khiết",
+    "status": "completed",
+    "createdAt": "2026-09-15T01:42:05.728Z",
+    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
+    "generatedPostId": null,
+    "pregenerated": false,
+    "isRotated": true,
+    "completedAt": "2026-09-15T01:42:05",
+    "wpPostId": 13990,
+    "wpLink": "https://xulynuochoasen.com/cam-nang-ky-thuat-loc-nuoc-tinh-khiet-chuan-bo-y-te-2026/"
   }
 ]

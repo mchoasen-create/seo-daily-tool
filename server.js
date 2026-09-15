@@ -3084,9 +3084,25 @@ async function checkAndRunAutoScheduler() {
   const pubIntervalMs = pubIntervalHours * 3600000;
   const lastPubTime = config.lastPublishRun ? new Date(config.lastPublishRun).getTime() : (config.lastRun ? new Date(config.lastRun).getTime() : 0);
   if (!lastPubTime || (now - lastPubTime) >= pubIntervalMs) {
-    const keywords = getKeywords();
+    let keywords = getKeywords();
+
+    // Auto-heal: gỡ kẹt các từ khóa bị processing quá 15 phút về pending
+    let kwHealed = false;
+    keywords.forEach(k => {
+      if (k.status === 'processing') {
+        const createTime = k.createdAt ? new Date(k.createdAt).getTime() : 0;
+        if (!createTime || (now - createTime) > 15 * 60 * 1000) {
+          k.status = 'pending';
+          kwHealed = true;
+          console.log(`[Auto-Scheduler] 🛡️ Tự động gỡ từ khóa bị kẹt processing: "${k.keyword}" về pending`);
+        }
+      }
+    });
+    if (kwHealed) saveKeywords(keywords);
+
     const hasPending = keywords.some(k => k.status === 'pending');
-    if (hasPending && wpConfig.enabled && wpConfig.autoPublish) {
+    const hasCompleted = keywords.some(k => k.status === 'completed');
+    if ((hasPending || hasCompleted) && wpConfig.enabled && wpConfig.autoPublish) {
       console.log('Auto-Scheduler: Auto-Publishing next keyword to WordPress...');
       try {
         const res = await processNextKeywordInQueue();

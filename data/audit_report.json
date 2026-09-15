@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-09-14T12:24:27.751Z",
-  "durationMs": 99,
+  "timestamp": "2026-09-15T01:38:57.348Z",
+  "durationMs": 63,
   "healthScore": 100,
   "totalIssues": 0,
   "summary": {
-    "totalPostsAudited": 16,
-    "totalLiveBlogPosts": 84,
-    "totalKeywordsInQueue": 21,
+    "totalPostsAudited": 18,
+    "totalLiveBlogPosts": 87,
+    "totalKeywordsInQueue": 19,
     "duplicateContentCount": 0,
     "duplicateTitleCount": 0,
     "duplicateImageCount": 0,
