@@ -1,0 +1,413 @@
+<!-- ==========================================================================
+     HOA SEN WATER GROUP - LUXURY ENTERPRISE FOOTER (CHUẨN TẬP ĐOÀN TỶ ĐÔ)
+     Dành cho Elementor Template ID 85 hoặc dùng làm chân trang toàn website
+     ========================================================================== -->
+
+<style>
+/* CSS Reset & Khung Chân Trang Đẳng Cấp Toàn Màn Hình */
+.hs-footer-root {
+  background: #070f1e !important;
+  color: #cbd5e1 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  border-top: 3px solid #0284c7 !important;
+  box-shadow: 0 -15px 40px rgba(0,0,0,0.4) !important;
+  padding: 50px 20px 20px 20px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+.hs-footer-master {
+  max-width: 1260px !important;
+  margin: 0 auto !important;
+}
+
+/* Phần Đầu Footer: Nhận Diện Thương Hiệu & 3 Huy Hiệu Uy Tín */
+.hs-footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 26px;
+  margin-bottom: 35px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.hs-logo-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.hs-company-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff !important;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.3px;
+  line-height: 1.35;
+}
+.hs-company-slogan {
+  font-size: 13.5px;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 650px;
+  line-height: 1.5;
+}
+.hs-footer-badges {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.hs-badge-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+.hs-badge-icon {
+  font-size: 20px;
+}
+.hs-badge-info strong {
+  display: block;
+  font-size: 12.5px;
+  color: #ffffff;
+}
+.hs-badge-info span {
+  font-size: 11px;
+  color: #38bdf8;
+}
+
+/* Lưới 3 Cột: Trụ Sở Chính - 17 Chi Nhánh Gom Cụm - Google Map & Giờ Phục Vụ */
+.hs-footer-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1.45fr 1fr;
+  gap: 36px;
+  margin-bottom: 35px;
+}
+.hs-col-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+}
+.hs-dot {
+  width: 6px;
+  height: 6px;
+  background: #38bdf8;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+/* Cột 1: Trụ sở & Hotline Glow Buttons */
+.hs-hq-card {
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.hs-card-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.hs-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+.hs-item:last-child { margin-bottom: 0; }
+.hs-item .hs-icon { font-size: 14px; flex-shrink: 0; }
+.hs-item p { margin: 0; }
+.hs-item a { color: #38bdf8 !important; text-decoration: none !important; }
+.hs-item a:hover { color: #ffffff !important; text-decoration: underline !important; }
+
+.hs-hotline-box { margin-bottom: 16px; }
+.hs-hotline-label { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 8px; }
+.hs-hotline-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hs-hotline-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff !important;
+  text-decoration: none !important;
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+  transition: all 0.2s ease;
+}
+.hs-hotline-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(2, 132, 199, 0.5); }
+.hs-hl-icon { font-size: 16px; }
+.hs-hl-text { display: flex; flex-direction: column; }
+.hs-hl-tag { font-size: 10px; text-transform: uppercase; color: #bae6fd; font-weight: 600; }
+.hs-hl-num { font-size: 13.5px; font-weight: 800; letter-spacing: 0.3px; }
+.hs-sub-office { font-size: 12.5px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; }
+
+/* Cột 2: Mạng lưới 17 Chi Nhánh Chia 4 Vùng Địa Lý */
+.hs-branch-sub { font-size: 12px; color: #94a3b8; margin: -10px 0 14px 0; line-height: 1.4; }
+.hs-regions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hs-region-block {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.hs-region-header {
+  font-size: 11px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+.hs-branch-list { list-style: none; margin: 0; padding: 0; }
+.hs-branch-list li {
+  font-size: 11.5px;
+  line-height: 1.42;
+  color: #cbd5e1;
+  margin-bottom: 5px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.04);
+  padding-bottom: 4px;
+}
+.hs-branch-list li:last-child { margin-bottom: 0; border-bottom: none; }
+.hs-branch-list li strong { color: #f8fafc; font-weight: 600; }
+
+/* Cột 3: Showroom Map & Giờ Làm Việc */
+.hs-map-wrapper {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 6px;
+  margin-bottom: 14px;
+}
+.hs-map-wrapper iframe { border-radius: 6px; display: block; width: 100%; }
+.hs-map-btn {
+  display: block;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: #38bdf8 !important;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+.hs-map-btn:hover { background: #0284c7; color: #ffffff !important; }
+
+.hs-work-hours {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.hs-wh-header { font-size: 11.5px; font-weight: 800; color: #f59e0b; letter-spacing: 0.5px; margin-bottom: 4px; }
+.hs-wh-content p { margin: 0 0 3px 0; font-size: 12px; color: #cbd5e1; }
+.hs-wh-content em { font-size: 11px; color: #94a3b8; }
+
+/* Dải Thanh Toán & Bản Quyền */
+.hs-footer-payments {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.hs-pay-label { font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; text-transform: uppercase; }
+.hs-pay-logos img { max-height: 28px; width: auto; filter: brightness(0.95); display: block; }
+
+.hs-footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 20px; }
+.hs-bottom-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+.hs-copy p { margin: 0 0 4px 0; font-size: 12.5px; color: #64748b; }
+.hs-copy strong { color: #94a3b8; }
+.hs-cert-text { font-size: 11.5px; color: #475569 !important; }
+.hs-legal-links { display: flex; align-items: center; gap: 10px; }
+.hs-legal-links a { color: #64748b !important; font-size: 12.5px; text-decoration: none !important; transition: color 0.2s; }
+.hs-legal-links a:hover { color: #38bdf8 !important; }
+.hs-sep { color: #334155; font-size: 12px; }
+
+/* Responsive Mobile & Tablet */
+@media (max-width: 1024px) {
+  .hs-footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .hs-footer-top { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 768px) {
+  .hs-regions-grid { grid-template-columns: 1fr; }
+  .hs-hotline-btns { grid-template-columns: 1fr; }
+  .hs-bottom-container { flex-direction: column; align-items: flex-start; }
+  .hs-company-title { font-size: 17px; }
+}
+</style>
+
+<div class="hs-footer-root">
+  <div class="hs-footer-master">
+    <!-- TẦNG 1: THƯƠNG HIỆU & BẢO CHỨNG -->
+    <div class="hs-footer-top">
+      <div class="hs-footer-brand">
+        <span class="hs-logo-badge">HOA SEN WATER GROUP</span>
+        <h2 class="hs-company-title">CÔNG TY CỔ PHẦN THIÊN NHIÊN MÔI TRƯỜNG HOA SEN</h2>
+        <p class="hs-company-slogan">Thương hiệu giải pháp xử lý nước giếng khoan, lọc phèn, khử sắt, lọc nước sinh hoạt và RO công nghiệp hàng đầu Miền Nam.</p>
+      </div>
+      <div class="hs-footer-badges">
+        <div class="hs-badge-pill"><span class="hs-badge-icon">🛡️</span><div class="hs-badge-info"><strong>QCVN 6-1 & 01-1</strong><span>Bộ Y Tế Chứng Nhận</span></div></div>
+        <div class="hs-badge-pill"><span class="hs-badge-icon">🏆</span><div class="hs-badge-info"><strong>Top 1 Xử Lý Nước</strong><span>10+ Năm Kinh Nghiệm</span></div></div>
+        <div class="hs-badge-pill"><span class="hs-badge-icon">⚡</span><div class="hs-badge-info"><strong>Khảo Sát 2H</strong><span>Lấy Mẫu Miễn Phí</span></div></div>
+      </div>
+    </div>
+
+    <!-- TẦNG 2: 3 CỘT NỘI DUNG CHÍNH -->
+    <div class="hs-footer-grid">
+      <!-- CỘT 1: TRỤ SỞ CHÍNH & HOTLINE -->
+      <div class="hs-col hs-col-main">
+        <h3 class="hs-col-title"><span class="hs-dot"></span> TRỤ SỞ CHÍNH & VĂN PHÒNG</h3>
+        <div class="hs-hq-card">
+          <div class="hs-card-label">TRỤ SỞ CHÍNH TP.HCM</div>
+          <div class="hs-item"><span class="hs-icon">📍</span><p>523/21 Lê Văn Khương, Phường Tân Thới Hiệp, TP.HCM</p></div>
+          <div class="hs-item"><span class="hs-icon">📜</span><p>Mã số thuế: <strong style="color: #38bdf8;">0316231589</strong> (Sở KH&ĐT TP.HCM)</p></div>
+          <div class="hs-item"><span class="hs-icon">☎️</span><p>Điện thoại bàn: <strong>(028) 6270 2383</strong></p></div>
+        </div>
+        <div class="hs-hotline-box">
+          <div class="hs-hotline-label">ĐƯỜNG DÂY NÓNG KỸ SƯ 24/7 (BẤM GỌI TRỰC TIẾP)</div>
+          <div class="hs-hotline-btns">
+            <a href="tel:0938880492" class="hs-hotline-btn">
+              <span class="hs-hl-icon-wrap"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></span>
+              <span class="hs-hl-text">
+                <span class="hs-hl-tag">Kỹ Thuật Trưởng (24/7):</span>
+                <span class="hs-hl-num">0938 880 492</span>
+              </span>
+            </a>
+            <a href="tel:0906782956" class="hs-hotline-btn">
+              <span class="hs-hl-icon-wrap"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></span>
+              <span class="hs-hl-text">
+                <span class="hs-hl-tag">Tư Vấn Kỹ Thuật 2:</span>
+                <span class="hs-hl-num">0906 782 956</span>
+              </span>
+            </a>
+          </div>
+        </div>
+        <div class="hs-sub-office">
+          <div class="hs-item"><span class="hs-icon">🏢</span><p><strong>Văn phòng Hà Nội:</strong> 133 Nguyễn Chánh, Trung Hoà, Cầu Giấy, Hà Nội</p></div>
+          <div class="hs-item"><span class="hs-icon">✉️</span><p>Email: <a href="mailto:xulynuochoasen@gmail.com">xulynuochoasen@gmail.com</a></p></div>
+          <div class="hs-item"><span class="hs-icon">🌐</span><p>Website: <a href="https://xulynuochoasen.com">www.xulynuochoasen.com</a></p></div>
+        </div>
+      </div>
+
+      <!-- CỘT 2: 17 CHI NHÁNH CHIA THEO 4 VÙNG ĐỊA LÝ -->
+      <div class="hs-col hs-col-branches">
+        <h3 class="hs-col-title"><span class="hs-dot"></span> HỆ THỐNG 17 CHI NHÁNH & TRẠM KỸ THUẬT</h3>
+        <p class="hs-branch-sub">Kỹ thuật viên thường trực tại các trạm sẵn sàng có mặt khảo sát trong 2 giờ:</p>
+        <div class="hs-regions-grid">
+          <div class="hs-region-block">
+            <div class="hs-region-header">📍 KHU VỰC TP. HỒ CHÍ MINH</div>
+            <ul class="hs-branch-list">
+              <li><strong>Q. Bình Thạnh:</strong> Số 1/38 Trần Bình Trọng, P.5</li>
+              <li><strong>TP. Thủ Đức:</strong> 23/5 Phú Châu, Tam Bình</li>
+              <li><strong>Quận 7:</strong> 26 Đường Số 16, Khu An Phú Hưng</li>
+              <li><strong>Hóc Môn:</strong> 123 Đông Thạnh, Ấp 1, Đông Thạnh</li>
+              <li><strong>Tân Phú:</strong> 153/21 Lê Thiệt, Phú Thọ Hòa</li>
+              <li><strong>Bình Chánh:</strong> 105 Đường Liên Ấp 2-6, Vĩnh Lộc A</li>
+            </ul>
+          </div>
+          <div class="hs-region-block">
+            <div class="hs-region-header">📍 BÌNH DƯƠNG & BÌNH PHƯỚC</div>
+            <ul class="hs-branch-list">
+              <li><strong>Thủ Dầu Một:</strong> 499 Hồ Văn Cống, TP. TDM</li>
+              <li><strong>Bến Cát:</strong> D5, KCN Đồng An 2, Hòa Lợi</li>
+              <li><strong>Bình Phước:</strong> 138 Trường Chinh, TP. Đồng Xoài</li>
+            </ul>
+          </div>
+          <div class="hs-region-block">
+            <div class="hs-region-header">📍 ĐỒNG NAI & BÀ RỊA VŨNG TÀU</div>
+            <ul class="hs-branch-list">
+              <li><strong>Biên Hòa 1:</strong> 1229 Bùi Văn Hòa, Long Bình Tân</li>
+              <li><strong>Biên Hòa 2:</strong> 45 Nguyễn Tường Tộ, Tân Hòa</li>
+              <li><strong>Long Khánh:</strong> 91 Bảo Vinh, TP. Long Khánh</li>
+              <li><strong>Nhơn Trạch:</strong> 138 Hùng Vương, Ấp 3 Hiệp Phước</li>
+              <li><strong>Vũng Tàu:</strong> 935/17 Bình Giã, Phường 10, TP. Vũng Tàu</li>
+            </ul>
+          </div>
+          <div class="hs-region-block">
+            <div class="hs-region-header">📍 LONG AN, LÂM ĐỒNG & ĐÀ NẴNG</div>
+            <ul class="hs-branch-list">
+              <li><strong>Long An:</strong> Số 9 Đường số 9, Đức Hòa Hạ</li>
+              <li><strong>Lâm Đồng:</strong> 69 Hà Huy Tập, TT. Di Linh</li>
+              <li><strong>Đà Nẵng:</strong> 15/2 Nguyễn Giản Thanh, Q. Thanh Khê</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- CỘT 3: BẢN ĐỒ GOOGLE MAP & GIỜ LÀM VIỆC -->
+      <div class="hs-col hs-col-map">
+        <h3 class="hs-col-title"><span class="hs-dot"></span> BẢN ĐỒ TRỤ SỞ & SHOWROOM</h3>
+        <div class="hs-map-wrapper">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d31346.37003015678!2d106.659131!3d10.865057!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529a997e8dd5b%3A0x48a489170ab7c403!2zS2h1IGTDom4gY8awIFRoxqHMgWkgQW4!5e0!3m2!1svi!2sus!4v1700033224575!5m2!1svi!2sus" width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+          <a href="https://maps.google.com/?cid=5234383186252932099" target="_blank" rel="noopener" class="hs-map-btn">📍 Mở Chỉ Đường Showroom Trên Google Maps →</a>
+        </div>
+        <div class="hs-work-hours">
+          <div class="hs-wh-header">⏰ THỜI GIAN PHỤC VỤ</div>
+          <div class="hs-wh-content">
+            <p><strong>Thứ 2 – Chủ Nhật:</strong> 07:30 – 20:30</p>
+            <p><em>(Đội ngũ kỹ thuật viên ứng trực sự cố 24/7 toàn Miền Nam)</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TẦNG 3: PHƯƠNG THỨC THANH TOÁN -->
+    <div class="hs-footer-payments">
+      <div class="hs-pay-label">PHƯƠNG THỨC THANH TOÁN & BẢO ĐẢM AN TOÀN GIAO DỊCH</div>
+      <div class="hs-pay-logos">
+        <img src="https://xulynuochoasen.com/wp-content/uploads/2022/11/footer_2020_v3-1.png" alt="Phương thức thanh toán an toàn Hoa Sen" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- TẦNG 4: BẢN QUYỀN & CHỨNG NHẬN -->
+    <div class="hs-footer-bottom">
+      <div class="hs-bottom-container">
+        <div class="hs-copy">
+          <p>© 2026 <strong>CÔNG TY CỔ PHẦN THIÊN NHIÊN MÔI TRƯỜNG HOA SEN</strong> — Mã số thuế: <strong style="color: #38bdf8;">0316231589</strong> (Do Sở KH&ĐT TP.HCM cấp ngày 10/04/2020).</p>
+          <p style="font-size: 11.5px; color: #94a3b8; margin: 2px 0 4px 0;">ĐKKD: 1/38/3 Trần Bình Trọng, P.5, Q. Bình Thạnh, TP.HCM | Giấy phép kinh doanh xử lý nước & chuyển giao công nghệ.</p>
+          <p class="hs-cert-text">Quy chuẩn kỹ thuật quốc gia: QCVN 6-1:2010/BYT (Nước uống đóng chai/tinh khiết) & QCVN 01-1:2018/BYT (Nước sinh hoạt).</p>
+        </div>
+        <div class="hs-legal-links">
+          <a href="/gioi-thieu/">Giới Thiệu</a>
+          <span class="hs-sep">|</span>
+          <a href="/tin-tuc/">Dự Án Thi Công</a>
+          <span class="hs-sep">|</span>
+          <a href="/lien-he/">Liên Hệ Trực Tiếp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

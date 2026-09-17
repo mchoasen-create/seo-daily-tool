@@ -1,0 +1,102 @@
+[
+  {
+    "id": "src_vietphat",
+    "name": "Việt Phát (Dự Án Công Nghiệp & RO)",
+    "domain": "xulynuocvietphat.com",
+    "active": true,
+    "urls": [
+      "https://xulynuocvietphat.com/",
+      "https://xulynuocvietphat.com/danh-muc-san-pham/loc-nuoc-cong-nghiep/",
+      "https://xulynuocvietphat.com/danh-muc-san-pham/loc-nuoc-ro-cong-nghiep/",
+      "https://xulynuocvietphat.com/danh-muc-san-pham/loc-nuoc-sinh-hoat/"
+    ],
+    "khoBias": "kho_2",
+    "lastHarvestedAt": "2026-09-16T04:16:38.521Z",
+    "stats": {
+      "totalHarvested": 5,
+      "rejectedLogos": 9
+    }
+  },
+  {
+    "id": "src_kenwa",
+    "name": "Kenwa (Công Trình Lọc Tổng & Giếng Khoan)",
+    "domain": "locnuockenwa.com",
+    "active": true,
+    "urls": [
+      "https://locnuockenwa.com/cong-trinh-thuc-te/",
+      "https://locnuockenwa.com/he-thong-loc-tong-dau-nguon/",
+      "https://locnuockenwa.com/he-thong-loc-nuoc-gieng-khoan/"
+    ],
+    "khoBias": "kho_1",
+    "lastHarvestedAt": "2026-09-16T04:16:38.716Z",
+    "stats": {
+      "totalHarvested": 0,
+      "rejectedLogos": 0
+    }
+  },
+  {
+    "id": "src_wepar",
+    "name": "Wepar (Dây Chuyền Đóng Bình 20L & RO)",
+    "domain": "wepar.vn",
+    "active": true,
+    "urls": [
+      "https://wepar.vn/du-an-da-thuc-hien/",
+      "https://wepar.vn/day-chuyen-loc-nuoc-dong-binh-dong-chai/",
+      "https://wepar.vn/he-thong-loc-nuoc-ro/"
+    ],
+    "khoBias": "kho_3",
+    "lastHarvestedAt": "2026-09-16T04:16:48.697Z",
+    "stats": {
+      "totalHarvested": 8,
+      "rejectedLogos": 1
+    }
+  },
+  {
+    "id": "src_toana",
+    "name": "Toàn Á (Xử Lý Nước Công Nghiệp & Lò Hơi)",
+    "domain": "toana.vn",
+    "active": true,
+    "urls": [
+      "https://toana.vn/du-an/",
+      "https://toana.vn/he-thong-loc-nuoc-cong-nghiep/"
+    ],
+    "khoBias": "kho_2",
+    "lastHarvestedAt": "2026-09-16T04:16:50.922Z",
+    "stats": {
+      "totalHarvested": 0,
+      "rejectedLogos": 0
+    }
+  },
+  {
+    "id": "src_locnuocro",
+    "name": "Lọc Nước RO (Đóng Bình & Nước Tinh Khiết)",
+    "domain": "locnuocro.com.vn",
+    "active": true,
+    "urls": [
+      "https://locnuocro.com.vn/day-chuyen-loc-nuoc-dong-binh-dong-chai/",
+      "https://locnuocro.com.vn/he-thong-loc-nuoc-tinh-khiet-ro/"
+    ],
+    "khoBias": "kho_3",
+    "lastHarvestedAt": "2026-09-16T04:16:57.424Z",
+    "stats": {
+      "totalHarvested": 6,
+      "rejectedLogos": 0
+    }
+  },
+  {
+    "id": "src_anphat",
+    "name": "An Phát (Công Trình Giếng Khoan Khử Phèn)",
+    "domain": "xulynuocanphat.com",
+    "active": true,
+    "urls": [
+      "https://xulynuocanphat.com/cong-trinh-da-thi-cong/",
+      "https://xulynuocanphat.com/loc-nuoc-gieng-khoan-nhiem-phen/"
+    ],
+    "khoBias": "kho_1",
+    "lastHarvestedAt": "2026-09-16T04:16:57.526Z",
+    "stats": {
+      "totalHarvested": 0,
+      "rejectedLogos": 0
+    }
+  }
+]

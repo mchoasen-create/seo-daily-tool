@@ -3,8 +3,9 @@
   "intervalHours": 4,
   "publishIntervalHours": 4,
   "generateIntervalHours": 4,
-  "lastPublishRun": "2026-09-15T01:42:05.730Z",
-  "lastGenerateRun": "2026-09-15T01:41:41.444Z",
-  "lastDedupRun": "2026-09-15T02:40:56.290Z",
-  "lastRun": "2026-09-15T01:42:05.730Z"
+  "currentKeywordIndex": 3,
+  "lastPublishRun": "2026-09-17T14:55:14.504Z",
+  "lastGenerateRun": "2026-09-17T13:09:29.241Z",
+  "lastDedupRun": "2026-09-17T16:10:05.868Z",
+  "lastRun": "2026-09-17T14:55:14.504Z"
 }

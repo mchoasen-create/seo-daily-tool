@@ -23,8 +23,9 @@ async function initApp() {
   setupWPEvents();
   setupStartupAuditEvents();
   setupGoogleAdsEvents();
+  setupIndustryKnowledgeEvents();
   
-  await Promise.all([loadPosts(), loadGoogleAdsLinks(), loadKeywords(), loadSchedulerConfig()]);
+  await Promise.all([loadPosts(), loadGoogleAdsLinks(), loadKeywords(), loadSchedulerConfig(), loadIndustryKnowledge()]);
   loadSchedulerStatus();
   startCountdownLoop();
   loadWPConfig();
@@ -90,7 +91,9 @@ function updateHeaderTitles(tabId) {
     'tab-editor': { t: 'SEO Editor & Realtime Live Meter', s: 'Soạn thảo bài viết và tối ưu hóa từ khóa theo thời gian thực.' },
     'tab-schema': { t: 'Bộ Tạo Schema JSON-LD Google', s: 'Đóng gói dữ liệu cấu trúc giúp website hiển thị Rich Snippet rực rỡ.' },
     'tab-library': { t: 'Thư Viện Bài Viết', s: 'Quản lý toàn bộ các bài viết đã lưu trữ và sẵn sàng xuất bản.' },
-    'tab-settings': { t: 'Cấu Hình API & WordPress', s: 'Cấu hình API Gemini và kết nối WordPress REST API tự động đăng bài.' }
+    'tab-settings': { t: 'Cấu Hình API & WordPress', s: 'Cấu hình API Gemini và kết nối WordPress REST API tự động đăng bài.' },
+    'tab-duplicate': { t: 'Phát Hiện & Tối Ưu Trùng Lặp Nội Dung', s: 'Rà soát độ tương đồng giữa các bài viết để loại bỏ nguy cơ Google phạt duplicate.' },
+    'tab-industry': { t: 'Kho Tri Thức Chuyên Ngành & Đối Thủ Đầu Ngành', s: 'Tổng hợp 38+ bài viết chuyên sâu & 53+ thuật ngữ kỹ thuật từ Kenwa, Wepar, Việt Phát tự động nạp vào AI Prompt.' }
   };
 
   if (titles[tabId]) {
@@ -619,6 +622,43 @@ function setupAutoPilotEvents() {
     });
   }
 
+  // Anti-Footprint Random Jitter Event Listeners
+  const chkJitterEnabled = document.getElementById('chk-jitter-enabled');
+  const selectJitterRange = document.getElementById('select-jitter-range');
+  const lblJitterState = document.getElementById('lbl-jitter-state');
+
+  if (chkJitterEnabled) {
+    chkJitterEnabled.addEventListener('change', async () => {
+      const isEnabled = chkJitterEnabled.checked;
+      if (lblJitterState) {
+        lblJitterState.textContent = isEnabled ? 'Bật' : 'Tắt';
+        lblJitterState.style.color = isEnabled ? '#34d399' : '#94a3b8';
+      }
+      if (selectJitterRange) selectJitterRange.disabled = !isEnabled;
+
+      await fetch('/api/scheduler/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ randomJitterEnabled: isEnabled })
+      });
+      showToast(isEnabled ? 'Đã bật lệch ngẫu nhiên đăng bài (Chống Footprint Google)!' : 'Đã tắt lệch ngẫu nhiên!', 'success');
+      loadSchedulerStatus();
+    });
+  }
+
+  if (selectJitterRange) {
+    selectJitterRange.addEventListener('change', async () => {
+      const maxMins = parseInt(selectJitterRange.value, 10) || 60;
+      await fetch('/api/scheduler/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ randomJitterMaxMinutes: maxMins })
+      });
+      showToast(`Đã thiết lập biên độ lệch ngẫu nhiên: ± 1 - ${maxMins} phút!`, 'success');
+      loadSchedulerStatus();
+    });
+  }
+
   const btnRunPubNow = document.getElementById('btn-run-publish-now');
   if (btnRunPubNow) {
     btnRunPubNow.addEventListener('click', async () => {
@@ -702,6 +742,33 @@ function setupAutoPilotEvents() {
       btnRefreshQueue.disabled = false;
       btnRefreshQueue.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Làm Mới';
       showToast('Đã làm mới danh sách hàng chờ!', 'success');
+    });
+  }
+
+  // Khóa 7 Chiến Dịch Ads Button Listener
+  const btnResetMaster7 = document.getElementById('btn-reset-master-7');
+  if (btnResetMaster7) {
+    btnResetMaster7.addEventListener('click', async () => {
+      if (!confirm('Khóa chết hàng chờ theo 7 Chiến dịch Google Ads chuẩn (Lọc Nước Giếng, Công Nghiệp, Phèn, Sinh Hoạt, Tinh Khiết, Đầu Nguồn, Mặn)?\n\nHệ thống sẽ thiết lập lại hàng chờ xoay tua vô hạn bắt đầu từ vị trí số 1!')) return;
+      btnResetMaster7.disabled = true;
+      btnResetMaster7.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang khóa...';
+      try {
+        const res = await fetch('/api/keywords/reset-master-7', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          await loadKeywords();
+          await loadPosts();
+          await loadSchedulerStatus();
+          showToast('✅ Đã khóa chết 7 chiến dịch Google Ads tuần hoàn!', 'success');
+        } else {
+          showToast('Lỗi: ' + data.message, 'danger');
+        }
+      } catch (e) {
+        showToast('Lỗi kết nối máy chủ: ' + e.message, 'danger');
+      } finally {
+        btnResetMaster7.disabled = false;
+        btnResetMaster7.innerHTML = '<i class="fa-solid fa-lock"></i> Khóa 7 Chiến Dịch Ads';
+      }
     });
   }
 
@@ -870,6 +937,35 @@ async function loadSchedulerStatus() {
     const genIntervalSelect = document.getElementById('select-generate-interval-dual');
     if (genIntervalSelect) {
       genIntervalSelect.value = String(schedulerStatusData.generateIntervalHours || 2);
+    }
+
+    // 5b. Anti-Footprint Random Jitter Sync (+- 1 to 60 mins)
+    const chkJitter = document.getElementById('chk-jitter-enabled');
+    const lblJitter = document.getElementById('lbl-jitter-state');
+    const selectJitter = document.getElementById('select-jitter-range');
+    const dispJitterOffset = document.getElementById('disp-jitter-offset');
+
+    const jitterEnabled = schedulerStatusData.randomJitterEnabled !== false;
+    const jitterMax = schedulerStatusData.randomJitterMaxMinutes || 60;
+    const currentJitter = schedulerStatusData.currentJitterMinutes || 0;
+
+    if (chkJitter) chkJitter.checked = jitterEnabled;
+    if (lblJitter) {
+      lblJitter.textContent = jitterEnabled ? 'Bật' : 'Tắt';
+      lblJitter.style.color = jitterEnabled ? '#34d399' : '#94a3b8';
+    }
+    if (selectJitter) {
+      selectJitter.value = String(jitterMax);
+      selectJitter.disabled = !jitterEnabled;
+    }
+    if (dispJitterOffset) {
+      if (!jitterEnabled) {
+        dispJitterOffset.textContent = 'Đã tắt (Cố định giờ)';
+        dispJitterOffset.style.color = '#94a3b8';
+      } else {
+        const sign = currentJitter >= 0 ? '+' : '';
+        dispJitterOffset.innerHTML = `<span style="color:#38bdf8;font-weight:700;">${sign}${currentJitter} phút</span> <span style="color:#94a3b8;font-weight:normal;">(giới hạn ±${jitterMax}p)</span>`;
+      }
     }
 
     // 6. Render Publishing Queue Timeline
@@ -1634,8 +1730,8 @@ async function openQuickPreviewModal(postInput, keywordItem) {
   const metaEl = document.getElementById('modal-post-meta');
   if (metaEl) {
     metaEl.innerHTML = `<span style="color:#a5b4fc;"><i class="fa-solid fa-tag"></i> Từ khóa: <strong>${escapeHtml(post.targetKeyword || keywordItem?.keyword || 'N/A')}</strong></span>
-      <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; margin-left: 8px; font-size: 0.72rem; padding: 2px 6px;">
-        <i class="fa-solid fa-globe"></i> Nguồn Toàn Cầu: Mỹ (NSF/EPA) + Đức (DIN/DVGW) + Nhật (Toray) + VN
+      <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; margin-left: 8px; font-size: 0.72rem; padding: 2px 6px;">
+        <i class="fa-solid fa-brain"></i> Tri Thức: Google Top 1-5 & Khảo Sát Thực Địa Miền Nam
       </span>`;
   }
   document.getElementById('modal-score-badge').textContent = `Điểm SEO: ${post.score || 0}/100`;
@@ -1676,6 +1772,44 @@ async function openQuickPreviewModal(postInput, keywordItem) {
       } finally {
         btnRandomize.disabled = false;
         btnRandomize.innerHTML = '<i class="fa-solid fa-shuffle"></i> 🔄 Đổi Cả 2 Ảnh Mới';
+      }
+    };
+  }
+
+  // Wire Compose Banner Button (Wave, Circles, VS Split)
+  const btnComposeBanner = document.getElementById('btn-modal-compose-banner');
+  const selectBannerStyle = document.getElementById('modal-banner-style-select');
+  if (btnComposeBanner) {
+    btnComposeBanner.onclick = async () => {
+      btnComposeBanner.disabled = true;
+      btnComposeBanner.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang ghép...';
+      const chosenStyle = selectBannerStyle ? selectBannerStyle.value : 'auto';
+      try {
+        const res = await fetch(`/api/banner/generate-for-post/${post.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ style: chosenStyle })
+        });
+        const data = await res.json();
+        if (data.success && data.post) {
+          Object.assign(post, data.post);
+          const cachedIdx = currentPostsData.findIndex(p => p.id === post.id);
+          if (cachedIdx !== -1) currentPostsData[cachedIdx] = post;
+
+          updatePreviewModalImages(post);
+
+          const contentBox = document.getElementById('modal-article-rendered-content');
+          renderArticleContent(contentBox, post);
+          showToast(data.message || 'Đã ghép Banner 16:9 độc bản thành công!', 'success');
+          loadPosts();
+        } else {
+          showToast(data.message || 'Không thể tạo banner', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi khi tạo banner: ' + err.message, 'error');
+      } finally {
+        btnComposeBanner.disabled = false;
+        btnComposeBanner.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 🎨 Ghép Banner 16:9 Độc Bản';
       }
     };
   }
@@ -1749,7 +1883,7 @@ async function renderModalExternalSources(post) {
   }
 
   if (countBadge) {
-    countBadge.textContent = sources.length > 0 ? `${sources.length} nguồn đối chiếu thực tế` : 'Chưa có nguồn';
+    countBadge.textContent = sources.length > 0 ? `${sources.length} nguồn tham khảo` : 'Chưa có nguồn';
   }
 
   if (!sources || sources.length === 0) {
@@ -3645,6 +3779,344 @@ async function loadCustomMediaGallery(kho = activeCustomMediaKho) {
   }
 }
 
+/* ==========================================================================
+   SMART MEDIA HARVESTER & STAGING INBOX CLIENT
+   ========================================================================== */
+async function loadStagingMedia() {
+  const container = document.getElementById('staging-cards-container');
+  const badge = document.getElementById('staging-pending-badge');
+  if (!container) return;
+
+  try {
+    const res = await fetch('/api/media/staging');
+    const data = await res.json();
+    if (!data.success) return;
+
+    const items = data.data || [];
+    const pendingItems = items.filter(x => x.status === 'pending');
+
+    if (badge) {
+      badge.textContent = `${pendingItems.length} ảnh chờ duyệt`;
+      badge.style.background = pendingItems.length > 0 ? 'rgba(245, 158, 11, 0.25)' : 'rgba(16, 185, 129, 0.2)';
+      badge.style.color = pendingItems.length > 0 ? '#fbbf24' : '#34d399';
+    }
+
+    renderStagingMedia(items);
+  } catch (err) {
+    console.error('Lỗi tải staging media:', err);
+  }
+}
+
+function renderStagingMedia(items = []) {
+  const container = document.getElementById('staging-cards-container');
+  if (!container) return;
+
+  const pending = items.filter(x => x.status === 'pending');
+  if (pending.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 25px; color: #64748b; font-size: 0.9rem;">
+        <i class="fa-solid fa-circle-check fa-2x" style="opacity: 0.35; color: #34d399; margin-bottom: 8px; display: block;"></i>
+        Hộp thư xét duyệt đang trống. Tất cả ảnh đã được duyệt an toàn vào các Kho!
+      </div>
+    `;
+    return;
+  }
+
+  const khoColorMap = {
+    kho_1: { label: 'Kho 1: Sinh Hoạt', bg: 'rgba(14, 165, 233, 0.2)', color: '#38bdf8' },
+    kho_2: { label: 'Kho 2: Công Nghiệp', bg: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24' },
+    kho_3: { label: 'Kho 3: RO Tinh Khiết', bg: 'rgba(16, 185, 129, 0.2)', color: '#34d399' }
+  };
+
+  container.innerHTML = pending.map(item => {
+    const kInfo = khoColorMap[item.suggestedKho] || khoColorMap.kho_1;
+    return `
+      <div class="glass" style="padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: rgba(15, 23, 42, 0.6); display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+        <div>
+          <div style="position: relative; width: 100%; height: 160px; border-radius: 8px; overflow: hidden; background: #0b1329; margin-bottom: 8px;">
+            <img src="${item.url}" alt="${escapeHtml(item.alt)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.opacity=0.3;" />
+            <span style="position: absolute; top: 6px; left: 6px; background: rgba(15,23,42,0.85); backdrop-filter: blur(4px); color: #38bdf8; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);">
+              <i class="fa-solid fa-shield-halved"></i> Đã tẩy Exif & Smart Crop
+            </span>
+          </div>
+
+          <div style="margin-bottom: 6px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;">
+              <span style="background: ${kInfo.bg}; color: ${kInfo.color}; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+                💡 Gợi ý: ${kInfo.label}
+              </span>
+              ${item.wasAutoCleaned ? `
+                <span style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.4);">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Đã AI 3.8 Xóa Logo Đối Thủ
+                </span>
+              ` : `
+                <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                  <i class="fa-solid fa-shield-halved"></i> AI: Ảnh Gốc Sạch 100%
+                </span>
+              `}
+              ${item.wasLogoStamped ? `
+                <span style="background: linear-gradient(135deg, rgba(2,132,199,0.25), rgba(56,189,248,0.25)); color: #38bdf8; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.4); box-shadow: 0 0 8px rgba(56,189,248,0.25);">
+                  <i class="fa-solid fa-stamp"></i> 💎 Đã Ghép Logo Của Anh
+                </span>
+              ` : ''}
+            </div>
+            <p style="margin: 0; font-size: 0.82rem; color: #cbd5e1; font-weight: 600; line-height: 1.35; max-height: 2.7em; overflow: hidden; text-overflow: ellipsis;">
+              ${escapeHtml(item.alt || item.pageTitle || 'Ảnh nguồn')}
+            </p>
+            ${item.cleanSummary ? `
+              <p style="margin: 3px 0 0 0; font-size: 0.71rem; color: #38bdf8; font-weight: 600;">
+                <i class="fa-solid fa-circle-check"></i> ${escapeHtml(item.cleanSummary)}
+              </p>
+            ` : ''}
+            <p style="margin: 3px 0 0 0; font-size: 0.72rem; color: #94a3b8; font-style: italic;">
+              ${escapeHtml(item.reason || '')}
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+            <button class="btn btn-sm btn-success btn-staging-approve" data-id="${item.id}" data-kho="${item.suggestedKho}" style="flex: 1; font-size: 0.78rem; padding: 6px 8px; font-weight: 700;">
+              <i class="fa-solid fa-check"></i> Duyệt vào ${kInfo.label}
+            </button>
+            <button class="btn btn-sm btn-danger btn-staging-reject" data-id="${item.id}" style="padding: 6px 10px; font-size: 0.78rem;" title="Xóa ảnh này">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+          <div style="display: flex; gap: 4px; justify-content: flex-end;">
+            <span style="font-size: 0.7rem; color: #64748b; align-self: center; margin-right: 4px;">Đổi kho:</span>
+            <button class="btn btn-xs btn-outline btn-staging-move" data-id="${item.id}" data-kho="kho_1" style="font-size: 0.68rem; padding: 2px 6px;">Kho 1</button>
+            <button class="btn btn-xs btn-outline btn-staging-move" data-id="${item.id}" data-kho="kho_2" style="font-size: 0.68rem; padding: 2px 6px;">Kho 2</button>
+            <button class="btn btn-xs btn-outline btn-staging-move" data-id="${item.id}" data-kho="kho_3" style="font-size: 0.68rem; padding: 2px 6px;">Kho 3</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Wire buttons inside cards
+  container.querySelectorAll('.btn-staging-approve').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const targetKho = btn.getAttribute('data-kho');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+      await approveStagingImage(id, targetKho);
+    });
+  });
+
+  container.querySelectorAll('.btn-staging-move').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const targetKho = btn.getAttribute('data-kho');
+      btn.disabled = true;
+      await approveStagingImage(id, targetKho);
+    });
+  });
+
+  container.querySelectorAll('.btn-staging-reject').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      btn.disabled = true;
+      await rejectStagingImage(id);
+    });
+  });
+}
+
+async function approveStagingImage(id, targetKho) {
+  try {
+    const res = await fetch('/api/media/staging/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, targetKho })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      await Promise.all([loadStagingMedia(), loadCustomMediaGallery()]);
+    } else {
+      showToast(data.message || 'Không thể duyệt ảnh', 'error');
+    }
+  } catch (err) {
+    showToast('Lỗi duyệt ảnh: ' + err.message, 'error');
+  }
+}
+
+async function rejectStagingImage(id) {
+  try {
+    const res = await fetch('/api/media/staging/reject', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Đã xóa ảnh khỏi hộp thư xét duyệt!', 'info');
+      await loadStagingMedia();
+    }
+  } catch (err) {
+    showToast('Lỗi xóa ảnh: ' + err.message, 'error');
+  }
+}
+
+/* ==========================================================================
+   BRAND LOGO CUSTOMIZER & AUTO-STAMPING CLIENT
+   ========================================================================== */
+async function loadBrandLogoConfig() {
+  const badgeStatus = document.getElementById('badge-brand-logo-status');
+  const previewImg = document.getElementById('img-brand-logo-preview');
+  const placeholder = document.getElementById('brand-logo-placeholder');
+  const btnDelete = document.getElementById('btn-delete-brand-logo');
+  const chkEnabled = document.getElementById('chk-brand-logo-enabled');
+  const selectPosition = document.getElementById('select-brand-logo-position');
+  const rangeScale = document.getElementById('range-brand-logo-scale');
+  const valScale = document.getElementById('val-brand-logo-scale');
+
+  try {
+    const res = await fetch('/api/media/brand-logo');
+    const data = await res.json();
+    if (!data.success) return;
+
+    const cfg = data.config || {};
+
+    if (chkEnabled) chkEnabled.checked = cfg.enabled !== false;
+    if (selectPosition && cfg.position) selectPosition.value = cfg.position;
+    if (rangeScale && cfg.scalePercent) {
+      rangeScale.value = cfg.scalePercent;
+      if (valScale) valScale.textContent = `${cfg.scalePercent}%`;
+    }
+
+    if (cfg.hasCustomLogo && cfg.logoUrl) {
+      if (previewImg) {
+        previewImg.src = cfg.logoUrl;
+        previewImg.style.display = 'block';
+      }
+      if (placeholder) placeholder.style.display = 'none';
+      if (btnDelete) btnDelete.style.display = 'inline-block';
+      if (badgeStatus) {
+        badgeStatus.textContent = '✅ Đang Áp Dụng Logo Của Anh';
+        badgeStatus.style.background = 'rgba(16, 185, 129, 0.2)';
+        badgeStatus.style.color = '#34d399';
+        badgeStatus.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+      }
+    } else {
+      if (previewImg) {
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+      }
+      if (placeholder) placeholder.style.display = 'block';
+      if (btnDelete) btnDelete.style.display = 'none';
+      if (badgeStatus) {
+        badgeStatus.textContent = 'Chưa tải logo';
+        badgeStatus.style.background = 'rgba(56, 189, 248, 0.15)';
+        badgeStatus.style.color = '#38bdf8';
+        badgeStatus.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+      }
+    }
+  } catch (err) {
+    console.warn('[BrandLogo Client] Lỗi khi tải config logo:', err);
+  }
+}
+
+function initBrandLogoCustomizer() {
+  const btnUpload = document.getElementById('btn-upload-brand-logo');
+  const fileInput = document.getElementById('input-brand-logo-file');
+  const btnDelete = document.getElementById('btn-delete-brand-logo');
+  const btnSave = document.getElementById('btn-save-brand-logo-settings');
+  const chkEnabled = document.getElementById('chk-brand-logo-enabled');
+  const selectPosition = document.getElementById('select-brand-logo-position');
+  const rangeScale = document.getElementById('range-brand-logo-scale');
+  const valScale = document.getElementById('val-brand-logo-scale');
+
+  if (rangeScale && valScale) {
+    rangeScale.addEventListener('input', () => {
+      valScale.textContent = `${rangeScale.value}%`;
+    });
+  }
+
+  if (btnUpload && fileInput) {
+    btnUpload.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast('Vui lòng chọn file hình ảnh (PNG, JPG, WebP)!', 'warning');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64Data = reader.result;
+        btnUpload.disabled = true;
+        btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải lên...';
+
+        try {
+          const res = await fetch('/api/media/brand-logo/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64: base64Data })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('💎 Đã tải lên và kích hoạt Logo Thương Hiệu thành công!', 'success');
+            await loadBrandLogoConfig();
+          } else {
+            showToast('Lỗi tải logo: ' + data.message, 'error');
+          }
+        } catch (err) {
+          showToast('Lỗi khi tải logo lên: ' + err.message, 'error');
+        } finally {
+          btnUpload.disabled = false;
+          btnUpload.innerHTML = '<i class="fa-solid fa-upload"></i> Chọn Logo Từ Máy (.PNG/.JPG)';
+          fileInput.value = '';
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (btnDelete) {
+    btnDelete.addEventListener('click', async () => {
+      if (!confirm('Anh có chắc muốn xóa file logo thương hiệu này không?')) return;
+      try {
+        const res = await fetch('/api/media/brand-logo', { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Đã xóa logo thương hiệu!', 'info');
+          await loadBrandLogoConfig();
+        }
+      } catch (err) {
+        showToast('Lỗi xóa logo: ' + err.message, 'error');
+      }
+    });
+  }
+
+  const saveSettings = async () => {
+    try {
+      const enabled = chkEnabled ? chkEnabled.checked : true;
+      const position = selectPosition ? selectPosition.value : 'replace-competitor';
+      const scalePercent = rangeScale ? Number(rangeScale.value) : 18;
+
+      const res = await fetch('/api/media/brand-logo/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled, position, scalePercent })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('✅ Đã lưu cài đặt tự động ghép logo thương hiệu!', 'success');
+        await loadBrandLogoConfig();
+      }
+    } catch (err) {
+      showToast('Lỗi lưu cài đặt logo: ' + err.message, 'error');
+    }
+  };
+
+  if (btnSave) btnSave.addEventListener('click', saveSettings);
+  if (chkEnabled) chkEnabled.addEventListener('change', saveSettings);
+}
+
 function rotateImageClient(imgUrl, degrees = 90) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -4315,6 +4787,355 @@ function initCustomMediaUI() {
     });
   }
 
+  // 10b. Staging Inbox & Media Harvester Controls
+  const btnHarvestCrawl = document.getElementById('btn-harvest-crawl-now');
+  const inputHarvestUrl = document.getElementById('input-harvest-url');
+  const btnStagingApproveAll = document.getElementById('btn-staging-approve-all');
+  const btnStagingRefresh = document.getElementById('btn-staging-refresh');
+  const btnStagingClearAll = document.getElementById('btn-staging-clear-all');
+
+  if (btnStagingClearAll) {
+    btnStagingClearAll.addEventListener('click', async () => {
+      if (!confirm('Anh có chắc muốn dọn sạch toàn bộ ảnh trong Hộp Thư Xét Duyệt không?')) return;
+      try {
+        const res = await fetch('/api/media/staging/clear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'all' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Đã dọn sạch Hộp Thư Xét Duyệt!', 'success');
+          await loadStagingMedia();
+        }
+      } catch (err) {
+        showToast('Lỗi khi dọn hộp thư: ' + err.message, 'error');
+      }
+    });
+  }
+
+  if (btnHarvestCrawl && inputHarvestUrl) {
+    btnHarvestCrawl.addEventListener('click', async () => {
+      const url = (inputHarvestUrl.value || '').trim();
+      if (!url) {
+        showToast('Vui lòng dán link URL cần cào ảnh!', 'warning');
+        inputHarvestUrl.focus();
+        return;
+      }
+      const chkStrict = document.getElementById('chk-strict-brand-shield');
+      const strictBrandShield = chkStrict ? chkStrict.checked : true;
+      const chkDeep = document.getElementById('chk-deep-media-crawl');
+      const deepCrawl = chkDeep ? chkDeep.checked : true;
+      const selectDepth = document.getElementById('select-media-crawl-depth');
+      const depthVal = selectDepth ? selectDepth.value : 'deep';
+      let maxSubPages = 15;
+      let maxPaginationPages = 5;
+      if (depthVal === 'ultra') {
+        maxSubPages = 35;
+        maxPaginationPages = 12;
+      } else if (depthVal === 'fast') {
+        maxSubPages = 5;
+        maxPaginationPages = 2;
+      }
+
+      const selectLimit = document.getElementById('select-media-harvest-limit');
+      const maxImages = selectLimit ? parseInt(selectLimit.value, 10) : 40;
+
+      btnHarvestCrawl.disabled = true;
+      btnHarvestCrawl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang quét sâu bài viết & cào ảnh...';
+      try {
+        const res = await fetch('/api/media/harvest-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, strictBrandShield, deepCrawl, maxImages, maxSubPages, maxPaginationPages })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Cào ảnh thành công!', 'success');
+          inputHarvestUrl.value = '';
+          await loadStagingMedia();
+        } else {
+          showToast(data.message || 'Lỗi khi cào ảnh từ URL', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi cào ảnh: ' + err.message, 'error');
+      } finally {
+        btnHarvestCrawl.disabled = false;
+        btnHarvestCrawl.innerHTML = '<i class="fa-solid fa-spider"></i> Cào Ảnh Nguồn';
+      }
+    });
+  }
+
+  // 10b-1. AUTONOMOUS MULTI-SOURCE HARVESTER (Quét tất cả nguồn đối thủ)
+  const btnHarvestAllSources = document.getElementById('btn-harvest-all-sources');
+  if (btnHarvestAllSources) {
+    btnHarvestAllSources.addEventListener('click', async () => {
+      const chkStrict = document.getElementById('chk-strict-brand-shield');
+      const strictBrandShield = chkStrict ? chkStrict.checked : true;
+
+      btnHarvestAllSources.disabled = true;
+      btnHarvestAllSources.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tự động rà soát 6+ nguồn đối thủ...';
+      try {
+        const res = await fetch('/api/media/harvester/auto-run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ maxPerSource: 3, strictBrandShield })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          await loadStagingMedia();
+          loadHarvesterSources();
+        } else {
+          showToast(data.message || 'Lỗi khi quét tự động', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi quét tự động: ' + err.message, 'error');
+      } finally {
+        btnHarvestAllSources.disabled = false;
+        btnHarvestAllSources.innerHTML = '<i class="fa-solid fa-bolt-lightning"></i> 🚀 Tự Động Quét Tất Cả Nguồn Ngành';
+      }
+    });
+  }
+
+  // 10b-2. Cào nhanh từng đơn vị đối thủ cụ thể
+  document.querySelectorAll('.btn-quick-harvest-src').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const srcId = btn.getAttribute('data-id');
+      const chkStrict = document.getElementById('chk-strict-brand-shield');
+      const strictBrandShield = chkStrict ? chkStrict.checked : true;
+
+      const oldText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang cào...';
+
+      try {
+        const res = await fetch('/api/media/harvester/auto-run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sourceId: srcId, maxPerSource: 4, strictBrandShield })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          await loadStagingMedia();
+          loadHarvesterSources();
+        } else {
+          showToast(data.message || 'Lỗi khi cào nguồn', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi cào nguồn: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+      }
+    });
+  });
+
+  // 10b-3. TÌM KIẾM & CÀO ẢNH THEO TỪ KHÓA KỸ THUẬT
+  const btnHarvestSearchKeywords = document.getElementById('btn-harvest-search-keywords');
+  const inputHarvestKeywords = document.getElementById('input-harvest-keywords');
+
+  async function executeKeywordHarvest(kw) {
+    if (!kw) return showToast('Vui lòng nhập từ khóa tìm ảnh!', 'warning');
+    const chkStrict = document.getElementById('chk-strict-brand-shield');
+    const strictBrandShield = chkStrict ? chkStrict.checked : true;
+
+    if (btnHarvestSearchKeywords) {
+      btnHarvestSearchKeywords.disabled = true;
+      btnHarvestSearchKeywords.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tìm ảnh Google & lọc AI...';
+    }
+
+    try {
+      const res = await fetch('/api/media/harvester/search-keywords', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keywords: kw, maxImages: 6, strictBrandShield })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        if (inputHarvestKeywords) inputHarvestKeywords.value = '';
+        await loadStagingMedia();
+      } else {
+        showToast(data.message || 'Lỗi tìm kiếm ảnh', 'error');
+      }
+    } catch (err) {
+      showToast('Lỗi khi tìm ảnh: ' + err.message, 'error');
+    } finally {
+      if (btnHarvestSearchKeywords) {
+        btnHarvestSearchKeywords.disabled = false;
+        btnHarvestSearchKeywords.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Tìm & Cào Ảnh Nguồn';
+      }
+    }
+  }
+
+  if (btnHarvestSearchKeywords && inputHarvestKeywords) {
+    btnHarvestSearchKeywords.addEventListener('click', () => {
+      executeKeywordHarvest(inputHarvestKeywords.value.trim());
+    });
+    inputHarvestKeywords.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        executeKeywordHarvest(inputHarvestKeywords.value.trim());
+      }
+    });
+  }
+
+  // Keyword Chips click
+  document.querySelectorAll('.chip-harvest-kw').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const kw = chip.getAttribute('data-kw');
+      if (kw) {
+        if (inputHarvestKeywords) inputHarvestKeywords.value = kw;
+        executeKeywordHarvest(kw);
+      }
+    });
+  });
+
+  // 10b-4. Bảng Drawer quản lý danh sách nguồn đối thủ
+  const btnToggleSourcesPanel = document.getElementById('btn-toggle-sources-panel');
+  const sourcesPanel = document.getElementById('sources-management-panel');
+  const sourcesContainer = document.getElementById('sources-list-container');
+
+  async function loadHarvesterSources() {
+    if (!sourcesContainer) return;
+    try {
+      const res = await fetch('/api/media/harvester/sources');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        renderSourcesList(data.data);
+      }
+    } catch (e) {
+      console.warn('Lỗi tải danh sách nguồn:', e);
+    }
+  }
+
+  function renderSourcesList(sources) {
+    if (!sourcesContainer) return;
+    sourcesContainer.innerHTML = sources.map(s => `
+      <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 700; font-size: 0.8rem; color: #f8fafc;">${escapeHtml(s.name)}</div>
+          <div style="font-size: 0.7rem; color: #64748b;">${escapeHtml(s.domain)} • Đã cào: ${s.stats?.totalHarvested || 0} ảnh sạch</div>
+        </div>
+        <label style="margin: 0; cursor: pointer;">
+          <input type="checkbox" class="chk-toggle-source" data-id="${s.id}" ${s.active !== false ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #38bdf8;">
+        </label>
+      </div>
+    `).join('');
+
+    sourcesContainer.querySelectorAll('.chk-toggle-source').forEach(chk => {
+      chk.addEventListener('change', async () => {
+        const id = chk.getAttribute('data-id');
+        try {
+          await fetch('/api/media/harvester/sources/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, active: chk.checked })
+          });
+          showToast('Đã cập nhật trạng thái nguồn!', 'info');
+        } catch (e) {
+          showToast('Lỗi cập nhật nguồn', 'error');
+        }
+      });
+    });
+  }
+
+  if (btnToggleSourcesPanel && sourcesPanel) {
+    btnToggleSourcesPanel.addEventListener('click', () => {
+      const isHidden = sourcesPanel.style.display === 'none';
+      sourcesPanel.style.display = isHidden ? 'block' : 'none';
+      btnToggleSourcesPanel.innerHTML = isHidden 
+        ? '<i class="fa-solid fa-chevron-up"></i> Thu Gọn Nguồn' 
+        : '<i class="fa-solid fa-list-check"></i> Xem 6 Nguồn Đối Thủ';
+      if (isHidden) loadHarvesterSources();
+    });
+  }
+
+  // 10c. Warehouse Logo Audit Button
+  const btnAuditKhoLogos = document.getElementById('btn-audit-kho-logos');
+  if (btnAuditKhoLogos) {
+    btnAuditKhoLogos.addEventListener('click', async () => {
+      btnAuditKhoLogos.disabled = true;
+      btnAuditKhoLogos.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang rà soát AI Vision...`;
+      try {
+        const targetKho = (activeCustomMediaKho === 'all') ? 'kho_1' : activeCustomMediaKho;
+        const res = await fetch('/api/media/audit-warehouse-logos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ khoId: targetKho, limit: 20 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const r = data.data;
+          if (r.flaggedCount === 0) {
+            showToast(`✅ Rà soát hoàn tất ${r.totalScanned} ảnh trong ${r.kho}: Sạch 100% không phát hiện logo đối thủ nào!`, 'success');
+          } else {
+            showToast(`⚠️ Phát hiện ${r.flaggedCount} ảnh dính logo đối thủ trong ${r.kho}!`, 'warning');
+            const detailsMsg = r.flaggedItems.map(x => `• ${x.url}: ${x.details} (${(x.detectedBrands || []).join(', ')})`).join('\n');
+            const doPurge = confirm(`🚨 CẢNH BÁO THƯƠNG HIỆU:\nPhát hiện ${r.flaggedCount} ảnh có chứa logo/nhãn dán đối thủ:\n\n${detailsMsg}\n\nAnh có muốn tự động XÓA SẠCH các bức ảnh vi phạm này khỏi kho ngay bây giờ không?`);
+            if (doPurge) {
+              btnAuditKhoLogos.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang xóa ảnh vi phạm...`;
+              const purgeRes = await fetch('/api/media/audit-warehouse-logos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ khoId: targetKho, limit: 30, purgeFlagged: true })
+              });
+              const purgeData = await purgeRes.json();
+              if (purgeData.success) {
+                showToast(purgeData.message || 'Đã dọn sạch ảnh vi phạm khỏi kho!', 'success');
+                if (typeof loadCustomMediaGallery === 'function') await loadCustomMediaGallery();
+              }
+            }
+          }
+        } else {
+          showToast(data.message || 'Lỗi rà soát logo', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi khi rà soát logo kho: ' + err.message, 'error');
+      } finally {
+        btnAuditKhoLogos.disabled = false;
+        btnAuditKhoLogos.innerHTML = `<i class="fa-solid fa-shield-halved"></i> 🛡️ Rà Soát Logo Đối Thủ`;
+      }
+    });
+  }
+
+  if (btnStagingApproveAll) {
+    btnStagingApproveAll.addEventListener('click', async () => {
+      btnStagingApproveAll.disabled = true;
+      btnStagingApproveAll.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang duyệt...';
+      try {
+        const res = await fetch('/api/media/staging/approve-all', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          await Promise.all([loadStagingMedia(), loadCustomMediaGallery()]);
+        } else {
+          showToast(data.message || 'Lỗi duyệt ảnh', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi khi duyệt ảnh: ' + err.message, 'error');
+      } finally {
+        btnStagingApproveAll.disabled = false;
+        btnStagingApproveAll.innerHTML = '<i class="fa-solid fa-check-double"></i> ⚡ Duyệt Hết Theo Gợi Ý AI';
+      }
+    });
+  }
+
+  if (btnStagingRefresh) {
+    btnStagingRefresh.addEventListener('click', () => {
+      loadStagingMedia();
+      loadBrandLogoConfig();
+      showToast('Đã làm mới hộp thư xét duyệt!', 'info');
+    });
+  }
+
+  // Tải Staging Media & Cấu hình Logo Thương Hiệu khi khởi động
+  loadStagingMedia();
+  initBrandLogoCustomizer();
+  loadBrandLogoConfig();
+
   // 11. Rename Kho Modal & Actions
   const modalRename = document.getElementById('rename-kho-modal');
   const btnCloseRename = document.getElementById('btn-close-rename-kho-modal');
@@ -4831,6 +5652,13 @@ function setupStartupAuditEvents() {
         banner.style.boxShadow = '0 0 35px rgba(59, 130, 246, 0.6)';
         setTimeout(() => { banner.style.boxShadow = '0 10px 30px -10px rgba(0, 0, 0, 0.5)'; }, 2000);
       }
+    });
+  }
+
+  const aiBadge = document.getElementById('global-ai-shield-badge');
+  if (aiBadge) {
+    aiBadge.addEventListener('click', () => {
+      showToast('🛡️ Lá Chắn AI: Gemini 3.8 Flash & Vision đang kích hoạt 100% bảo vệ nội dung độc bản, chặn logo đối thủ!', 'info');
     });
   }
 }
@@ -5469,6 +6297,319 @@ setInterval(() => {
     .then(() => console.log('[Heartbeat 24/7] Server kept awake!'))
     .catch(() => {});
 }, 3 * 60 * 1000); // Mỗi 3 phút (Render sleep sau 15 phút không có request)
+
+/* ==========================================================================
+   INDUSTRY KNOWLEDGE & COMPETITOR HARVESTER CLIENT LOGIC
+   ========================================================================== */
+let cachedIndustryData = null;
+let currentIndustryDomain = 'all';
+
+function setupIndustryKnowledgeEvents() {
+  const btnAutoDiscoverGoogle = document.getElementById('btn-auto-discover-google');
+  const btnHarvestAll = document.getElementById('btn-harvest-all-industry');
+  const btnIngestCustom = document.getElementById('btn-ingest-custom-url');
+  const inputCustomUrl = document.getElementById('input-custom-competitor-url');
+
+  if (btnAutoDiscoverGoogle) {
+    btnAutoDiscoverGoogle.addEventListener('click', async () => {
+      const origHtml = btnAutoDiscoverGoogle.innerHTML;
+      btnAutoDiscoverGoogle.disabled = true;
+      btnAutoDiscoverGoogle.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tự động lùng sục Google across 6 chuyên mục...';
+      try {
+        const res = await fetch('/api/industry-knowledge/auto-discover-google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ maxPerSector: 2 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadIndustryKnowledge();
+        } else {
+          showToast(data.message || 'Lỗi khi lùng sục Google', 'error');
+        }
+      } catch (e) {
+        showToast('Lỗi kết nối: ' + e.message, 'error');
+      } finally {
+        btnAutoDiscoverGoogle.disabled = false;
+        btnAutoDiscoverGoogle.innerHTML = origHtml;
+      }
+    });
+  }
+
+  if (btnHarvestAll) {
+    btnHarvestAll.addEventListener('click', async () => {
+      const origHtml = btnHarvestAll.innerHTML;
+      btnHarvestAll.disabled = true;
+      btnHarvestAll.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang cào toàn diện Kenwa, Wepar, Việt Phát...';
+      try {
+        const res = await fetch('/api/industry-knowledge/crawl', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadIndustryKnowledge();
+        } else {
+          showToast(data.message || 'Lỗi khi cào dữ liệu đối thủ', 'error');
+        }
+      } catch (e) {
+        showToast('Lỗi kết nối: ' + e.message, 'error');
+      } finally {
+        btnHarvestAll.disabled = false;
+        btnHarvestAll.innerHTML = origHtml;
+      }
+    });
+  }
+
+  if (btnIngestCustom && inputCustomUrl) {
+    btnIngestCustom.addEventListener('click', async () => {
+      const url = inputCustomUrl.value.trim();
+      if (!url || !url.startsWith('http')) {
+        return showToast('Vui lòng nhập URL hợp lệ (bắt đầu bằng http/https)!', 'warning');
+      }
+
+      const depthSelect = document.getElementById('select-competitor-crawl-depth');
+      const maxPages = depthSelect ? parseInt(depthSelect.value, 10) : 5;
+
+      const origHtml = btnIngestCustom.innerHTML;
+      btnIngestCustom.disabled = true;
+      btnIngestCustom.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang quét ${maxPages} trang & phân tích...`;
+      try {
+        const res = await fetch('/api/industry-knowledge/crawl', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, maxPages })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          inputCustomUrl.value = '';
+          loadIndustryKnowledge();
+        } else {
+          showToast(data.message || 'Lỗi cào URL đối thủ', 'error');
+        }
+      } catch (e) {
+        showToast('Lỗi kết nối: ' + e.message, 'error');
+      } finally {
+        btnIngestCustom.disabled = false;
+        btnIngestCustom.innerHTML = origHtml;
+      }
+    });
+  }
+
+  // Dọn dẹp kho tri thức theo danh mục hoặc toàn bộ
+  const btnClearArticles = document.getElementById('btn-clear-industry-articles');
+  if (btnClearArticles) {
+    btnClearArticles.addEventListener('click', async () => {
+      const domainName = currentIndustryDomain === 'all' ? 'TẤT CẢ các chuyên mục' : `chuyên mục ${currentIndustryDomain}`;
+      if (!confirm(`⚠️ Anh có chắc muốn xóa bài viết trong ${domainName} không?`)) {
+        return;
+      }
+
+      btnClearArticles.disabled = true;
+      btnClearArticles.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang dọn...';
+      try {
+        const res = await fetch('/api/industry-knowledge/clear-articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain: currentIndustryDomain })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadIndustryKnowledge();
+        } else {
+          showToast(data.message || 'Lỗi khi dọn dẹp kho', 'error');
+        }
+      } catch (e) {
+        showToast('Lỗi kết nối: ' + e.message, 'error');
+      } finally {
+        btnClearArticles.disabled = false;
+        btnClearArticles.innerHTML = '<i class="fa-solid fa-trash-can"></i> Dọn Dẹp Mục Này';
+      }
+    });
+  }
+
+  // Domain filter tabs
+  const filterBtns = document.querySelectorAll('.ind-filter-btn');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => {
+        b.classList.remove('active', 'btn-primary');
+        b.classList.add('btn-secondary');
+      });
+      btn.classList.add('active', 'btn-primary');
+      btn.classList.remove('btn-secondary');
+      currentIndustryDomain = btn.getAttribute('data-domain') || 'all';
+      renderIndustryArticles();
+    });
+  });
+}
+
+async function loadIndustryKnowledge() {
+  try {
+    const res = await fetch('/api/industry-knowledge');
+    const json = await res.json();
+    if (json.success && json.data) {
+      cachedIndustryData = json.data;
+      renderIndustryStats(json.data);
+      renderIndustryLexicon(json.data.vocabularyBank || []);
+      renderIndustryArticles();
+    }
+  } catch (e) {
+    console.warn('[IndustryKnowledge] Lỗi tải dữ liệu:', e);
+  }
+}
+
+function renderIndustryStats(data) {
+  const totalArticlesEl = document.getElementById('ind-stat-total-articles');
+  const totalLexiconEl = document.getElementById('ind-stat-total-lexicon');
+  const badgeEl = document.getElementById('industry-nav-badge');
+
+  if (totalArticlesEl) totalArticlesEl.textContent = data.totalArticles || 0;
+  if (totalLexiconEl) totalLexiconEl.textContent = (data.vocabularyBank || []).length || 0;
+  if (badgeEl) badgeEl.textContent = `${data.totalArticles || 0} bài`;
+
+  // Update filter buttons numbers dynamically
+  const counts = data.domainCounts || {};
+  const filterBtns = document.querySelectorAll('.ind-filter-btn');
+  filterBtns.forEach(btn => {
+    const d = btn.getAttribute('data-domain');
+    if (d === 'all') btn.textContent = `Tất cả (${data.totalArticles || 0})`;
+    else if (d === 'tinh_khiet') btn.textContent = `Tinh Khiết / RO (${counts.tinh_khiet || 0})`;
+    else if (d === 'cong_nghiep') btn.textContent = `Công Nghiệp (${counts.cong_nghiep || 0})`;
+    else if (d === 'sinh_hoat') btn.textContent = `Lọc Tổng Sinh Hoạt (${counts.sinh_hoat || 0})`;
+    else if (d === 'gieng_khoan') btn.textContent = `Giếng Khoan (${counts.gieng_khoan || 0})`;
+    else if (d === 'phen') btn.textContent = `Khử Phèn Sắt (${counts.phen || 0})`;
+    else if (d === 'man') btn.textContent = `Khử Mặn (${counts.man || 0})`;
+  });
+}
+
+function renderIndustryLexicon(terms) {
+  const container = document.getElementById('industry-lexicon-container');
+  if (!container) return;
+  if (!terms || terms.length === 0) {
+    container.innerHTML = '<span style="color:#94a3b8;font-size:0.85rem">Chưa có thuật ngữ nào được nạp.</span>';
+    return;
+  }
+
+  container.innerHTML = terms.map(term => {
+    return `<span class="lexicon-chip" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 5px;">
+      <i class="fa-solid fa-check" style="font-size: 10px; opacity: 0.7;"></i> ${escapeHtml(term)}
+    </span>`;
+  }).join('');
+}
+
+function renderIndustryArticles() {
+  const listEl = document.getElementById('industry-articles-list');
+  if (!listEl || !cachedIndustryData) return;
+
+  const articlesByDomain = cachedIndustryData.articlesByDomain || {};
+  let list = [];
+
+  if (currentIndustryDomain === 'all') {
+    Object.values(articlesByDomain).forEach(arr => {
+      if (Array.isArray(arr)) list.push(...arr);
+    });
+  } else {
+    list = articlesByDomain[currentIndustryDomain] || [];
+  }
+
+  if (list.length === 0) {
+    listEl.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;">
+      <i class="fa-solid fa-folder-open fa-2x" style="opacity: 0.3; margin-bottom: 12px; display: block;"></i>
+      Chưa có bài viết nào cho chuyên mục này.
+    </div>`;
+    return;
+  }
+
+  const domainLabels = {
+    tinh_khiet: { label: 'Tinh Khiết / RO', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+    cong_nghiep: { label: 'Công Nghiệp & Lò Hơi', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.15)' },
+    sinh_hoat: { label: 'Lọc Tổng Sinh Hoạt', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
+    gieng_khoan: { label: 'Giếng Khoan', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
+    phen: { label: 'Khử Phèn Sắt', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)' },
+    man: { label: 'Khử Mặn', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.15)' }
+  };
+
+  listEl.innerHTML = list.map(art => {
+    const dInfo = domainLabels[art.domain] || { label: art.domain, color: '#94a3b8', bg: 'rgba(255,255,255,0.1)' };
+    const headingsHtml = (art.headings || []).slice(0, 4).map(h => `<li style="margin-bottom: 4px;">${escapeHtml(h)}</li>`).join('');
+    const lexiconChips = (art.lexicon || []).slice(0, 4).map(t => `<span style="background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; color: #cbd5e1;">${escapeHtml(t)}</span>`).join(' ');
+
+    return `
+      <div class="glass" style="padding: 18px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; justify-content: space-between; gap: 12px; background: rgba(15, 23, 42, 0.45); position: relative;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <span style="background: ${dInfo.bg}; color: ${dInfo.color}; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+              ${dInfo.label}
+            </span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <a href="${art.url}" target="_blank" rel="noopener" style="color: #94a3b8; font-size: 0.78rem; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i> ${escapeHtml(art.source || '')}
+              </a>
+              <button class="btn-del-ind-article" data-url="${escapeHtml(art.url)}" data-domain="${escapeHtml(art.domain || '')}" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; cursor: pointer; transition: all 0.2s;" title="Xóa bài viết này khỏi kho tri thức">
+                <i class="fa-solid fa-trash-can"></i> Xóa
+              </button>
+            </div>
+          </div>
+          <h4 style="font-size: 0.98rem; font-weight: 600; color: #f8fafc; margin: 0 0 10px 0; line-height: 1.4;">
+            ${escapeHtml(art.title)}
+          </h4>
+          ${headingsHtml ? `<ul style="margin: 0 0 12px 0; padding-left: 18px; color: #94a3b8; font-size: 0.8rem; line-height: 1.5;">${headingsHtml}</ul>` : ''}
+        </div>
+        <div>
+          ${lexiconChips ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">${lexiconChips}</div>` : ''}
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 0.75rem; color: #64748b; font-style: italic;">
+              Đã nạp vào bộ nhớ kỹ thuật Gemini
+            </div>
+            <button class="btn-del-ind-article" data-url="${escapeHtml(art.url)}" data-domain="${escapeHtml(art.domain || '')}" style="background: transparent; border: none; color: #ef4444; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; opacity: 0.7; padding: 2px 6px;" title="Xóa bài viết này">
+              <i class="fa-solid fa-trash-can"></i> Xóa
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Gán sự kiện click xóa bài viết cho từng button
+  listEl.querySelectorAll('.btn-del-ind-article').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const url = btn.getAttribute('data-url');
+      const domain = btn.getAttribute('data-domain');
+      if (!confirm('Anh có chắc muốn xóa bài viết này khỏi kho tri thức không?')) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+      try {
+        const res = await fetch('/api/industry-knowledge/delete-article', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, domain })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadIndustryKnowledge();
+        } else {
+          showToast(data.message || 'Lỗi khi xóa bài viết', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Xóa';
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Xóa';
+      }
+    });
+  });
+}
+
 
 
 

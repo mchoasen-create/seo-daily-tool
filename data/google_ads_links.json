@@ -1,51 +1,98 @@
 [
   {
-    "id": "gads_sinh_hoat",
-    "name": "Lọc Nước Sinh Hoạt Đầu Nguồn",
-    "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat/",
-    "keywords": ["sinh hoạt", "đầu nguồn", "nước máy", "chung cư", "gia đình"],
-    "isDefault": true
-  },
-  {
-    "id": "gads_phen",
-    "name": "Lọc Nước Nhiễm Phèn & Giếng Khoan",
-    "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-nhiem-phen/",
-    "keywords": ["phèn", "giếng", "sắt", "mangan", "trứng thối", "h2s", "bể lắng", "asen"],
-    "isDefault": false
-  },
-  {
-    "id": "gads_tinh_khiet",
-    "name": "Xử Lý Nước Tinh Khiết RO",
-    "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
-    "keywords": ["tinh khiết", "ro", "uống", "đóng bình", "đóng chai"],
+    "id": "gads_gieng",
+    "name": "Lọc Nước Giếng Khoan",
+    "url": "https://xulynuochoasen.com/loc-nuoc-gieng/",
+    "keywords": [
+      "giếng",
+      "nước ngầm",
+      "giếng khoan",
+      "khoan giếng"
+    ],
     "isDefault": false
   },
   {
     "id": "gads_cong_nghiep",
     "name": "Hệ Thống Lọc Nước Công Nghiệp",
     "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-cong-nghiep/",
-    "keywords": ["công nghiệp", "nhà máy", "xưởng", "lò hơi", "công suất lớn"],
+    "keywords": [
+      "công nghiệp",
+      "nhà máy",
+      "xưởng",
+      "lò hơi",
+      "công suất lớn"
+    ],
+    "isDefault": false
+  },
+  {
+    "id": "gads_phen",
+    "name": "Lọc Nước Nhiễm Phèn",
+    "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-nhiem-phen/",
+    "keywords": [
+      "phèn",
+      "khử phèn",
+      "nhiễm phèn",
+      "sắt",
+      "mangan",
+      "trứng thối",
+      "h2s",
+      "bể lắng",
+      "asen"
+    ],
+    "isDefault": false
+  },
+  {
+    "id": "gads_sinh_hoat",
+    "name": "Lọc Nước Sinh Hoạt Đầu Nguồn",
+    "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat/",
+    "keywords": [
+      "sinh hoạt",
+      "nước máy",
+      "chung cư",
+      "gia đình"
+    ],
+    "isDefault": true
+  },
+  {
+    "id": "gads_tinh_khiet",
+    "name": "Xử Lý Nước Tinh Khiết RO",
+    "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/",
+    "keywords": [
+      "tinh khiết",
+      "ro",
+      "uống",
+      "đóng bình",
+      "đóng chai"
+    ],
+    "isDefault": false
+  },
+  {
+    "id": "gads_dau_nguon",
+    "name": "Hệ Thống Lọc Tổng Đầu Nguồn Biệt Thự",
+    "url": "https://xulynuochoasen.com/he-thong-loc-tong-sinh-hoat-biet-thu/",
+    "keywords": [
+      "đầu nguồn",
+      "lọc tổng",
+      "biệt thự",
+      "penhouse",
+      "nhà phố",
+      "cao cấp",
+      "autovalve"
+    ],
     "isDefault": false
   },
   {
     "id": "gads_man",
     "name": "Lọc Nước Mặn Khử Muối",
     "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-man/",
-    "keywords": ["mặn", "khử muối", "nước biển", "nước lợ", "swro", "sầu riêng"],
-    "isDefault": false
-  },
-  {
-    "id": "gads_biet_thu",
-    "name": "Lọc Tổng Sinh Hoạt Biệt Thự Cao Cấp",
-    "url": "https://xulynuochoasen.com/he-thong-loc-tong-sinh-hoat-biet-thu/",
-    "keywords": ["biệt thự", "penhouse", "nhà phố", "cao cấp", "autovalve"],
-    "isDefault": false
-  },
-  {
-    "id": "gads_ion_kiem",
-    "name": "Lọc Nước Ion Kiềm Công Nghiệp",
-    "url": "https://xulynuochoasen.com/he-thong-loc-nuoc-ion-kiem-cong-nghiep/",
-    "keywords": ["ion kiềm", "kangen", "điện giải"],
+    "keywords": [
+      "mặn",
+      "khử muối",
+      "nước biển",
+      "nước lợ",
+      "swro",
+      "sầu riêng"
+    ],
     "isDefault": false
   }
 ]

@@ -75,6 +75,11 @@
           <span>Phát Hiện Duplicate</span>
           <span id="duplicate-nav-badge" style="display:none;position:absolute;top:6px;right:8px;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700"></span>
         </button>
+        <button class="nav-item" data-tab="tab-industry" id="nav-industry-btn" style="position:relative">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>Tri Thức Ngành &amp; Đối Thủ</span>
+          <span id="industry-nav-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:auto;">191 bài</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -104,6 +109,11 @@
           <div class="crawler-shield-badge" id="startup-audit-badge" title="Tình trạng sức khỏe & rà soát toàn diện hệ thống" style="display: flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; color: #60a5fa; font-weight: 600; cursor: pointer;">
             <i class="fa-solid fa-shield-virus"></i>
             <span id="startup-audit-badge-text">Sức Khỏe: 100/100đ</span>
+          </div>
+          <div class="ai-shield-global-badge" id="global-ai-shield-badge" title="Lá chắn AI bảo vệ nội dung độc bản 100% & Quét sạch logo đối thủ bằng Vision (Gemini 3.8)" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(139, 92, 246, 0.2)); border: 1px solid #38bdf8; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; color: #38bdf8; font-weight: 700; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); cursor: pointer;">
+            <i class="fa-solid fa-brain" style="color: #c084fc;"></i>
+            <i class="fa-solid fa-shield-halved" style="color: #38bdf8;"></i>
+            <span id="global-ai-shield-badge-text">Lá Chắn AI: Gemini 3.8 Active 🛡️</span>
           </div>
           <button class="btn btn-primary btn-sm" id="btn-run-full-audit" title="Quét toàn diện: phát hiện trùng lặp nội dung, ảnh lặp, lỗi link Google Ads và chuẩn SEO">
             <i class="fa-solid fa-magnifying-glass-chart"></i> Quét Rà Soát Hệ Thống
@@ -330,25 +340,50 @@
                   <span class="meta-label"><i class="fa-regular fa-clock"></i> Lần đăng kế tiếp:</span>
                   <span class="meta-value" id="disp-next-publish-time">--:--</span>
                 </div>
+                <div class="meta-row" id="row-jitter-status" style="font-size: 0.82rem;">
+                  <span class="meta-label"><i class="fa-solid fa-shield-halved"></i> Lệch ngẫu nhiên (Anti-Bot):</span>
+                  <span class="meta-value" id="disp-jitter-offset" style="font-weight: 700; color: #34d399;">± 1-60 phút</span>
+                </div>
               </div>
 
               <!-- Interval Selector & Run Now Button -->
-              <div class="clock-action-bar">
-                <div class="interval-field">
-                  <label for="select-publish-interval-dual"><i class="fa-solid fa-hourglass-half"></i> Thời gian chờ đăng:</label>
-                  <select id="select-publish-interval-dual" class="form-control form-control-sm">
-                    <option value="1">Mỗi 1 Giờ (24 Bài/Ngày)</option>
-                    <option value="2">Mỗi 2 Giờ (12 Bài/Ngày)</option>
-                    <option value="4" selected>Mỗi 4 Giờ (6 Bài/Ngày - Chuẩn)</option>
-                    <option value="6">Mỗi 6 Giờ (4 Bài/Ngày)</option>
-                    <option value="8">Mỗi 8 Giờ (3 Bài/Ngày)</option>
-                    <option value="12">Mỗi 12 Giờ (2 Bài/Ngày)</option>
-                    <option value="24">Mỗi 24 Giờ (1 Bài/Ngày)</option>
+              <div class="clock-action-bar" style="flex-direction: column; gap: 10px;">
+                <div style="display: flex; gap: 10px; width: 100%;">
+                  <div class="interval-field" style="flex: 1;">
+                    <label for="select-publish-interval-dual"><i class="fa-solid fa-hourglass-half"></i> Thời gian chờ đăng:</label>
+                    <select id="select-publish-interval-dual" class="form-control form-control-sm">
+                      <option value="1">Mỗi 1 Giờ (24 Bài/Ngày)</option>
+                      <option value="2">Mỗi 2 Giờ (12 Bài/Ngày)</option>
+                      <option value="4" selected>Mỗi 4 Giờ (6 Bài/Ngày - Chuẩn)</option>
+                      <option value="6">Mỗi 6 Giờ (4 Bài/Ngày)</option>
+                      <option value="8">Mỗi 8 Giờ (3 Bài/Ngày)</option>
+                      <option value="12">Mỗi 12 Giờ (2 Bài/Ngày)</option>
+                      <option value="24">Mỗi 24 Giờ (1 Bài/Ngày)</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-accent btn-sm" id="btn-run-publish-now" style="white-space: nowrap; align-self: flex-end; height: 32px;">
+                    <i class="fa-solid fa-paper-plane"></i> 🚀 Đăng Ngay
+                  </button>
+                </div>
+
+                <!-- Anti-Footprint Random Jitter Selector (+- 1 to 60 minutes) -->
+                <div class="interval-field" style="width: 100%; padding: 8px 12px; background: rgba(2, 132, 199, 0.08); border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.25);">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <label for="select-jitter-range" style="margin: 0; font-size: 0.82rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-dice"></i> Lệch ngẫu nhiên (Chống Footprint):
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin: 0; font-size: 0.8rem; color: #94a3b8;">
+                      <input type="checkbox" id="chk-jitter-enabled" checked style="accent-color: #0284c7; cursor: pointer;">
+                      <span id="lbl-jitter-state" style="color: #34d399; font-weight: bold;">Bật</span>
+                    </label>
+                  </div>
+                  <select id="select-jitter-range" class="form-control form-control-sm" style="border-color: rgba(56, 189, 248, 0.35); background: rgba(15, 23, 42, 0.9); color: #f1f5f9; font-size: 0.82rem;">
+                    <option value="15">± 15 Phút (Lệch nhẹ tự nhiên)</option>
+                    <option value="30">± 30 Phút (Cân bằng)</option>
+                    <option value="45">± 45 Phút (Khuyên dùng)</option>
+                    <option value="60" selected>± 1 - 60 Phút (Chuẩn người thật 100%)</option>
                   </select>
                 </div>
-                <button class="btn btn-accent btn-sm" id="btn-run-publish-now" style="white-space: nowrap;">
-                  <i class="fa-solid fa-paper-plane"></i> 🚀 Đăng Ngay
-                </button>
               </div>
             </div>
 
@@ -580,6 +615,7 @@
               <p class="text-muted" style="font-size: 0.82rem;">Theo dõi trực tiếp nội dung bài viết AI đã sinh, điểm SEO, số từ và đọc trước bản thảo tại đây.</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="btn btn-sm btn-primary" id="btn-reset-master-7" style="background: linear-gradient(135deg, #2563eb, #0284c7); border: none; font-weight: 600; padding: 6px 14px; border-radius: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); color: #fff;"><i class="fa-solid fa-lock"></i> Khóa 7 Chiến Dịch Ads</button>
               <button class="btn btn-sm btn-secondary" id="btn-refresh-queue"><i class="fa-solid fa-arrows-rotate"></i> Làm Mới</button>
             </div>
           </div>
@@ -970,6 +1006,138 @@
           <div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
             <i class="fa-solid fa-magnifying-glass" style="font-size:3rem;opacity:0.3;margin-bottom:16px;display:block"></i>
             <p>Nhấn <strong>Quét Toàn Bộ Bài Viết</strong> để phân tích duplicate content</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: TRI THỨC NGÀNH NƯỚC & ĐỐI THỦ ĐẦU NGÀNH (KENWA, WEPAR, VIỆT PHÁT) -->
+      <section id="tab-industry" class="tab-page">
+        <!-- Header Card -->
+        <div class="glass" style="padding: 24px; border-radius: 16px; margin-bottom: 24px; border: 1px solid rgba(16, 185, 129, 0.3); background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; gap: 16px; align-items: center;">
+              <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.5);">
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
+              <div>
+                <h2 style="font-size: 1.45rem; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Kho Tri Thức Chuyên Ngành &amp; Đối Thủ Đầu Ngành</h2>
+                <p style="color: #94a3b8; font-size: 0.9rem; margin: 0; max-width: 800px;">
+                  Hệ thống tự động cào và tinh lọc văn phong, dàn ý kỹ thuật thực chiến và thuật ngữ chuyên môn từ các đối thủ lớn: <strong>Kenwa (locnuockenwa.com)</strong>, <strong>Wepar (wepar.vn)</strong>, <strong>Việt Phát (xulynuocvietphat.com)</strong>. Toàn bộ tri thức này được tự động bơm vào Prompt Gemini AI để bài viết sâu sắc, giàu chất kỹ sư và độc bản vượt trội.
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+              <button class="btn btn-primary" id="btn-auto-discover-google" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; font-weight: 700; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45); padding: 10px 18px; font-size: 0.95rem;">
+                <i class="fa-brands fa-google"></i> Tự Động Lùng Sục Google.com &amp; Nạp Tri Thức (100% Rảnh Tay)
+              </button>
+              <button class="btn btn-secondary" id="btn-harvest-all-industry" style="padding: 10px 16px;">
+                <i class="fa-solid fa-arrows-rotate"></i> Quét Lại
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick URL Ingestion Bar (Hỗ trợ phân trang sâu) -->
+          <div style="margin-top: 20px; padding: 14px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 280px; position: relative;">
+              <i class="fa-solid fa-link" style="position: absolute; left: 14px; top: 12px; color: #64748b;"></i>
+              <input type="text" id="input-custom-competitor-url" class="form-control" placeholder="Dán link bài viết lẻ hoặc link danh mục tin tức (hệ thống tự động lật phân trang)..." style="padding-left: 38px; width: 100%;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.8rem; color: #94a3b8; white-space: nowrap;"><i class="fa-solid fa-layer-group"></i> Độ sâu:</span>
+              <select id="select-competitor-crawl-depth" class="form-control" style="width: 155px; font-size: 0.82rem; padding: 6px 8px; background: rgba(15,23,42,0.8);">
+                <option value="1">1 trang (~10 bài)</option>
+                <option value="3">3 trang (~30 bài)</option>
+                <option value="5" selected>5 trang (~50 bài)</option>
+                <option value="10">10 trang (~100 bài)</option>
+                <option value="20">20 trang (~200 bài)</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" id="btn-ingest-custom-url" style="white-space: nowrap;">
+              <i class="fa-solid fa-cloud-arrow-down"></i> Quét & Nạp Tri Thức
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Metric Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="stat-card glass">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fa-solid fa-book-bookmark"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Bài Viết Đã Nạp</span>
+              <strong class="stat-value" id="ind-stat-total-articles">38</strong>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"><i class="fa-solid fa-spell-check"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Thuật Ngữ Kỹ Thuật</span>
+              <strong class="stat-value" id="ind-stat-total-lexicon">53</strong>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);"><i class="fa-solid fa-building-shield"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Nguồn Đối Thủ</span>
+              <strong class="stat-value" style="font-size: 1.1rem; color: #c4b5fd;">Kenwa, Wepar, Việt Phát</strong>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">AI Auto-Injection</span>
+              <strong class="stat-value" style="font-size: 1.1rem; color: #34d399;">Đang Kích Hoạt ✅</strong>
+            </div>
+          </div>
+          <div class="stat-card glass" style="border: 1px solid rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(14, 165, 233, 0.15)); box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #0284c7, #8b5cf6);"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Lá Chắn AI &amp; Não Bộ</span>
+              <strong class="stat-value" style="font-size: 1.05rem; color: #38bdf8;">Gemini 3.8 Active 🛡️</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lexicon Tag Cloud Card -->
+        <div class="glass" style="padding: 22px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-tags" style="color: #10b981; font-size: 1.1rem;"></i>
+              <h3 style="font-size: 1.1rem; color: #fff; margin: 0;">Ngân Hàng Thuật Ngữ Kỹ Thuật Chuyên Sâu Ngành Nước (53+ terms)</h3>
+            </div>
+            <span style="font-size: 0.8rem; color: #94a3b8;">Bắt buộc Gemini vận dụng tự nhiên vào từng chủ đề tương ứng</span>
+          </div>
+          <div id="industry-lexicon-container" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <!-- Rendered by app.js -->
+          </div>
+        </div>
+
+        <!-- Competitor Articles Explorer Card -->
+        <div class="glass" style="padding: 22px; border-radius: 16px; border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-newspaper" style="color: #38bdf8; font-size: 1.1rem;"></i>
+              <h3 style="font-size: 1.1rem; color: #fff; margin: 0;">Kho Bài Viết Mẫu Từ Các Chuyên Gia Đầu Ngành</h3>
+            </div>
+            <!-- Domain Filters & Bulk Delete -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <div id="industry-domain-filters" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="btn btn-xs btn-primary ind-filter-btn active" data-domain="all">Tất cả (38)</button>
+                <button class="btn btn-xs btn-secondary ind-filter-btn" data-domain="tinh_khiet">Tinh Khiết / RO</button>
+                <button class="btn btn-xs btn-secondary ind-filter-btn" data-domain="cong_nghiep">Công Nghiệp &amp; Lò Hơi</button>
+                <button class="btn btn-xs btn-secondary ind-filter-btn" data-domain="sinh_hoat">Lọc Tổng Sinh Hoạt</button>
+                <button class="btn btn-xs btn-secondary ind-filter-btn" data-domain="gieng_khoan">Giếng Khoan</button>
+                <button class="btn btn-xs btn-secondary ind-filter-btn" data-domain="phen">Khử Phèn Sắt</button>
+                <button class="btn btn-xs btn-secondary ind-filter-btn" data-domain="man">Khử Mặn</button>
+              </div>
+              <button class="btn btn-xs btn-outline-danger" id="btn-clear-industry-articles" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; margin-left: 4px;" title="Xóa toàn bộ bài viết trong bộ lọc đang chọn">
+                <i class="fa-solid fa-trash-can"></i> Dọn Dẹp Mục Này
+              </button>
+            </div>
+          </div>
+
+          <!-- Articles List Container -->
+          <div id="industry-articles-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px;">
+            <!-- Rendered by app.js -->
           </div>
         </div>
       </section>
@@ -1463,6 +1631,229 @@
           </div>
         </div>
 
+        <!-- STAGING INBOX: HỘP THƯ XÉT DUYỆT ẢNH CÀO TỰ ĐỘNG & CHỐNG BẢN QUYỀN -->
+        <div class="card" id="staging-inbox-workspace" style="padding: 22px; margin-bottom: 24px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.35); background: rgba(15, 23, 42, 0.75);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <span style="background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; font-weight: 800; font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">
+                  <i class="fa-solid fa-shield-halved"></i> Chống Bản Quyền 100%
+                </span>
+                <h3 style="margin: 0; font-size: 1.25rem; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                  📥 Hộp Thư Xét Duyệt Ảnh (Cào Ảnh Đối Thủ & Tự Phân Loại Vào Kho)
+                </h3>
+              </div>
+              <p style="margin: 0; font-size: 0.85rem; color: #94a3b8;">
+                Dán URL bài viết đối thủ (VD: Kenwa, Việt Phát) để cào ảnh. AI tự động phân tích ngữ cảnh (nhận diện vỏ bình 20L, chiết rót &rarr; gợi ý Kho 3) và tẩy sạch Exif + Smart Crop trước khi Tris duyệt vào kho.
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <span class="badge" id="staging-pending-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-weight: 700; font-size: 0.85rem; padding: 6px 14px; border-radius: 20px;">
+                0 ảnh chờ duyệt
+              </span>
+              <button class="btn btn-sm btn-success" id="btn-staging-approve-all" style="font-size: 0.82rem; padding: 6px 14px;">
+                <i class="fa-solid fa-check-double"></i> ⚡ Duyệt Hết Theo Gợi Ý AI
+              </button>
+              <button class="btn btn-sm btn-secondary" id="btn-staging-refresh" style="font-size: 0.82rem; padding: 6px 12px;">
+                <i class="fa-solid fa-arrows-rotate"></i> Làm Mới
+              </button>
+              <button class="btn btn-sm btn-outline" id="btn-staging-clear-all" style="font-size: 0.82rem; padding: 6px 12px; border-color: rgba(239,68,68,0.4); color: #fca5a5;" title="Dọn sạch các ảnh cũ trong hộp thư">
+                <i class="fa-solid fa-trash-can"></i> Dọn Hộp Thư
+              </button>
+            </div>
+          </div>
+
+          <!-- BrandShield AI Vision Status & Strict Mode Switch -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 8px 14px; margin-bottom: 12px; font-size: 0.83rem; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; color: #fca5a5;">
+              <i class="fa-solid fa-eye" style="color: #ef4444; font-size: 1rem;"></i>
+              <span><strong>Lá Chắn AI Vision (Gemini 3.8 &amp; Flash-Lite):</strong> Tự động soi từng thân cột lọc composite &amp; inox, bồn nước, banner viền đáy &amp; watermark, tự động xóa sạch vết tích đối thủ đưa vào mục duyệt...</span>
+            </div>
+            <label style="display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer; color: #fff; font-weight: 600;">
+              <input type="checkbox" id="chk-strict-brand-shield" checked style="accent-color: #ef4444; width: 16px; height: 16px;">
+              <span>Tự động soi &amp; xóa sạch logo đối thủ</span>
+            </label>
+          </div>
+
+          <!-- TÙY CHỈNH LOGO THƯƠNG HIỆU CỦA ANH (TỰ ĐỘNG GHÉP & THAY THẾ LOGO ĐỐI THỦ) -->
+          <div id="brand-logo-customizer-panel" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.75)); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #0284c7, #38bdf8); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.05rem; box-shadow: 0 0 12px rgba(56,189,248,0.45);">
+                  <i class="fa-solid fa-stamp"></i>
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">
+                      💎 Logo Thương Hiệu Của Anh (Tự Động Ghép &amp; Thay Thế Logo Đối Thủ)
+                    </span>
+                    <span id="badge-brand-logo-status" class="badge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35);">
+                      Chưa tải logo
+                    </span>
+                  </div>
+                  <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;">
+                    Anh chỉ cần tải logo lên một lần, phần mềm sẽ tự động lấy logo này ghép đè lên vị trí logo đối thủ cũ hoặc góc ảnh khi cào!
+                  </div>
+                </div>
+              </div>
+
+              <label style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3); padding: 6px 14px; border-radius: 8px;">
+                <input type="checkbox" id="chk-brand-logo-enabled" checked style="accent-color: #38bdf8; width: 17px; height: 17px;">
+                <span style="font-size: 0.82rem; font-weight: 700; color: #e2e8f0;">Bật Tự Động Ghép Logo</span>
+              </label>
+            </div>
+
+            <!-- Body: Preview Box & Placement Settings -->
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+              <!-- Slot xem trước logo & nút upload -->
+              <div style="display: flex; align-items: center; gap: 12px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px;">
+                <div id="brand-logo-preview-box" style="width: 130px; height: 62px; border-radius: 8px; border: 1px dashed rgba(56, 189, 248, 0.45); background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 0% 50%) 50% / 14px 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;" title="Ô hiển thị Logo xem trước (hỗ trợ nền trong suốt)">
+                  <img id="img-brand-logo-preview" src="" alt="Logo của anh" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
+                  <div id="brand-logo-placeholder" style="font-size: 0.72rem; color: #64748b; text-align: center; padding: 4px;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.1rem; display: block; margin-bottom: 2px; color: #38bdf8;"></i>
+                    Chưa có logo
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <input type="file" id="input-brand-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display: none;">
+                  <button class="btn btn-sm btn-primary" id="btn-upload-brand-logo" style="font-size: 0.78rem; padding: 6px 12px; font-weight: 700; background: linear-gradient(135deg, #0284c7, #0ea5e9); border: none; box-shadow: 0 0 10px rgba(2,132,199,0.3);">
+                    <i class="fa-solid fa-upload"></i> Chọn Logo Từ Máy (.PNG/.JPG)
+                  </button>
+                  <button class="btn btn-xs btn-outline" id="btn-delete-brand-logo" style="font-size: 0.72rem; padding: 3px 8px; border-color: rgba(239,68,68,0.35); color: #fca5a5; display: none;">
+                    <i class="fa-solid fa-trash-can"></i> Xóa logo này
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cài đặt vị trí và kích thước -->
+              <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <label style="font-size: 0.8rem; color: #cbd5e1; font-weight: 700; margin: 0; min-width: 95px;">
+                    <i class="fa-solid fa-crosshairs" style="color: #38bdf8;"></i> Vị trí ghép:
+                  </label>
+                  <select id="select-brand-logo-position" class="form-control" style="flex: 1; min-width: 220px; font-size: 0.8rem; padding: 6px 10px; background: rgba(15,23,42,0.85); border-color: rgba(56,189,248,0.3); color: #fff;">
+                    <option value="replace-competitor" selected>✨ Tự động đè lên vị trí logo đối thủ cũ (hoặc góc đáy)</option>
+                    <option value="bottom-right">↘️ Góc dưới cùng bên phải (Khuyên dùng cho ảnh kỹ thuật)</option>
+                    <option value="bottom-left">↙️ Góc dưới cùng bên trái</option>
+                    <option value="top-right">↗️ Góc trên cùng bên phải</option>
+                  </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <label style="font-size: 0.8rem; color: #cbd5e1; font-weight: 700; margin: 0; min-width: 95px;">
+                    <i class="fa-solid fa-maximize" style="color: #38bdf8;"></i> Kích thước:
+                  </label>
+                  <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 140px;">
+                    <input type="range" id="range-brand-logo-scale" min="10" max="32" value="18" step="1" style="flex: 1; accent-color: #38bdf8;">
+                    <span id="val-brand-logo-scale" style="font-size: 0.82rem; font-weight: 800; color: #38bdf8; min-width: 36px;">18%</span>
+                  </div>
+                  <button class="btn btn-xs btn-success" id="btn-save-brand-logo-settings" style="font-size: 0.75rem; padding: 5px 12px; font-weight: 700;">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu Cài Đặt
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AUTONOMOUS MULTI-SOURCE RADAR & SEARCH SUITE -->
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+            <!-- Row 1: Autonomous One-Click Scan & Source Manager -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.92rem; font-weight: 700; color: #38bdf8;">
+                  <i class="fa-solid fa-radar"></i> Radar Tự Động Quét Nguồn Ngành:
+                </span>
+                <span style="font-size: 0.78rem; color: #94a3b8;">
+                  Tự động rà soát đa nguồn đối thủ, AI lọc sạch logo đưa vào hộp thư, anh không cần tự đi tìm!
+                </span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-sm btn-primary" id="btn-harvest-all-sources" style="font-weight: 800; font-size: 0.82rem; padding: 6px 14px; background: linear-gradient(135deg, #0284c7, #2563eb); border: none; box-shadow: 0 0 15px rgba(2,132,199,0.35);">
+                  <i class="fa-solid fa-bolt-lightning"></i> 🚀 Tự Động Quét Tất Cả Nguồn Ngành
+                </button>
+                <button class="btn btn-sm btn-outline" id="btn-toggle-sources-panel" style="font-size: 0.8rem; padding: 6px 10px; border-color: rgba(56,189,248,0.3); color: #38bdf8;">
+                  <i class="fa-solid fa-list-check"></i> Xem 6 Nguồn Đối Thủ
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick 1-Click Competitor Harvest Buttons -->
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;">
+              <span style="font-size: 0.75rem; color: #64748b; font-weight: 600; margin-right: 4px;">Cào nhanh theo đơn vị:</span>
+              <button class="btn btn-xs btn-outline btn-quick-harvest-src" data-id="src_vietphat" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; border-color: rgba(56,189,248,0.3); color: #e2e8f0;">⚡ Việt Phát (RO/Công Nghiệp)</button>
+              <button class="btn btn-xs btn-outline btn-quick-harvest-src" data-id="src_kenwa" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; border-color: rgba(56,189,248,0.3); color: #e2e8f0;">⚡ Kenwa (Lọc Tổng/Giếng)</button>
+              <button class="btn btn-xs btn-outline btn-quick-harvest-src" data-id="src_wepar" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; border-color: rgba(56,189,248,0.3); color: #e2e8f0;">⚡ Wepar (Đóng Bình 20L)</button>
+              <button class="btn btn-xs btn-outline btn-quick-harvest-src" data-id="src_toana" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; border-color: rgba(56,189,248,0.3); color: #e2e8f0;">⚡ Toàn Á (Công Nghiệp/Lò Hơi)</button>
+              <button class="btn btn-xs btn-outline btn-quick-harvest-src" data-id="src_locnuocro" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; border-color: rgba(56,189,248,0.3); color: #e2e8f0;">⚡ Lọc Nước RO</button>
+              <button class="btn btn-xs btn-outline btn-quick-harvest-src" data-id="src_anphat" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; border-color: rgba(56,189,248,0.3); color: #e2e8f0;">⚡ An Phát (Khử Phèn)</button>
+            </div>
+
+            <!-- Row 2: Search & Harvest By Keywords -->
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 280px; position: relative;">
+                <input type="text" id="input-harvest-keywords" class="form-control" placeholder="🔍 Hoặc tìm kiếm ảnh tự động theo từ khóa (VD: Dây chuyền đóng bình 20L, Cột lọc composite 1054...)" style="padding-left: 36px; font-size: 0.88rem;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748b;"></i>
+              </div>
+              <button class="btn btn-accent" id="btn-harvest-search-keywords" style="white-space: nowrap; font-weight: 700; padding: 8px 16px;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Tìm & Cào Ảnh Nguồn
+              </button>
+            </div>
+
+            <!-- Quick Keyword Chips -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+              <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Gợi ý từ khóa:</span>
+              <span class="badge chip-harvest-kw" data-kw="dây chuyền lọc nước đóng bình 20l" style="cursor: pointer; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25); font-size: 0.72rem; padding: 3px 8px; border-radius: 12px;">💧 Đóng bình 20L</span>
+              <span class="badge chip-harvest-kw" data-kw="hệ thống lọc nước ro công nghiệp" style="cursor: pointer; background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); font-size: 0.72rem; padding: 3px 8px; border-radius: 12px;">🏭 RO Công Nghiệp</span>
+              <span class="badge chip-harvest-kw" data-kw="lọc tổng sinh hoạt cột composite 1054" style="cursor: pointer; background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); font-size: 0.72rem; padding: 3px 8px; border-radius: 12px;">🏠 Lọc Tổng Composite</span>
+              <span class="badge chip-harvest-kw" data-kw="cột lọc inox 304 xử lý nước giếng khoan" style="cursor: pointer; background: rgba(139, 92, 246, 0.12); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.25); font-size: 0.72rem; padding: 3px 8px; border-radius: 12px;">✨ Cột Inox Giếng Khoan</span>
+              <span class="badge chip-harvest-kw" data-kw="hệ thống làm mềm nước lò hơi" style="cursor: pointer; background: rgba(236, 72, 153, 0.12); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.25); font-size: 0.72rem; padding: 3px 8px; border-radius: 12px;">🔥 Làm Mềm Lò Hơi</span>
+            </div>
+
+            <!-- Drawer: Quản lý danh sách nguồn đối thủ (Ẩn/Hiện) -->
+            <div id="sources-management-panel" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #fff; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span>📋 Danh Sách Nguồn Đối Thủ Đang Tự Động Rà Soát:</span>
+                <span style="font-size: 0.75rem; color: #94a3b8;">Có thể bật/tắt từng nguồn hoặc thêm link bài viết đối thủ mới</span>
+              </div>
+              <div id="sources-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; margin-bottom: 10px;">
+                <!-- Rendered dynamically -->
+              </div>
+              <!-- Manual single URL fallback with Deep Crawl options -->
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px;">
+                <div style="flex: 1; min-width: 240px;">
+                  <input type="url" id="input-harvest-url" class="form-control" placeholder="Dán URL bất kỳ (VD: https://kensi.com.vn/tin-tuc/ hoặc https://wepar.vn/du-an/)..." style="font-size: 0.8rem; width: 100%;">
+                </div>
+                <label style="display: flex; align-items: center; gap: 5px; margin: 0; font-size: 0.78rem; color: #94a3b8; cursor: pointer; white-space: nowrap;">
+                  <input type="checkbox" id="chk-deep-media-crawl" checked style="accent-color: #0ea5e9;">
+                  <span>Quét sâu bài viết con</span>
+                </label>
+                <select id="select-media-crawl-depth" class="form-control" style="width: 145px; font-size: 0.78rem; padding: 4px 6px;">
+                  <option value="deep" selected>Quét sâu (15 bài)</option>
+                  <option value="ultra">Quét siêu sâu (35 bài)</option>
+                  <option value="fast">Quét nhanh (5 bài)</option>
+                </select>
+                <select id="select-media-harvest-limit" class="form-control" style="width: 95px; font-size: 0.78rem; padding: 4px 6px;">
+                  <option value="20">20 ảnh</option>
+                  <option value="40" selected>40 ảnh</option>
+                  <option value="80">80 ảnh</option>
+                  <option value="120">120 ảnh</option>
+                </select>
+                <button class="btn btn-sm btn-secondary" id="btn-harvest-crawl-now" style="white-space: nowrap; font-size: 0.8rem; padding: 6px 12px;">
+                  <i class="fa-solid fa-spider"></i> Cào Ảnh Nguồn
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Container Grid Ảnh Chờ Duyệt -->
+          <div id="staging-cards-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 25px; color: #64748b; font-size: 0.9rem;">
+              <i class="fa-solid fa-inbox fa-2x" style="opacity: 0.3; margin-bottom: 8px; display: block;"></i>
+              Hộp thư xét duyệt đang trống. Hãy dán link web đối thủ ở trên để quét cào thêm ảnh mới!
+            </div>
+          </div>
+        </div>
+
         <!-- ACTIVE KHO WORKSPACE CONTAINER -->
         <div class="card" id="active-kho-workspace" style="padding: 22px; margin-bottom: 24px; border-radius: 12px;">
           <!-- Kho Header & Actions -->
@@ -1473,6 +1864,9 @@
               <p id="active-kho-desc" style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Hình ảnh thực tế các mẫu bình lọc composite 2 hoặc 3 bình nhỏ gọn gia đình hoặc cột inox nhỏ</p>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-warning btn-sm" id="btn-audit-kho-logos" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; font-weight: 700;">
+                <i class="fa-solid fa-shield-halved"></i> 🛡️ Rà Soát Logo Đối Thủ
+              </button>
               <button class="btn btn-secondary btn-sm" id="btn-rename-active-kho">
                 <i class="fa-solid fa-pen-to-square"></i> Đổi Tên Kho Này
               </button>
@@ -1575,9 +1969,25 @@
               <i class="fa-solid fa-images" style="color: #38bdf8; font-size: 1.1rem;"></i>
               <strong style="color: #fff; font-size: 0.92rem;">Hình Ảnh Minh Họa Bài Viết (Thư Viện 942 Ảnh Thực Tế)</strong>
             </div>
-            <button class="btn btn-sm btn-primary" id="btn-modal-randomize-images" style="font-size: 0.8rem; padding: 5px 12px;">
-              <i class="fa-solid fa-shuffle"></i> 🔄 Đổi Cả 2 Ảnh Mới
-            </button>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <select id="modal-banner-style-select" class="form-control form-control-sm" style="font-size: 0.78rem; padding: 4px 8px; width: auto; background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.4); color: #f8fafc;">
+                <option value="auto">⚡ Mẫu Tự Động Toàn Diện (Xoay 7 kiểu)</option>
+                <option value="lower_third_auto">🏷️ Dải Chân Trang Động (Lower-Third Auto)</option>
+                <option value="lower_third_capsule">💊 Chân Trang Viên Nang Kính (Capsule)</option>
+                <option value="lower_third_slanted">📐 Chân Trang Vát Góc Cơ Khí (Slanted)</option>
+                <option value="lower_third_dualtier">📑 Chân Trang 2 Tầng Tương Phản (Dual-Tier)</option>
+                <option value="lower_third_cinematic">🎬 Chân Trang Khói Đêm Neon (Cinematic)</option>
+                <option value="wave_curve">🌊 Sóng Nước Chuyên Nghiệp</option>
+                <option value="circle_cutouts">⚪ 2 Khung Tròn B2B</option>
+                <option value="vs_split">⚔️ So Sánh Đối Đầu (VS)</option>
+              </select>
+              <button class="btn btn-sm btn-accent" id="btn-modal-compose-banner" style="font-size: 0.8rem; padding: 5px 12px; background: linear-gradient(135deg, #0284c7, #2563eb); font-weight: 700;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 🎨 Ghép Banner 16:9 Độc Bản
+              </button>
+              <button class="btn btn-sm btn-primary" id="btn-modal-randomize-images" style="font-size: 0.8rem; padding: 5px 12px;">
+                <i class="fa-solid fa-shuffle"></i> 🔄 Đổi Cả 2 Ảnh Mới
+              </button>
+            </div>
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
@@ -1616,29 +2026,27 @@
             </div>
           </div>
         <!-- PANEL: NGUỒN DỮ LIỆU ĐỐI CHIẾU & LINK KIỂM DUYỆT NGOÀI HỆ THỐNG -->
-        <div id="modal-external-sources-panel" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 14px; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <details id="modal-external-sources-panel" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 18px;">
+          <summary style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; outline: none;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <i class="fa-solid fa-earth-americas" style="color: #34d399; font-size: 1.15rem;"></i>
-              <strong style="color: #fff; font-size: 0.95rem;">Nguồn Dữ Liệu & Link Đối Chiếu Kỹ Thuật (Nội Bộ Phần Mềm)</strong>
-              <span class="badge" style="background: rgba(234, 179, 8, 0.2); color: #facc15; font-size: 0.72rem; padding: 2px 6px; font-weight: 600;">
-                <i class="fa-solid fa-lock"></i> Chỉ xem trong phần mềm — Không đăng lên WP
-              </span>
-              <span class="badge" id="modal-sources-count-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.75rem; padding: 2px 8px; font-weight: 700;">Đang tải...</span>
+              <i class="fa-solid fa-graduation-cap" style="color: #38bdf8; font-size: 1rem;"></i>
+              <strong style="color: #fff; font-size: 0.9rem;">Tài Liệu Tham Khảo Kỹ Thuật (Google Top 1-5 & Thực Tế Miền Nam)</strong>
+              <span class="badge" id="modal-sources-count-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.72rem; padding: 2px 8px; font-weight: 700;">Đang tải...</span>
             </div>
             <div style="display: flex; gap: 6px; align-items: center;">
-              <button class="btn btn-sm btn-secondary" id="btn-refresh-modal-sources" title="Cào lại hoặc cập nhật nguồn" style="font-size: 0.75rem; padding: 3px 8px;">
-                <i class="fa-solid fa-arrows-rotate"></i> Quét Lại Nguồn
+              <span style="font-size: 0.75rem; color: #94a3b8; margin-right: 6px;"><i class="fa-solid fa-chevron-down"></i> Xem nguồn</span>
+              <button class="btn btn-sm btn-secondary" id="btn-refresh-modal-sources" title="Cào lại hoặc cập nhật nguồn" style="font-size: 0.72rem; padding: 2px 7px;">
+                <i class="fa-solid fa-arrows-rotate"></i> Quét Lại
               </button>
             </div>
-          </div>
-          <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 10px 0; line-height: 1.45;">
-            Toàn bộ các website và tài liệu kỹ thuật thực tế (Google VN, NSF/EPA Mỹ, DIN/DVGW Đức, Toray Nhật) mà phần mềm đã thu thập để anh đối chiếu trực tiếp xem đoạn nào được lấy từ đâu. <em>(Mục này được lưu trữ độc quyền trong phần mềm, hoàn toàn không chèn vào bài viết khi đăng lên WordPress).</em>
+          </summary>
+          <p style="font-size: 0.78rem; color: #94a3b8; margin: 10px 0 8px 0; line-height: 1.45;">
+            Dữ liệu tham khảo kỹ thuật từ Google Top 1-5 và khảo sát thực tế nhằm đối chiếu chất lượng bài viết. <em>(Mục này lưu nội bộ phần mềm, hoàn toàn không chèn vào bài viết khi đăng WordPress).</em>
           </p>
-          <div id="modal-sources-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+          <div id="modal-sources-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 4px; margin-top: 8px;">
             <!-- Rendered dynamically -->
           </div>
-        </div>
+        </details>
 
         <div id="modal-article-rendered-content" class="rendered-preview">
           <!-- Article HTML rendered here -->
@@ -1913,6 +2321,6 @@
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
 
-  <script src="app.js?v=2.7.3"></script>
+  <script src="app.js?v=2.8.0"></script>
 </body>
 </html>
