@@ -1,3 +1,4 @@
+const { selectDynamicTopicStrategy, TOPIC_CLUSTERS } = require('./lib/topic_cluster_engine');
 const { generateSmartSeoTemplate, getRecentUsedImages, getGoogleAdsTargetUrl, getCustomGoogleAdsLinks } = require('./lib/generator');
 const { getDuplicateReport, detectDuplicateGroups } = require('./lib/ai_generator');
 const { 
@@ -33,6 +34,38 @@ const {
 const { generateKeywordCluster } = require('./lib/clustering');
 const { conductGlobalAndDomesticResearch, generateReferenceMarkdown } = require('./lib/google_researcher');
 const { runSystemAudit, getLatestAuditReport } = require('./lib/startup_auditor');
+const { 
+  harvestAllIndustryKnowledge, 
+  getIndustryKnowledge, 
+  crawlCustomUrl, 
+  deleteIndustryArticle,
+  clearIndustryArticles,
+  categorizeDomain: categorizeIndustryDomain,
+  INDUSTRY_LEXICON_MASTER 
+} = require('./lib/industry_crawler');
+const { runAutonomousGoogleHarvester } = require('./lib/google_autonomous_harvester');
+const { generateBanner, generateBannerForPost } = require('./lib/banner_composer');
+const {
+  harvestImagesFromUrl,
+  getStagingMedia,
+  approveImageToKho,
+  rejectStagingImage,
+  approveAllPendingImages,
+  auditWarehouseLogos,
+  clearStagingMedia,
+  stampHoaSenBrandBadge,
+  getHarvesterSources,
+  saveHarvesterSources,
+  toggleHarvesterSource,
+  addHarvesterSource,
+  searchAndHarvestByKeywords,
+  runAutonomousIndustryHarvest,
+  getBrandLogoConfig,
+  saveBrandLogoConfig,
+  saveCustomBrandLogoFile,
+  deleteCustomBrandLogoFile,
+  overlayCustomBrandLogo
+} = require('./lib/media_harvester');
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -62,6 +95,47 @@ const UPLOADS_DIR = path.join(__dirname, 'public/uploads');
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
+
+/* ==========================================================================
+   7 CHIẾN DỊCH KHÓA CHẾT CỦA TRIS (GOOGLE ADS CAMPAIGNS - XOAY VÒNG TUẦN HOÀN VÔ HẠN)
+   ========================================================================== */
+const MASTER_7_KEYWORDS = [
+  {
+    keyword: "Lọc Nước Giếng",
+    topic: "Lọc Nước Giếng Khoan Gia Đình & Trang Trại Chuyên Nghiệp",
+    targetUrl: "https://xulynuochoasen.com/loc-nuoc-gieng/"
+  },
+  {
+    keyword: "Lọc Nước Công Nghiệp",
+    topic: "Hệ Thống Lọc Nước Công Nghiệp Công Suất Lớn Chuẩn TCVN",
+    targetUrl: "https://xulynuochoasen.com/he-thong-loc-nuoc-cong-nghiep/"
+  },
+  {
+    keyword: "Lọc nước phèn",
+    topic: "Hệ Thống Xử Lý Nước Nhiễm Phèn Sắt Mangan Khử Mùi Triệt Để",
+    targetUrl: "https://xulynuochoasen.com/he-thong-loc-nuoc-nhiem-phen/"
+  },
+  {
+    keyword: "Lọc Nước Sinh Hoạt",
+    topic: "Hệ Thống Lọc Nước Sinh Hoạt Toàn Diện Cho Hộ Gia Đình",
+    targetUrl: "https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat/"
+  },
+  {
+    keyword: "Lọc Nước Tinh Khiết",
+    topic: "Hệ Thống Lọc Nước Tinh Khiết RO Công Nghiệp & Đóng Bình",
+    targetUrl: "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/"
+  },
+  {
+    keyword: "Hệ Thống Lọc Đầu Nguồn",
+    topic: "Hệ Thống Lọc Tổng Đầu Nguồn Cho Biệt Thự & Căn Hộ Cao Cấp",
+    targetUrl: "https://xulynuochoasen.com/he-thong-loc-tong-sinh-hoat-biet-thu/"
+  },
+  {
+    keyword: "Lọc nước mặn",
+    topic: "Hệ Thống Lọc Nước Mặn Khử Muối Màng RO Nước Lợ Nước Biển",
+    targetUrl: "https://xulynuochoasen.com/he-thong-loc-nuoc-man/"
+  }
+];
 
 /* ==========================================================================
    CUSTOM MEDIA LIBRARY API ENDPOINTS (3 KHO ĐỘC LẬP & ĐỒNG BỘ)
@@ -436,6 +510,326 @@ app.post('/api/posts/:id/randomize-images', (req, res) => {
 });
 
 /* ==========================================================================
+   BANNER COMPOSER & SMART MEDIA HARVESTER API
+   ========================================================================== */
+
+// 1. Tạo Banner tùy chỉnh theo mẫu chuyên nghiệp
+app.post('/api/banner/generate', async (req, res) => {
+  try {
+    const { title, targetKho, style, img1Path, img2Path } = req.body;
+    if (!title) return res.status(400).json({ success: false, message: 'Vui lòng nhập tiêu đề cho Banner!' });
+
+    const bannerResult = await generateBanner({
+      title,
+      targetKho,
+      style: style || 'auto',
+      img1Path,
+      img2Path
+    });
+
+    res.json({
+      success: true,
+      message: `Đã tạo Banner thành công theo phong cách ${bannerResult.style}!`,
+      data: bannerResult
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi tạo banner: ' + err.message });
+  }
+});
+
+// 2. Tạo Banner và gán vào bài viết cụ thể (Draft hoặc Ready)
+app.post('/api/banner/generate-for-post/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { style = 'auto' } = req.body;
+    const posts = getPosts();
+    const pIdx = posts.findIndex(p => p.id === id);
+    if (pIdx === -1) return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết!' });
+
+    const post = posts[pIdx];
+    const bannerResult = await generateBannerForPost(post, style);
+    posts[pIdx] = post;
+    savePosts(posts);
+
+    res.json({
+      success: true,
+      message: `Đã tạo Banner phong cách ${bannerResult.style} cho bài viết "${post.title}"!`,
+      banner: bannerResult,
+      post
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi tạo banner cho bài viết: ' + err.message });
+  }
+});
+
+// 3. Cào ảnh từ URL đối thủ & Rà soát AI Vision chặn sạch logo đối thủ (Hỗ trợ quét sâu đa tầng)
+app.post('/api/media/harvest-url', async (req, res) => {
+  try {
+    const { url, strictBrandShield = true, deepCrawl = true, maxImages = 40, maxSubPages = 15, maxPaginationPages = 5 } = req.body;
+    if (!url) return res.status(400).json({ success: false, message: 'Vui lòng cung cấp URL bài viết cần cào ảnh!' });
+
+    const harvestResult = await harvestImagesFromUrl(url, { 
+      strictBrandShield: strictBrandShield !== false,
+      deepCrawl: deepCrawl !== false,
+      maxImages: parseInt(maxImages, 10) || 40,
+      maxSubPages: parseInt(maxSubPages, 10) || 15,
+      maxPaginationPages: parseInt(maxPaginationPages, 10) || 5
+    });
+
+    let msg = `Đã cào thành công ${harvestResult.harvestedCount} ảnh sạch từ ${harvestResult.pagesScanned || 1} trang vào Hộp Thư Xét Duyệt!`;
+    if (harvestResult.rejectedByLogoCount > 0) {
+      msg += ` 🛡️ AI Vision đã tự động LOẠI BỎ ${harvestResult.rejectedByLogoCount} ảnh vì dính logo/nhãn dán đối thủ trên cột lọc!`;
+    }
+
+    res.json({
+      success: true,
+      message: msg,
+      data: harvestResult
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi cào ảnh từ URL: ' + err.message });
+  }
+});
+
+// 3a. Lấy danh sách nguồn đối thủ tự động rà soát
+app.get('/api/media/harvester/sources', (req, res) => {
+  try {
+    const sources = getHarvesterSources();
+    res.json({ success: true, count: sources.length, data: sources });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 3b. Bật/Tắt nguồn đối thủ
+app.post('/api/media/harvester/sources/toggle', (req, res) => {
+  try {
+    const { id, active } = req.body;
+    const updated = toggleHarvesterSource(id, active);
+    res.json({ success: true, message: `Đã cập nhật trạng thái nguồn ${updated.name}!`, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 3c. Thêm nguồn đối thủ mới
+app.post('/api/media/harvester/sources/add', (req, res) => {
+  try {
+    const { name, domain, urls, khoBias } = req.body;
+    if (!urls || (Array.isArray(urls) && urls.length === 0)) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp ít nhất 1 URL!' });
+    }
+    const created = addHarvesterSource({ name, domain, urls, khoBias });
+    res.json({ success: true, message: `Đã thêm thành công nguồn ${created.name}!`, data: created });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 3d. Kích hoạt TỰ ĐỘNG RÀ SOÁT TẤT CẢ NGUỒN NGÀNH (Autonomous Multi-Source Harvester)
+app.post('/api/media/harvester/auto-run', async (req, res) => {
+  try {
+    const { sourceId, maxPerSource = 3, strictBrandShield = true } = req.body;
+    const result = await runAutonomousIndustryHarvest({
+      sourceId,
+      maxPerSource: Number(maxPerSource) || 3,
+      strictBrandShield: strictBrandShield !== false
+    });
+
+    res.json({
+      success: true,
+      message: `Đã tự động rà soát ${result.totalSourcesScanned} nguồn ngành! Thu hoạch: ${result.totalHarvested} ảnh sạch vào Hộp Thư Xét Duyệt (Đã loại bỏ ${result.totalRejectedByLogo} ảnh dính logo đối thủ)`,
+      data: result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi rà soát nguồn tự động: ' + err.message });
+  }
+});
+
+// 3e. TỰ ĐỘNG TÌM KIẾM & CÀO ẢNH THEO TỪ KHÓA KỸ THUẬT (Serper Google Images + AI BrandShield)
+app.post('/api/media/harvester/search-keywords', async (req, res) => {
+  try {
+    const { keywords, maxImages = 6, strictBrandShield = true } = req.body;
+    if (!keywords || (Array.isArray(keywords) && keywords.length === 0)) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập từ khóa tìm kiếm ảnh!' });
+    }
+
+    const result = await searchAndHarvestByKeywords(keywords, {
+      maxImages: Number(maxImages) || 6,
+      strictBrandShield: strictBrandShield !== false
+    });
+
+    let msg = `Đã tìm kiếm và cào thành công ${result.harvestedCount} ảnh sạch vào Hộp Thư Xét Duyệt!`;
+    if (result.rejectedByLogoCount > 0) {
+      msg += ` 🛡️ AI Vision đã tự động LOẠI BỎ ${result.rejectedByLogoCount} ảnh vì dính logo/nhãn dán đối thủ!`;
+    }
+
+    res.json({
+      success: true,
+      message: msg,
+      data: result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi tìm kiếm ảnh theo từ khóa: ' + err.message });
+  }
+});
+
+// 3b. Rà soát phát hiện logo đối thủ trong kho hiện tại bằng AI Vision
+app.post('/api/media/audit-warehouse-logos', async (req, res) => {
+  try {
+    const { khoId = 'kho_1', limit = 20, purgeFlagged = false } = req.body;
+    const report = await auditWarehouseLogos(khoId, limit, purgeFlagged === true);
+    let msg = `Đã rà soát ${report.totalScanned} ảnh trong ${report.kho}. Phát hiện ${report.flaggedCount} ảnh dính logo đối thủ!`;
+    if (report.purgedCount > 0) {
+      msg += ` 🗑️ Đã tự động loại bỏ ${report.purgedCount} ảnh vi phạm khỏi kho!`;
+    }
+    res.json({
+      success: true,
+      message: msg,
+      data: report
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi rà soát logo kho: ' + err.message });
+  }
+});
+
+// 3c. Xóa sạch / dọn dẹp Hộp Thư Xét Duyệt
+app.post('/api/media/staging/clear', (req, res) => {
+  try {
+    const { type = 'all' } = req.body;
+    const result = clearStagingMedia(type);
+    res.json({ success: true, message: result.message || 'Đã dọn dẹp Hộp Thư Xét Duyệt!', data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 4. Lấy danh sách ảnh trong Hộp Thư Xét Duyệt (Staging Inbox)
+app.get('/api/media/staging', (req, res) => {
+  try {
+    const items = getStagingMedia();
+    res.json({
+      success: true,
+      count: items.length,
+      pendingCount: items.filter(x => x.status === 'pending').length,
+      data: items
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 5. Duyệt ảnh từ Staging vào Kho chỉ định (hoặc theo gợi ý)
+app.post('/api/media/staging/approve', (req, res) => {
+  try {
+    const { id, targetKho } = req.body;
+    if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID ảnh cần duyệt!' });
+
+    const result = approveImageToKho(id, targetKho);
+    res.json({
+      success: true,
+      message: `Đã duyệt thành công ảnh vào ${result.khoName}!`,
+      data: result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 6. Từ chối / Xóa ảnh khỏi Staging
+app.post('/api/media/staging/reject', (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID ảnh cần xóa!' });
+
+    const result = rejectStagingImage(id);
+    res.json({
+      success: true,
+      message: 'Đã xóa ảnh khỏi Hộp Thư Xét Duyệt!',
+      data: result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 7. Duyệt tất cả ảnh pending theo đúng gợi ý của AI
+app.post('/api/media/staging/approve-all', (req, res) => {
+  try {
+    const result = approveAllPendingImages();
+    res.json({
+      success: true,
+      message: `Đã tự động duyệt ${result.approvedCount} ảnh vào đúng các Kho theo gợi ý của AI!`,
+      data: result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 8. Lấy cấu hình Logo Thương Hiệu chính chủ của Tris
+app.get('/api/media/brand-logo', (req, res) => {
+  try {
+    const config = getBrandLogoConfig();
+    res.json({ success: true, config });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi lấy cấu hình logo: ' + err.message });
+  }
+});
+
+// 9. Tải lên file Logo Thương Hiệu (PNG trong suốt / JPG)
+app.post('/api/media/brand-logo/upload', async (req, res) => {
+  try {
+    const { imageBase64 } = req.body;
+    if (!imageBase64) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp dữ liệu ảnh logo!' });
+    }
+    const result = await saveCustomBrandLogoFile(imageBase64);
+    res.json({
+      success: true,
+      message: '💎 Đã tải lên và kích hoạt Logo Thương Hiệu thành công! Hệ thống sẽ tự động ghép logo này vào toàn bộ ảnh cào mới.',
+      config: result.config
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi lưu logo: ' + err.message });
+  }
+});
+
+// 10. Cập nhật cài đặt ghép logo (bật/tắt, vị trí, kích thước %)
+app.post('/api/media/brand-logo/settings', (req, res) => {
+  try {
+    const { enabled, position, scalePercent, opacity } = req.body;
+    const updated = saveBrandLogoConfig({
+      enabled: enabled !== undefined ? !!enabled : undefined,
+      position: position || undefined,
+      scalePercent: scalePercent ? Number(scalePercent) : undefined,
+      opacity: opacity ? Number(opacity) : undefined
+    });
+    res.json({
+      success: true,
+      message: '✅ Đã lưu cài đặt tự động ghép logo thương hiệu!',
+      config: updated
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi lưu cài đặt logo: ' + err.message });
+  }
+});
+
+// 11. Xóa file logo thương hiệu
+app.delete('/api/media/brand-logo', (req, res) => {
+  try {
+    const result = deleteCustomBrandLogoFile();
+    res.json({
+      success: true,
+      message: 'Đã xóa logo thương hiệu!',
+      config: result.config
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi xóa logo: ' + err.message });
+  }
+});
+
+/* ==========================================================================
    LIVE BLOG CRAWLER & ANTI-CANNIBALIZATION API
    ========================================================================== */
 app.get('/api/crawler/status', (req, res) => {
@@ -465,6 +859,103 @@ app.post('/api/crawler/scan', async (req, res) => {
   } catch (err) {
     isCrawling = false;
     res.status(500).json({ success: false, message: 'Lỗi khi quét blog: ' + err.message });
+  }
+});
+
+/* ==========================================================================
+   INDUSTRY KNOWLEDGE & COMPETITOR HARVESTER APIs
+   ========================================================================== */
+app.get('/api/industry-knowledge', (req, res) => {
+  try {
+    const data = getIndustryKnowledge();
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi tải tri thức ngành: ' + err.message });
+  }
+});
+
+app.post('/api/industry-knowledge/crawl', async (req, res) => {
+  try {
+    const { url, maxPages = 5 } = req.body || {};
+    if (url) {
+      const crawlResult = await crawlCustomUrl(url, { maxPages: parseInt(maxPages, 10) || 5 });
+      if (crawlResult.isMulti) {
+        return res.json({
+          success: true,
+          isMulti: true,
+          message: `Đã quét sâu ${crawlResult.pagesCrawled} trang danh mục, phát hiện ${crawlResult.totalFound} bài và nạp thành công ${crawlResult.newlyAdded} bài viết mới vào kho tri thức!`,
+          data: crawlResult
+        });
+      } else {
+        return res.json({ 
+          success: true, 
+          isMulti: false,
+          message: `Đã nạp thành công bài viết từ đối thủ: ${crawlResult.article?.title || url}`, 
+          article: crawlResult.article,
+          totalArticles: crawlResult.totalArticles
+        });
+      }
+    }
+
+    const result = await harvestAllIndustryKnowledge();
+    res.json({ 
+      success: true, 
+      message: `Đã cập nhật toàn diện ${result.totalArticles} bài viết & ${result.totalLexiconTerms} thuật ngữ từ các đối thủ đầu ngành (Kenwa, Wepar, Việt Phát)!`, 
+      data: result 
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi cào tri thức đối thủ: ' + err.message });
+  }
+});
+
+// Xóa 1 bài viết lẻ khỏi kho tri thức
+app.post('/api/industry-knowledge/delete-article', (req, res) => {
+  try {
+    const { url, domain } = req.body || {};
+    if (!url) return res.status(400).json({ success: false, message: 'Vui lòng cung cấp URL bài viết cần xóa!' });
+
+    const result = deleteIndustryArticle(url, domain);
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Đã xóa bài viết thành công khỏi kho tri thức!',
+        totalArticles: result.totalArticles,
+        domainCounts: result.domainCounts
+      });
+    } else {
+      res.status(404).json({ success: false, message: 'Không tìm thấy bài viết cần xóa hoặc bài viết đã bị xóa trước đó.' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi xóa bài viết: ' + err.message });
+  }
+});
+
+// Dọn dẹp / xóa toàn bộ hoặc theo chuyên mục kho tri thức
+app.post('/api/industry-knowledge/clear-articles', (req, res) => {
+  try {
+    const { domain = 'all' } = req.body || {};
+    const result = clearIndustryArticles(domain);
+    res.json({
+      success: true,
+      message: domain === 'all' ? 'Đã xóa sạch toàn bộ bài viết trong kho tri thức!' : `Đã dọn dẹp sạch bài viết thuộc chuyên mục ${domain}!`,
+      totalArticles: result.totalArticles,
+      domainCounts: result.domainCounts
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi dọn dẹp kho tri thức: ' + err.message });
+  }
+});
+
+app.post('/api/industry-knowledge/auto-discover-google', async (req, res) => {
+  try {
+    const result = await runAutonomousGoogleHarvester({ maxPerSector: req.body?.maxPerSector || 2 });
+    res.json({
+      success: true,
+      message: `Đã tự động lùng sục Google.com và nạp thành công ${result.newlyHarvested || 0} bài viết mới từ các đối thủ Top 1-5! Tổng kho tri thức đạt ${result.totalArticles} bài.`,
+      data: result
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi lùng sục Google tự động: ' + err.message });
   }
 });
 
@@ -1081,13 +1572,14 @@ function getSchedulerConfig() {
       intervalHours: cfg.intervalHours || 4,
       publishIntervalHours: cfg.publishIntervalHours || cfg.intervalHours || 4,
       generateIntervalHours: cfg.generateIntervalHours || 2,
+      currentKeywordIndex: typeof cfg.currentKeywordIndex === 'number' ? cfg.currentKeywordIndex : 0,
       lastPublishRun: cfg.lastPublishRun || cfg.lastRun || null,
       lastGenerateRun: cfg.lastGenerateRun || cfg.lastRun || null,
       lastDedupRun: cfg.lastDedupRun || null,
       lastRun: cfg.lastRun || null
     };
   } catch (e) {
-    return { enabled: false, intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, lastPublishRun: null, lastGenerateRun: null, lastDedupRun: null, lastRun: null };
+    return { enabled: false, intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, currentKeywordIndex: 0, lastPublishRun: null, lastGenerateRun: null, lastDedupRun: null, lastRun: null };
   }
 }
 function saveSchedulerConfig(config) {
@@ -1502,13 +1994,34 @@ async function publishToWordPress(postData) {
   }
 
   const targetProductLink = (postData.targetProductUrl || postData.targetUrl || 'https://xulynuochoasen.com/').trim();
-  const htmlContent = markdownToHtml(updatedContent, targetProductLink);
+  // Anti-footprint random publish jitter (-60 to +60 minutes) to look 100% human to Google
+  const jitterSign = Math.random() < 0.5 ? -1 : 1;
+  const jitterMinutes = jitterSign * (Math.floor(Math.random() * 60) + 1); // 1 đến 60 phút
+  const jitteredDate = new Date(Date.now() + jitterMinutes * 60 * 1000);
+  const pad = (n) => String(n).padStart(2, '0');
+  const formattedJitterDate = `${jitteredDate.getFullYear()}-${pad(jitteredDate.getMonth() + 1)}-${pad(jitteredDate.getDate())}T${pad(jitteredDate.getHours())}:${pad(jitteredDate.getMinutes())}:${pad(jitteredDate.getSeconds())}`;
+  console.log(`[Anti-Footprint SEO] 🛡️ Áp dụng thời gian đăng lệch ngẫu nhiên: ${jitterMinutes > 0 ? '+' : ''}${jitterMinutes} phút (${formattedJitterDate})`);
+
+  let htmlContent = updatedContent;
+  try {
+    const { formatContentToRichHtml } = require('./lib/content_formatter');
+    htmlContent = formatContentToRichHtml(updatedContent, {
+      title: postData.title,
+      categoryId: parseInt(categoryId || 0),
+      isCaseStudy: (parseInt(categoryId || 0) === 3) || /bàn giao|công trình|dự án|thi công|nghiệm thu/i.test(postData.title || '')
+    });
+  } catch (mErr) {
+    console.warn('[Format Content] Fallback marked due to error:', mErr.message);
+    const { marked } = require('marked');
+    htmlContent = marked ? marked.parse(updatedContent) : updatedContent;
+  }
 
   const payload = {
     title: postData.title,
     content: htmlContent,
     excerpt: postData.metaDescription || '',
-    status: wpConfig.defaultStatus || 'publish'
+    status: wpConfig.defaultStatus || 'publish',
+    date: formattedJitterDate
   };
 
   if (mediaId) {
@@ -1543,6 +2056,12 @@ async function publishToWordPress(postData) {
   if (!response.ok) {
     throw new Error(responseData.message || `Lỗi WordPress REST API (Status ${response.status})`);
   }
+
+  // Tự động làm mới trang Tin Tức (Page 3906) để bài viết mới nhất ngay lập tức xuất hiện đầu lưới
+  try {
+    const { syncTinTucArchivePage } = require('./lib/tin_tuc_archive_builder');
+    syncTinTucArchivePage({ limit: 30 }).catch(e => console.warn('[TinTucArchive] Auto-sync warning:', e.message));
+  } catch (syncErr) {}
 
   return {
     success: true,
@@ -1782,6 +2301,12 @@ app.post('/api/wordpress/test-connection', async (req, res) => {
 app.post('/api/wordpress/sync', async (req, res) => {
   try {
     const result = await syncWordPressLivePosts();
+    // Đồng bộ luôn lưới Tin Tức Page 3906 trong nền
+    try {
+      const { syncTinTucArchivePage } = require('./lib/tin_tuc_archive_builder');
+      syncTinTucArchivePage({ limit: 30 }).catch(e => console.warn('[TinTucArchive] Sync warning:', e.message));
+    } catch (e) {}
+
     res.json({ 
       success: true, 
       message: `Đồng bộ thành công! Tìm thấy ${result.count} bài viết trên WordPress. Đã xử lý giải phóng ${result.resolvedKeywords || 0} bài trùng lặp trong hàng chờ.`, 
@@ -1789,6 +2314,17 @@ app.post('/api/wordpress/sync', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi đồng bộ WordPress: ' + err.message });
+  }
+});
+
+// Endpoint đồng bộ lưới Tin Tức Kenwa-style (Page 3906)
+app.post('/api/tin-tuc/sync', async (req, res) => {
+  try {
+    const { syncTinTucArchivePage } = require('./lib/tin_tuc_archive_builder');
+    const result = await syncTinTucArchivePage({ limit: 30 });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi đồng bộ Tin Tức: ' + err.message });
   }
 });
 
@@ -1923,6 +2459,35 @@ app.post('/api/keywords/move-top', (req, res) => {
   res.json({ success: true, message: `Đã đưa từ khóa "${item.keyword}" lên vị trí số 1 trong hàng chờ đăng!`, data: item });
 });
 
+// Khóa chết & Thiết lập lại hàng chờ đúng chuẩn 7 Chiến dịch Google Ads của Tris
+app.post('/api/keywords/reset-master-7', (req, res) => {
+  const newQueue = MASTER_7_KEYWORDS.map((k, idx) => ({
+    id: 'kw_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).substr(2, 4),
+    keyword: k.keyword,
+    topic: k.topic,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    targetUrl: k.targetUrl,
+    generatedPostId: null,
+    pregenerated: false,
+    isRotated: true
+  }));
+
+  saveKeywords(newQueue);
+
+  // Reset pointer ve 0 de bat dau vong lap bat tan
+  const config = getSchedulerConfig();
+  config.currentKeywordIndex = 0;
+  saveSchedulerConfig(config);
+
+  res.json({
+    success: true,
+    message: 'Đã khóa chết và khởi tạo chuẩn hàng chờ 7 Chiến dịch Google Ads theo đúng vòng lặp tuần hoàn!',
+    count: newQueue.length,
+    data: newQueue
+  });
+});
+
 app.get('/api/scheduler/config', (req, res) => {
   res.json({ success: true, data: getSchedulerConfig() });
 });
@@ -1937,9 +2502,20 @@ app.get('/api/scheduler/status', (req, res) => {
   const pregeneratedCount = pendingKeywords.filter(k => k.generatedPostId).length;
   const now = Date.now();
 
-  // 1. Publish countdown calculation
+  // 1. Publish countdown calculation with Anti-Footprint Random Jitter (+- 1 to 60 minutes)
   const pubIntervalHours = parseFloat(config.publishIntervalHours || config.intervalHours || 4);
-  const pubIntervalMs = pubIntervalHours * 3600000;
+  const jitterEnabled = config.randomJitterEnabled !== false;
+  const maxJitter = parseInt(config.randomJitterMaxMinutes) || 60;
+
+  if (config.currentJitterMinutes === undefined || typeof config.currentJitterMinutes !== 'number') {
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    config.currentJitterMinutes = sign * (Math.floor(Math.random() * maxJitter) + 1);
+    saveSchedulerConfig(config);
+  }
+
+  const currentJitterMin = jitterEnabled ? config.currentJitterMinutes : 0;
+  const currentJitterMs = currentJitterMin * 60 * 1000;
+  const pubIntervalMs = (pubIntervalHours * 3600000) + currentJitterMs;
   const lastPubTime = config.lastPublishRun ? new Date(config.lastPublishRun).getTime() : 0;
   const nextPubTimeMs = lastPubTime ? lastPubTime + pubIntervalMs : now;
   const publishRemainingSec = Math.max(0, Math.round((nextPubTimeMs - now) / 1000));
@@ -2049,6 +2625,9 @@ app.get('/api/scheduler/status', (req, res) => {
       } : null,
       pendingCount: pendingKeywords.length,
       pregeneratedCount,
+      randomJitterEnabled: jitterEnabled,
+      randomJitterMaxMinutes: maxJitter,
+      currentJitterMinutes: currentJitterMin,
 
       timeline,
       wpStatus: {
@@ -2062,7 +2641,15 @@ app.get('/api/scheduler/status', (req, res) => {
 });
 
 app.post('/api/scheduler/config', (req, res) => {
-  const { enabled, intervalHours, publishIntervalHours, generateIntervalHours, defaultStatus } = req.body;
+  const { 
+    enabled, 
+    intervalHours, 
+    publishIntervalHours, 
+    generateIntervalHours, 
+    defaultStatus,
+    randomJitterEnabled,
+    randomJitterMaxMinutes
+  } = req.body;
   const config = getSchedulerConfig();
   if (enabled !== undefined) config.enabled = !!enabled;
   if (publishIntervalHours !== undefined) {
@@ -2074,6 +2661,12 @@ app.post('/api/scheduler/config', (req, res) => {
   }
   if (generateIntervalHours !== undefined) {
     config.generateIntervalHours = parseFloat(generateIntervalHours) || 2;
+  }
+  if (randomJitterEnabled !== undefined) {
+    config.randomJitterEnabled = !!randomJitterEnabled;
+  }
+  if (randomJitterMaxMinutes !== undefined) {
+    config.randomJitterMaxMinutes = Math.min(60, Math.max(5, parseInt(randomJitterMaxMinutes) || 60));
   }
   saveSchedulerConfig(config);
 
@@ -2096,33 +2689,28 @@ async function pregenerateNextKeywordInQueue(apiKey = '') {
   let nextItem = keywords.find(k => k.status === 'pending' && !k.generatedPostId);
   let isRotatingCycle = false;
 
-  // Cyclic rotation: if all keywords already have posts, rotate to the next keyword in cyclic order!
+  // Cyclic rotation: if all keywords already have posts, rotate to the next keyword in 7 campaigns order!
   if (!nextItem) {
     isRotatingCycle = true;
-    const masterKeywords = [];
-    const seenKw = new Set();
-    keywords.forEach(k => {
-      const lower = k.keyword.toLowerCase().trim();
-      if (!seenKw.has(lower)) {
-        seenKw.add(lower);
-        masterKeywords.push(k);
-      }
-    });
+    const config = getSchedulerConfig();
+    let nextIdx = typeof config.currentKeywordIndex === 'number' ? config.currentKeywordIndex : 0;
+    const templateKw = MASTER_7_KEYWORDS[nextIdx % MASTER_7_KEYWORDS.length];
+    config.currentKeywordIndex = (nextIdx + 1) % MASTER_7_KEYWORDS.length;
+    saveSchedulerConfig(config);
 
-    const latestPost = posts[0];
-    let nextIdx = 0;
-    if (latestPost && latestPost.targetKeyword) {
-      const foundIdx = masterKeywords.findIndex(k => k.keyword.toLowerCase() === latestPost.targetKeyword.toLowerCase());
-      if (foundIdx !== -1) {
-        nextIdx = (foundIdx + 1) % masterKeywords.length;
-      }
-    }
-    const templateKw = masterKeywords[nextIdx] || masterKeywords[0];
+    const dDomain = categorizeIndustryDomain(templateKw.keyword, templateKw.topic);
+    const livePostsList = getLiveBlogPosts() || [];
+    const allKnownTitles = [
+      ...livePostsList.map(p => p.title),
+      ...posts.map(p => p.title),
+      ...keywords.map(k => k.topic || k.keyword)
+    ];
+    const dStrategy = selectDynamicTopicStrategy(templateKw.keyword, dDomain, allKnownTitles, Date.now() + nextIdx * 17);
 
     nextItem = {
       id: 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       keyword: templateKw.keyword,
-      topic: templateKw.topic || templateKw.keyword,
+      topic: dStrategy.selectedTitle || templateKw.topic || templateKw.keyword,
       status: 'pending',
       createdAt: new Date().toISOString(),
       targetUrl: templateKw.targetUrl || '',
@@ -2130,7 +2718,7 @@ async function pregenerateNextKeywordInQueue(apiKey = '') {
       pregenerated: false,
       isRotated: true
     };
-    keywords.unshift(nextItem);
+    keywords.push(nextItem);
   }
 
   const generated = await generateContentForKeyword(nextItem.topic || nextItem.keyword, nextItem.keyword, apiKey, nextItem.targetUrl);
@@ -2152,6 +2740,12 @@ async function pregenerateNextKeywordInQueue(apiKey = '') {
     isAutoGenerated: true,
     sources: generated.sources || []
   };
+
+  try {
+    await generateBannerForPost(newPost, 'auto');
+  } catch (bErr) {
+    console.warn('Lỗi tạo banner tự động:', bErr.message);
+  }
 
   posts.unshift(newPost);
   savePosts(posts);
@@ -2241,15 +2835,16 @@ app.post('/api/keywords/pregenerate/:id', async (req, res) => {
 
   if (!item) return res.status(404).json({ success: false, message: 'Không tìm thấy từ khóa.' });
 
+  const force = req.query.force === 'true' || req.body?.force === true;
   const posts = getPosts();
   let existingPost = item.generatedPostId ? posts.find(p => p.id === item.generatedPostId) : null;
 
-  if (!existingPost) {
+  if (!existingPost || force) {
     const generated = await generateContentForKeyword(item.topic || item.keyword, item.keyword, '', item.targetUrl);
     const seoResult = calculateSeoScore(generated.title, generated.content, item.keyword, generated.metaDescription);
 
-    existingPost = {
-      id: 'post_auto_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    const postToSave = {
+      id: existingPost ? existingPost.id : ('post_auto_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
       title: generated.title,
       targetKeyword: item.keyword,
       content: generated.content,
@@ -2265,12 +2860,25 @@ app.post('/api/keywords/pregenerate/:id', async (req, res) => {
       sources: generated.sources || []
     };
 
-    posts.unshift(existingPost);
+    try {
+      await generateBannerForPost(postToSave, 'auto');
+    } catch (bErr) {
+      console.warn('Lỗi tạo banner tự động:', bErr.message);
+    }
+
+    if (existingPost) {
+      const pIdx = posts.findIndex(p => p.id === existingPost.id);
+      if (pIdx !== -1) posts[pIdx] = postToSave;
+      else posts.unshift(postToSave);
+    } else {
+      posts.unshift(postToSave);
+    }
     savePosts(posts);
 
-    item.generatedPostId = existingPost.id;
+    item.generatedPostId = postToSave.id;
     item.pregenerated = true;
     saveKeywords(keywords);
+    existingPost = postToSave;
   }
 
   res.json({ success: true, message: `Đã soạn xong bài chuẩn bị đăng cho từ khóa "${item.keyword}"!`, post: existingPost });
@@ -2291,18 +2899,25 @@ async function processNextKeywordInQueue(apiKey = '') {
   let nextItem = keywords.find(k => k.status === 'pending');
 
   if (!nextItem) {
-    const completedKeywords = keywords.filter(k => k.status === 'completed');
-    if (completedKeywords.length > 0) {
-      keywords.forEach(k => {
-        k.status = 'pending';
-        k.generatedPostId = null;
-        k.pregenerated = false;
-      });
-      saveKeywords(keywords);
-      nextItem = keywords[0];
-    } else {
-      return { success: false, message: 'Tất cả từ khóa trong hàng chờ đã được đăng xong! Vui lòng thêm từ khóa mới.' };
-    }
+    const config = getSchedulerConfig();
+    let nextRotIdx = typeof config.currentKeywordIndex === 'number' ? config.currentKeywordIndex : 0;
+    const nextMasterKw = MASTER_7_KEYWORDS[nextRotIdx % MASTER_7_KEYWORDS.length];
+    config.currentKeywordIndex = (nextRotIdx + 1) % MASTER_7_KEYWORDS.length;
+    saveSchedulerConfig(config);
+
+    nextItem = {
+      id: 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      keyword: nextMasterKw.keyword,
+      topic: nextMasterKw.topic,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      targetUrl: nextMasterKw.targetUrl,
+      generatedPostId: null,
+      pregenerated: false,
+      isRotated: true
+    };
+    keywords.push(nextItem);
+    saveKeywords(keywords);
   }
 
   nextItem.status = 'processing';
@@ -2332,6 +2947,12 @@ async function processNextKeywordInQueue(apiKey = '') {
         isAutoGenerated: true
       };
 
+      try {
+        await generateBannerForPost(targetPost, 'auto');
+      } catch (bErr) {
+        console.warn('Lỗi tạo banner tự động:', bErr.message);
+      }
+
       posts.unshift(targetPost);
       savePosts(posts);
 
@@ -2360,15 +2981,28 @@ async function processNextKeywordInQueue(apiKey = '') {
     nextItem.completedAt = new Date().toISOString();
 
     // Tự Động Gối Đầu: Xoay tua từ khóa vừa đăng hoàn thành về cuối hàng chờ ở trạng thái pending (chưa có bài)
+    // Tự Động Gối Đầu: Xoay tua tuần hoàn 7 chiến dịch từ MASTER_7_KEYWORDS vào cuối hàng chờ
+    const config = getSchedulerConfig();
+    
+    // Tự động roll độ lệch ngẫu nhiên mới (+- 1 đến 60 phút) cho chu kỳ tiếp theo
+    const maxJitter = parseInt(config.randomJitterMaxMinutes) || 60;
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    config.currentJitterMinutes = sign * (Math.floor(Math.random() * maxJitter) + 1);
+    config.lastPublishRun = new Date().toISOString();
+    saveSchedulerConfig(config);
     const pendingCountAfter = keywords.filter(k => k.status === 'pending').length;
     if (pendingCountAfter < 8) {
+      let nextRotIdx = typeof config.currentKeywordIndex === 'number' ? config.currentKeywordIndex : 0;
+      const nextMasterKw = MASTER_7_KEYWORDS[nextRotIdx % MASTER_7_KEYWORDS.length];
+      config.currentKeywordIndex = (nextRotIdx + 1) % MASTER_7_KEYWORDS.length;
+
       keywords.push({
         id: 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        keyword: nextItem.keyword,
-        topic: nextItem.topic || nextItem.keyword,
+        keyword: nextMasterKw.keyword,
+        topic: nextMasterKw.topic,
         status: 'pending',
         createdAt: new Date().toISOString(),
-        targetUrl: nextItem.targetUrl || '',
+        targetUrl: nextMasterKw.targetUrl,
         generatedPostId: null,
         pregenerated: false,
         isRotated: true
@@ -2376,9 +3010,7 @@ async function processNextKeywordInQueue(apiKey = '') {
     }
     saveKeywords(keywords);
 
-
     // Update scheduler last run
-    const config = getSchedulerConfig();
     config.lastPublishRun = new Date().toISOString();
     config.lastRun = config.lastPublishRun;
     saveSchedulerConfig(config);
@@ -2397,6 +3029,234 @@ async function processNextKeywordInQueue(apiKey = '') {
   }
 }
 
+
+function buildLocalSeoBox(targetProductUrl, keyword = 'Lọc Nước') {
+  const finalLink = (targetProductUrl || 'https://xulynuochoasen.com/').trim();
+  return `👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Chi Tiết Dây Chuyền & Báo Giá Chính Hãng](${finalLink}) - *Giải pháp kỹ thuật chuyên sâu cam kết đạt chuẩn Bộ Y Tế.*
+
+<div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 12px; padding: 24px; color: #ffffff; margin: 30px 0; border: 1px solid #334155;">
+  <h3 style="color: #38bdf8; margin-top: 0; font-size: 1.25em; font-weight: 700; text-align: center;">CÔNG TY CỔ PHẦN THIÊN NHIÊN VÀ MÔI TRƯỜNG HOA SEN</h3>
+  <p style="text-align: center; color: #94a3b8; font-size: 0.9em; margin-bottom: 18px;">Chuyên gia giải pháp xử lý <strong>${keyword}</strong> &amp; lọc nước công nghiệp, sinh hoạt đạt chuẩn Bộ Y Tế</p>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 20px; font-size: 0.9em; line-height: 1.6; color: #cbd5e1;">
+    <div style="background: rgba(255,255,255,0.04); padding: 12px 14px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+      <strong style="color: #fff; display: block; margin-bottom: 4px;">🏢 Trụ Sở Chính:</strong>
+      124 Khu Dân Cư Phú Nhuận, Đường Lê Thị Riêng, Khu Phố 1, P. Thới An, Quận 12, TP.HCM
+    </div>
+    <div style="background: rgba(255,255,255,0.04); padding: 12px 14px; border-radius: 8px; border-left: 3px solid #22c55e;">
+      <strong style="color: #fff; display: block; margin-bottom: 4px;">🏭 Xưởng Sản Xuất &amp; Kho:</strong>
+      105 Đường Liên Ấp 2-6, Xã Vĩnh Lộc A, Huyện Bình Chánh, TP.HCM
+    </div>
+    <div style="background: rgba(255,255,255,0.04); padding: 12px 14px; border-radius: 8px; border-left: 3px solid #eab308;">
+      <strong style="color: #fff; display: block; margin-bottom: 4px;">🌿 Chi Nhánh Tây Nguyên:</strong>
+      69 Hà Huy Tập, Thị Trấn Di Linh, Tỉnh Lâm Đồng
+    </div>
+    <div style="background: rgba(255,255,255,0.04); padding: 12px 14px; border-radius: 8px; border-left: 3px solid #f43f5e;">
+      <strong style="color: #fff; display: block; margin-bottom: 4px;">📍 Google Business Profile:</strong>
+      <a href="https://maps.google.com/?q=L%E1%BB%8Dc+N%C6%B0%E1%BB%9Bc+Hoa+Sen+124+L%C3%AA+Th%E1%BB%8B+Ri%C3%AAng+Qu%E1%BA%ADn+12" target="_blank" rel="noopener" style="color: #38bdf8; text-decoration: underline;">Xem Vị Trí Trụ Sở Trên Google Maps</a> (Đã xác minh chính chủ)
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px;">
+    <a href="tel:0938880492" style="background: #2563eb; color: #ffffff; padding: 10px 22px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">📱 Hotline Kỹ Thuật: 0938 880 492</a>
+    <a href="https://zalo.me/0938880492" target="_blank" rel="noopener" style="background: #0284c7; color: #ffffff; padding: 10px 22px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">💬 Zalo Báo Giá 24/7: 0938 880 492</a>
+  </div>
+  <p style="font-size: 0.85em; color: #94a3b8; text-align: center; margin: 0;">⚡ <em>Cam kết có mặt khảo sát và xét nghiệm nguồn nước tận nơi trong vòng 2 giờ tại TP.HCM, Bình Dương, Đồng Nai, Long An và toàn miền Nam.</em></p>
+</div>`;
+}
+
+function getDynamicCompetitorKnowledge(domainKey) {
+  try {
+    const indData = getIndustryKnowledge(domainKey);
+    if (!indData || !indData.domainArticles || indData.domainArticles.length === 0) {
+      return { block: '', selectedArticles: [] };
+    }
+
+    const pool = [...indData.domainArticles];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    const selected = [];
+    const seenSources = new Set();
+    for (const art of pool) {
+      const src = (art.source || '').split(' ')[0].toLowerCase();
+      if (!seenSources.has(src) || selected.length < 2) {
+        selected.push(art);
+        seenSources.add(src);
+      }
+      if (selected.length >= 4) break;
+    }
+
+    const competitorExamples = selected.map((art, idx) => {
+      const hList = (art.headings || []).slice(0, 5).join(' | ');
+      const tList = (art.lexicon || []).slice(0, 6).join(', ');
+      const takeaways = (art.keyTakeaways || []).filter(t => t && t.length > 30).slice(0, 2).join(' ') || (art.sampleText || '').substring(0, 200);
+      return `[ĐỐI THỦ THAM KHẢO ${idx + 1} (${art.source})]: "${art.title}"\n- Cấu trúc đề mục kỹ thuật: ${hList}\n- Thuật ngữ chuyên sâu thực tế: ${tList}\n- Giải pháp thực tế: ${takeaways.replace(/\s+/g, ' ').substring(0, 260)}...`;
+    }).join('\n\n');
+
+    const vocabPool = [...(indData.vocabularyBank || [])];
+    for (let i = vocabPool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [vocabPool[i], vocabPool[j]] = [vocabPool[j], vocabPool[i]];
+    }
+    const termsList = vocabPool.slice(0, 24).join(' • ');
+
+    const block = `\n\n══════════════════════════════════════════════════════════════════════════
+KHO TRI THỨC KỸ THUẬT TỪ ĐỐI THỦ ĐẦU NGÀNH GOOGLE TOP 1-5 (KENWA, VIỆT PHÁT, ECOMAX, TOÀN Á, KAROFI, PRIMER...):
+Học hỏi chiều sâu giải pháp, cấu trúc lập luận và thông số thực chiến từ các đơn vị hàng đầu:
+${competitorExamples}
+
+KHO THUẬT NGỮ KỸ THUẬT CHUYÊN NGÀNH CẦN SỬ DỤNG TỰ NHIÊN:
+${termsList}
+
+TIÊU CHUẨN KỸ SƯ THỰC CHIẾN (HỌC HỎI TỪ KENWA & ĐỐI THỦ TOP ĐẦU):
+1. Phân tích bản chất kỹ thuật từ gốc rễ hóa lý: Nêu rõ thông số thực tế (áp suất bơm bar/psi, lưu lượng m3/h, chênh áp màng DP, chu kỳ súc rửa ngược backwash, tỷ lệ thu hồi %).
+2. Lập luận khách quan, đĩnh đạc, cung cấp giải pháp hữu ích, KHÔNG nhồi nhét từ khóa máy móc.
+3. TUYỆT ĐỐI KHÔNG copy y nguyên văn hay nêu tên đối thủ trong bài. Hãy biến tri thức này thành giải pháp vượt trội của Lọc Nước Hoa Sen.
+══════════════════════════════════════════════════════════════════════════\n`;
+
+    return { block, selectedArticles: selected };
+  } catch (e) {
+    console.warn('[DynamicCompetitorKnowledge] Lỗi nạp tri thức:', e.message);
+    return { block: '', selectedArticles: [] };
+  }
+}
+
+const ARTICLE_BLUEPRINTS = [
+  {
+    id: 'blueprint_blueprint',
+    name: 'Hồ Sơ Thiết Kế Kỹ Thuật & Bản Vẽ Công Nghệ Đa Tầng (Engineering Blueprint)',
+    hookStyle: 'Mở đầu bằng báo cáo kỹ thuật hiện trường: Kết quả kiểm tra mẫu nước thực tế (chỉ số TDS, pH, Fe tổng, độ đục NTU) tại khu vực ô nhiễm, lập luận giải thích nguyên nhân gốc rễ và xác lập yêu cầu thiết kế hệ thống.',
+    outlineGuidance: `Cấu trúc bài viết BẮT BUỘC gồm các phần:
+- Đoạn mở bài kỹ thuật: Báo cáo khảo sát thực địa mẫu nước và các thông số hóa lý đáng báo động.
+- H2 (1): Sơ đồ nguyên lý công nghệ đa tầng áp lực & Cơ chế phân tách tạp chất.
+- H2 (2): Cấu hình vật liệu lọc chuyên dụng & Bảng tính toán thông số vận hành (lưu lượng, áp suất, chênh áp DP).
+- H2 (3): Bảng kiểm nghiệm định lượng hóa lý trước và sau xử lý (đối chiếu chuẩn QCVN của Bộ Y Tế).
+- H2 (4): Năng lực khảo sát hiện trường & Lắp đặt tận nơi của Lọc Nước Hoa Sen tại TP.HCM và các tỉnh miền Nam.
+- H2 (5): Quy trình kiểm tra định kỳ & Hướng dẫn bảo dưỡng kéo dài tuổi thọ thiết bị.`,
+    antiCliché: 'CẤM tuyệt đối mở đầu bằng chuyện chị Mai, chị Lan hay người phụ nữ nhìn vào gương! Hãy mở đầu như một kỹ sư trưởng cầm bản kết quả xét nghiệm nước tại công trình.'
+  },
+  {
+    id: 'blueprint_case_study',
+    name: 'Case Study Thực Chiến Hiện Trường & Khắc Phục Sự Cố Nguồn Nước (Field Case Study)',
+    hookStyle: 'Mở đầu bằng một tình huống thực tế tại một dự án cụ thể ở miền Nam (ví dụ: Biệt thự Thảo Điền Thủ Đức, nhà máy tại KCN VSIP Bình Dương, khu dân cư Hóc Môn / Củ Chi hay vườn cây Bến Tre / Long An) gặp sự cố nguồn nước nghiêm trọng.',
+    outlineGuidance: `Cấu trúc bài viết BẮT BUỘC gồm các phần:
+- Đoạn mở bài thực tế: Bối cảnh sự cố cụ thể tại hiện trường và những hệ lụy thực tế gia chủ/chủ doanh nghiệp phải gánh chịu.
+- H2 (1): Các bước chẩn đoán hiện trường & Bóc tách nguyên nhân gây tắc nghẽn / ô nhiễm.
+- H2 (2): Phương án thiết kế kỹ thuật & Giải pháp nâng cấp hệ thống lọc chuyên sâu.
+- H2 (3): Kết quả đo đạc nghiệm thu sau xử lý (bảng so sánh chỉ số nước thực tế đạt chuẩn QCVN).
+- H2 (4): Dịch vụ khảo sát tận nơi & Mạng lưới chi nhánh Hoa Sen phục vụ toàn miền Nam.
+- H2 (5): Bài học kinh nghiệm & Khuyến cáo chuyên gia cho các công trình có nguồn nước tương tự.`,
+    antiCliché: 'CẤM tuyệt đối dùng motif quen thuộc về da tóc hay mỹ phẩm! Tập trung vào hiện trường lắp đặt, đường ống, áp lực bơm và hiệu quả xử lý thực tế.'
+  },
+  {
+    id: 'blueprint_scientific_deepdive',
+    name: 'Phân Tích Chuyên Sâu Hóa Lý & Tiêu Chuẩn Bộ Y Tế (Scientific Deep-Dive)',
+    hookStyle: 'Mở đầu bằng phản biện khoa học: Bóc tách một sai lầm phổ biến mà 90% khách hàng mắc phải (ví dụ: lầm tưởng nước trong là sạch, đun sôi nước khử được kim loại nặng, hoặc mua máy lọc nước nhưng không hiểu cơ chế trao đổi ion/màng bán thấm).',
+    outlineGuidance: `Cấu trúc bài viết BẮT BUỘC gồm các phần:
+- Đoạn mở bài phản biện: Bóc tách hiểu lầm phổ biến dưới góc nhìn hóa sinh và sức khỏe dài hạn.
+- H2 (1): Bản chất hóa lý của tạp chất trong nguồn nước (cơ chế phân tử, phản ứng oxy hóa, ion hóa).
+- H2 (2): Giải pháp công nghệ xử lý triệt để từ gốc rễ (phản ứng xúc tác, trao đổi ion, lọc qua màng bán thấm).
+- H2 (3): Bảng đối chiếu chỉ số kỹ thuật với Quy chuẩn QCVN 01-1:2018/BYT hoặc QCVN 6-1:2010/BYT.
+- H2 (4): Khảo sát hiện trường & Lắp đặt hệ thống chuẩn kỹ thuật tại TP.HCM và các tỉnh lân cận.
+- H2 (5): Giải đáp thắc mắc chuyên sâu (FAQ) từ chuyên gia xử lý nước Hoa Sen.`,
+    antiCliché: 'Văn phong đĩnh đạc, giàu tính học thuật nhưng dễ hiểu, giải thích thuyết phục bằng cơ chế khoa học rõ ràng.'
+  },
+  {
+    id: 'blueprint_economic_evaluation',
+    name: 'Bài Toán Kinh Tế - Kỹ Thuật & Tối Ưu Chi Phí Vận Hành (Economic & Technical Guide)',
+    hookStyle: 'Mở đầu bằng bài toán tài chính: Phân tích sự hao tổn vô hình hàng chục triệu đồng tiền điện, tiền sửa chữa bình nóng lạnh, thay mới vòi sen nhập khẩu, lãng phí chất tẩy rửa và gián đoạn sản xuất do sử dụng nguồn nước không đạt chuẩn.',
+    outlineGuidance: `Cấu trúc bài viết BẮT BUỘC gồm các phần:
+- Đoạn mở bài tài chính: Bóc tách chi phí thiệt hại âm thầm hàng năm của gia đình hoặc doanh nghiệp.
+- H2 (1): Đánh giá bài toán đầu tư: Chi phí CAPEX ban đầu so với chi phí tổn thất thiết bị dài hạn.
+- H2 (2): So sánh các cấu hình công nghệ lọc nước hiện nay (Ưu - Nhược điểm, độ bền và chi phí bảo trì).
+- H2 (3): Bảng kiểm nghiệm định lượng hóa lý bảo đảm an toàn theo tiêu chuẩn Bộ Y Tế.
+- H2 (4): Quy trình tư vấn, khảo sát & Báo giá tận nơi minh bạch của Lọc Nước Hoa Sen.
+- H2 (5): Bí quyết vận hành tối ưu hóa chi phí thay vật liệu và tiết kiệm năng lượng.`,
+    antiCliché: 'Tập trung vào các con số định lượng, bài toán đầu tư và lợi ích kinh tế lâu dài.'
+  },
+  {
+    id: 'blueprint_automation_maintenance',
+    name: 'Cẩm Nang Vận Hành Tự Động Hóa & Bảo Trì Dài Lâu (Automation & Maintenance Guide)',
+    hookStyle: 'Mở đầu bằng những sự cố phổ biến khi vận hành hệ thống lọc: Màng lọc bị nghẹt do cáu cặn, hạt nhựa mất khả năng trao đổi ion, áp suất bơm tăng vọt dẫn đến cháy bơm hoặc nước đầu ra có mùi lạ do không bảo dưỡng đúng chu kỳ.',
+    outlineGuidance: `Cấu trúc bài viết BẮT BUỘC gồm các phần:
+- Đoạn mở bài kỹ thuật: Những rủi ro hư hỏng hệ thống và suy giảm lưu lượng nước khi vận hành sai cách.
+- H2 (1): Nguyên lý hoạt động của hệ thống điều khiển tự động Autovalve & Cảm biến áp lực.
+- H2 (2): Quy trình súc rửa ngược (Backwash), rửa xuôi (Fast rinse) và hoàn nguyên muối tinh khiết.
+- H2 (3): Bảng thông số vận hành chuẩn & Ngưỡng chênh áp cảnh báo cần can thiệp bảo dưỡng.
+- H2 (4): Chính sách bảo hành tận nơi & Hỗ trợ kỹ thuật 24/7 của Lọc Nước Hoa Sen.
+- H2 (5): Bảng tra cứu sự cố thường gặp và cách tự khắc phục nhanh tại nhà.`,
+    antiCliché: 'Tập trung vào chi tiết cơ khí, van điều khiển, áp kế, đồng hồ đo lưu lượng và quy trình bảo dưỡng.'
+  },
+  {
+    id: 'blueprint_regional_hydrology',
+    name: 'Bản Đồ Địa Chất Thủy Văn & Phác Đồ Lọc Nước Vùng Miền (Regional Hydrology Guide)',
+    hookStyle: 'Mở đầu bằng bức tranh địa chất thủy văn thực tế tại các vùng miền phía Nam: Sự khác biệt lớn giữa nguồn nước giếng Củ Chi / Hóc Môn (nhiễm sắt, mangan), nguồn nước Bình Dương / Đồng Nai (đá vôi, độ cứng cao) và nguồn nước Long An / Bến Tre (phèn chua, xâm nhập mặn).',
+    outlineGuidance: `Cấu trúc bài viết BẮT BUỘC gồm các phần:
+- Đoạn mở bài địa chất: Phân tích đặc thù nguồn nước từng khu vực và lý do vì sao một bộ lọc chung chung không thể giải quyết được.
+- H2 (1): Đặc điểm hóa lý nguồn nước tại từng vùng trọng điểm miền Nam.
+- H2 (2): Phác đồ cấu hình hệ thống lọc chuyên biệt thích ứng với từng loại nguồn nước.
+- H2 (3): Bảng kiểm nghiệm chất lượng nước sau lọc đạt chuẩn QCVN 01-1:2018/BYT.
+- H2 (4): Đội ngũ kỹ thuật viên Hoa Sen lưu động tại từng quận huyện, có mặt khảo sát trong 2 giờ.
+- H2 (5): Hướng dẫn khách hàng tự kiểm tra sơ bộ chất lượng nước tại nhà.`,
+    antiCliché: 'Tập trung vào địa danh cụ thể, tầng ngậm nước, đất phù sa, đất phèn và cấu hình lọc thích ứng từng địa phương.'
+  }
+];
+
+
+function robustParseGeminiResponse(rawText) {
+  if (!rawText || typeof rawText !== 'string') return null;
+  let cleaned = rawText.replace(/^\`\`\`json\s*/i, '').replace(/\s*\`\`\`$/i, '').trim();
+
+  // 1. Try standard JSON.parse first
+  try {
+    const p = JSON.parse(cleaned);
+    if (p && p.title && p.content) return p;
+  } catch (e) {}
+
+  // 2. Resilient regex extraction for title, metaDescription, and markdown content
+  try {
+    let title = '';
+    let metaDescription = '';
+    let content = '';
+
+    const titleMatch = cleaned.match(/"title"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+    if (titleMatch) {
+      title = titleMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\').trim();
+    }
+
+    const metaMatch = cleaned.match(/"metaDescription"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+    if (metaMatch) {
+      metaDescription = metaMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\').trim();
+    }
+
+    const contentStartMatch = cleaned.match(/"content"\s*:\s*"/);
+    if (contentStartMatch) {
+      const startIdx = contentStartMatch.index + contentStartMatch[0].length;
+      let rawContent = cleaned.substring(startIdx);
+      // Remove trailing quotes, spaces, and closing brace
+      rawContent = rawContent.replace(/"\s*\}?\s*$/, '');
+      // Decode escaped newlines, tabs, and quotes
+      content = rawContent
+        .replace(/\\r\\n/g, '\n')
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\')
+        .trim();
+    }
+
+    if (title && content) {
+      return { title, metaDescription, content };
+    }
+  } catch (err) {
+    console.error('Error in robustParseGeminiResponse:', err);
+  }
+
+  return null;
+}
 
 async function generateContentForKeyword(topic, keyword, customApiKey = '', customTargetUrl = '') {
   let apiKey = customApiKey;
@@ -2449,96 +3309,144 @@ async function generateContentForKeyword(topic, keyword, customApiKey = '', cust
         avoidanceNotice += `\n\n⚠️ CỰC KỲ QUAN TRỌNG — CHỐNG DUPLICATE NỘI DUNG NỘI BỘ:\nĐã có ${sameKwPosts.length} bài viết cùng từ khóa "${keyword}" trong hệ thống:\n${existingTitles}\n\nCÁC ĐOẠN NỘI DUNG HIỆN CÓ (PHẢI VIẾT KHÁC HOÀN TOÀN):\n${existingSnippets}\nQUAN TRỌNG: Bài mới PHẢI có cấu trúc sections hoàn toàn khác, góc độ tiếp cận khác, ví dụ thực tế khác, không được dùng cùng câu mở đầu hay headings. Google sẽ penalize nặng nếu nội dung trùng lặp!`;
       }
 
-      // === LOP 3: THU THẬP DỮ LIỆU ĐA CHIỀU (TOP 1-10 GOOGLE.VN + QUỐC TẾ NSF/EPA/WQA/DUPONT) ===
-      let researchBlock = '';
+      // === LOP 3: THU THẬP NGUỒN ĐỐI CHIẾU (Dành riêng cho Modal kiểm duyệt UI, KHÔNG bó buộc Prompt) ===
       let researchData = null;
       try {
         const research = await conductGlobalAndDomesticResearch(keyword, topic);
-        if (research && research.knowledgeText) {
+        if (research && research.sourcesList) {
           researchData = research;
-          researchBlock = `\n\n══════════════════════════════════════════════════════════════════════════
-NGUỒN DỮ LIỆU ĐA TẦNG TOÀN CẦU (VIỆT NAM + HOA KỲ + ĐỨC + NHẬT BẢN):
-Bạn PHẢI sử dụng toàn bộ kho tri thức đa quốc gia này để tổng hợp bài viết:
-- DỊCH VÀ CHUYỂN NGỮ 100% CÁC TÀI LIỆU KỸ THUẬT TIẾNG ANH, TIẾNG ĐỨC, TIẾNG NHẬT SANG TIẾNG VIỆT CHUYÊN NGÀNH NƯỚC CHUẨN XÁC THEO BẢNG HƯỚNG DẪN DƯỚI ĐÂY.
-- KẾT HỢP DỮ LIỆU THỰC TẾ TẠI VIỆT NAM VỚI TIÊU CHUẨN KỸ THUẬT ĐỨC (DVGW, DIN EN), NHẬT BẢN (TORAY, KURITA) VÀ QUỐC TẾ (NSF/ANSI, EPA, WHO, DUPONT) ĐỂ TẠO NÊN BÀI VIẾT MASTER SEO ĐỘC BẢN, SÂU SẮC, VƯỢT TRỘI MỌI ĐỐI THỦ.
-- TUYỆT ĐỐI KHÔNG COPY NGUYÊN VĂN MÀ PHẢI TỔNG HỢP, DIỄN ĐẠT LẠI HOÀN TOÀN MỚI.
-${research.knowledgeText}
-══════════════════════════════════════════════════════════════════════════\n`;
         }
       } catch (rErr) {
-        console.warn('[Worldwide Research] Bỏ qua cào nếu có lỗi:', rErr.message);
+        console.warn('[Research Sources] Bỏ qua cào nếu có lỗi:', rErr.message);
       }
 
-      // === MA TRẬN 5 LĂNG KÍNH TIẾP CẬN ĐA CHIỀU (CHỐNG DẬP KHUÔN 100%) ===
-      const EDITORIAL_ANGLES = [
-        {
-          name: "Trải nghiệm Đời sống & Giác quan Thực tế",
-          directive: "Tiếp cận từ những va chạm giác quan chân thực trong sinh hoạt: Cảm giác thô ráp rít rịt của làn da sau khi tắm, mùi tanh nồng hoặc mùi clo sặc sụa bốc lên từ vòi nước, bọt xà phòng bị triệt tiêu, hay vệt ố màu bám trên đồ đạc hàng ngày."
-        },
-        {
-          name: "Kinh tế Gia đình & Chi phí Âm thầm",
-          directive: "Tiếp cận từ bài toán tài chính thực tế: Sự hao tổn vô hình hàng chục triệu đồng tiền điện do lớp cặn vôi/rỉ sét cách nhiệt trên thanh đốt bình nước nóng, chi phí sửa chữa thay mới vòi sen sen tắm nhập khẩu, và lãng phí xà phòng/chất tẩy rửa gấp 3 lần."
-        },
-        {
-          name: "Sinh học Y khoa & Sức khỏe Tế bào",
-          directive: "Tiếp cận từ góc nhìn khoa học da liễu và tế bào: Cơ chế tổn thương lớp màng lipid bảo vệ da mặt, sự phá vỡ cấu trúc keratin của sợi tóc, và tác động của các tạp chất hóa học/kim loại nặng ngấm qua biểu bì hoặc đi vào cơ thể khi đun nấu."
-        },
-        {
-          name: "Địa chất Thủy văn & Đặc thù Vùng miền",
-          directive: "Tiếp cận từ bản đồ địa chất tự nhiên của Việt Nam: Sự khác biệt sâu sắc giữa các tầng ngậm nước (vùng phù sa châu thổ Mekong, đất phèn chua trũng Đồng Tháp Mười, dải đá vôi vùng cao phía Bắc, đất đỏ bazan Tây Nguyên hay nguồn nước ven biển xâm nhập mặn)."
-        },
-        {
-          name: "Điều tra Chuyên gia & Lật tẩy Lầm tưởng",
-          directive: "Tiếp cận từ góc độ phản biện khoa học: Bóc tách những sai lầm kinh điển mà đa số người tiêu dùng hay mắc phải (như quan niệm 'nước nhìn trong veo là nước sạch', hay lầm tưởng 'đun sôi nước giếng là diệt sạch phèn và kim loại nặng')."
-        }
-      ];
+      // === LOP 3.5: KHO TRI THỨC KỸ THUẬT ĐỐI THỦ GOOGLE TOP 1-5 TỰ ĐỘNG XOAY VÒNG ===
+      const domainKey = categorizeIndustryDomain(keyword, topic);
+      const dynamicKnowledge = getDynamicCompetitorKnowledge(domainKey);
+      const industryKnowledgeBlock = typeof dynamicKnowledge === 'string' ? dynamicKnowledge : (dynamicKnowledge.block || '');
+      const competitorArticles = dynamicKnowledge.selectedArticles || [];
 
-      const seedStr = (topic || '') + ' ' + (keyword || '') + ' ' + Date.now();
+      // === LOP 3.6: CHIẾN LƯỢC CỤM CHỦ ĐỀ & TIÊU ĐỀ ĐỘC BẢN (TOPIC CLUSTER ENGINE) ===
+      const existingAllTitles = [
+        ...(avoidance?.titles || []),
+        ...sameKwPosts.map(p => p.title)
+      ];
+      const topicStrategy = selectDynamicTopicStrategy(keyword, domainKey, existingAllTitles, Date.now());
+
+      // Chọn chủ đề linh hoạt: Nếu topic truyền vào là chuỗi chung chung cũ, thay bằng tiêu đề chiến lược mới
+      const genericPatterns = [
+        'Toàn Diện Cho Hộ Gia Đình',
+        'Công Suất Lớn Chuẩn TCVN',
+        'Cho Biệt Thự & Căn Hộ',
+        'Khử Muối Màng RO Nước Lợ',
+        '& Đóng Bình',
+        'Chuyên Nghiệp',
+        'Triệt Để',
+        'biệt thự cao cấp'
+      ];
+      const dupTopicCheck = topic ? checkDuplicateTitle(topic) : { isDuplicate: false };
+      const isGenericTopic = !topic || topic === keyword || dupTopicCheck.isDuplicate || genericPatterns.some(p => topic.toLowerCase().includes(p.toLowerCase()));
+      const activeTopic = isGenericTopic ? topicStrategy.selectedTitle : topic;
+
+      if (!isGenericTopic) {
+        topicStrategy.selectedTitle = activeTopic;
+        if (activeTopic.includes('So Sánh') || activeTopic.includes('Đánh Giá')) {
+          topicStrategy.clusterId = TOPIC_CLUSTERS[1].clusterId;
+          topicStrategy.clusterName = TOPIC_CLUSTERS[1].clusterName;
+          topicStrategy.technicalDepth = TOPIC_CLUSTERS[1].technicalDepth;
+        } else if (activeTopic.includes('Khi Nào') || activeTopic.includes('Bảo Trì') || activeTopic.includes('Bảo Dưỡng') || activeTopic.includes('Lỗi')) {
+          topicStrategy.clusterId = TOPIC_CLUSTERS[2].clusterId;
+          topicStrategy.clusterName = TOPIC_CLUSTERS[2].clusterName;
+          topicStrategy.technicalDepth = TOPIC_CLUSTERS[2].technicalDepth;
+        } else if (activeTopic.includes('Tại ') || activeTopic.includes('Bình Chánh') || activeTopic.includes('Củ Chi') || activeTopic.includes('Long An') || activeTopic.includes('Đồng Nai') || activeTopic.includes('Bình Dương')) {
+          topicStrategy.clusterId = TOPIC_CLUSTERS[4].clusterId;
+          topicStrategy.clusterName = TOPIC_CLUSTERS[4].clusterName;
+          topicStrategy.technicalDepth = typeof TOPIC_CLUSTERS[4].technicalDepth === 'function' ? TOPIC_CLUSTERS[4].technicalDepth(topicStrategy.capacity, topicStrategy.location) : TOPIC_CLUSTERS[4].technicalDepth;
+        } else if (activeTopic.includes('L/h') || activeTopic.includes('m³/h') || activeTopic.includes('Công Suất') || activeTopic.includes('Dây Chuyền')) {
+          topicStrategy.clusterId = TOPIC_CLUSTERS[3].clusterId;
+          topicStrategy.clusterName = TOPIC_CLUSTERS[3].clusterName;
+          topicStrategy.technicalDepth = typeof TOPIC_CLUSTERS[3].technicalDepth === 'function' ? TOPIC_CLUSTERS[3].technicalDepth(topicStrategy.capacity, topicStrategy.location) : TOPIC_CLUSTERS[3].technicalDepth;
+        } else if (activeTopic.includes('Báo Giá') || activeTopic.includes('Tổng Quan') || activeTopic.includes('Cẩm Nang')) {
+          topicStrategy.clusterId = TOPIC_CLUSTERS[0].clusterId;
+          topicStrategy.clusterName = TOPIC_CLUSTERS[0].clusterName;
+          topicStrategy.technicalDepth = TOPIC_CLUSTERS[0].technicalDepth;
+        }
+      }
+
+      // === LOP 4: MA TRẬN 6 BẢN THIẾT KẾ CẤU TRÚC (CHỐNG DẬP KHUÔN 100%) ===
+      const seedStr = activeTopic + ' ' + (keyword || '') + ' ' + Date.now();
       let angleHash = 0;
       for (let i = 0; i < seedStr.length; i++) {
         angleHash = (angleHash << 5) - angleHash + seedStr.charCodeAt(i);
         angleHash |= 0;
       }
-      const activeAngle = EDITORIAL_ANGLES[Math.abs(angleHash) % EDITORIAL_ANGLES.length];
+      const activeBlueprint = ARTICLE_BLUEPRINTS[Math.abs(angleHash) % ARTICLE_BLUEPRINTS.length];
+      const targetBrandLink = (customTargetUrl && !customTargetUrl.includes('/san-pham/')) ? customTargetUrl : getGoogleAdsTargetUrl(keyword || activeTopic, activeTopic || keyword);
 
-      const prompt = `Bạn là một Nhà văn tiểu thuyết gia kiêm Kỹ sư Công nghệ Môi trường Xử lý Nước xuất sắc.
-Hãy viết một bài viết chuyên sâu đỉnh cao, có hồn, giàu chất đời sống thực tế và chuẩn SEO 100% (ĐIỂM SEO BẮT BUỘC TỪ 95 - 100 ĐIỂM) bằng tiếng Việt cho chủ đề: "${topic}".
+      const competitorTitlesGuide = (topicStrategy.competitorExemplars && topicStrategy.competitorExemplars.length > 0)
+        ? `\n\nKHO TIÊU ĐỀ THỰC CHIẾN ĐỐI THỦ ĐẦU NGÀNH GOOGLE (HỌC HỎI CÁCH ĐẶT TIÊU ĐỀ THU HÚT, KÍCH THÍCH CLICK):\n${topicStrategy.competitorExemplars.map(c => `- "${c.title}" (${c.source})`).join('\n')}\n`
+        : '';
 
-LĂNG KÍNH TIẾP CẬN CHỦ ĐẠO CỦA BÀI VIẾT NÀY (BẮT BUỘC KHAI THÁC THEO HƯỚNG NÀY ĐỂ TRÁNH DẬP KHUÔN):
-👉 HƯỚNG TIẾP CẬN: [${activeAngle.name}]
-👉 CHỈ ĐẠO NỘI DUNG: ${activeAngle.directive}
+      const prompt = `Bạn là một Nhà văn tiểu thuyết gia kiêm Kỹ sư Trưởng Công nghệ Môi trường Xử lý Nước của Công ty Lọc Nước Hoa Sen (xulynuochoasen.com).
+Hãy viết một bài viết chuyên sâu đỉnh cao, độc bản 100%, giàu chất đời sống thực tế và chuẩn SEO Master (ĐIỂM SEO BẮT BUỘC TỪ 95 - 100 ĐIỂM) bằng tiếng Việt cho chủ đề: "${activeTopic}".
 
-BỘ QUY TẮC NÂNG TẦM TRÍ TUỆ & CHỐNG RẬP KHUÔN (ANTI-ANCHORING):
-1. NGUYÊN TẮC VĂN PHONG & MỞ ĐẦU (ANTI-ROBOT & TUYỆT ĐỐI KHÔNG COPY ẨN DỤ CŨ):
+CHIẾN LƯỢC CỤM CHỦ ĐỀ & TIÊU ĐỀ MỤC TIÊU:
+👉 CỤM NỘI DUNG CHIẾN LƯỢC: [${topicStrategy.clusterName}]
+👉 TIÊU ĐỀ ĐỀ XUẤT ĐẠT CHUẨN 50-65 KÝ TỰ: "${topicStrategy.selectedTitle}"
+👉 CHIỀU SÂU KỸ THUẬT BẮT BUỘC TRIỂN KHAI TRONG BÀI:
+${topicStrategy.technicalDepth}
+${competitorTitlesGuide}
+BẢN THIẾT KẾ CẤU TRÚC BÀI VIẾT (BẮT BUỘC TUÂN THỦ ĐỂ BÀI VIẾT HOÀN TOÀN KHÁC BIỆT, CHỐNG DẬP KHUÔN 100%):
+👉 PHONG CÁCH & ĐỊNH DẠNG BÀI VIẾT: [${activeBlueprint.name}]
+👉 CÁCH MỞ ĐẦU (SAPO): ${activeBlueprint.hookStyle}
+👉 HƯỚNG DẪN CẤU TRÚC PHÂN MỤC:
+${activeBlueprint.outlineGuidance}
+👉 NGUYÊN TẮC CHỐNG CLICHÉ: ${activeBlueprint.antiCliché}
+
+QUY TẮC ĐẶT TIÊU ĐỀ H1 HẤP DẪN & CHUẨN SEO TUYỆT ĐỐI:
+1. TIÊU ĐỀ H1: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài tiêu đề từ 50 đến 65 ký tự, hấp dẫn, kích thích tỷ lệ nhấp (CTR).
+2. Tiêu đề PHẢI thể hiện tính chuyên nghiệp, thực chiến, thu hút khách hàng (khuyến nghị dùng trực tiếp hoặc phát triển từ tiêu đề đề xuất: "${topicStrategy.selectedTitle}").
+3. CẤM sử dụng các tiêu đề chung chung, sáo rỗng hoặc trùng lặp với các bài viết đã có trên web.
+4. NỘI DUNG BÀI VIẾT BẮT BUỘC BÁM SÁT 100% VÀO TIÊU ĐỀ:
+   - Nếu tiêu đề về "So sánh chi phí / Tự đầu tư vs Thuê bình": Phải có bảng tính kinh tế chi tiết (CAPEX, OPEX, thời gian hoàn vốn 8-12 tháng).
+   - Nếu tiêu đề về "Khi nào nên nâng cấp / Bảo trì": Phải phân tích các dấu hiệu kỹ thuật (chênh áp DP > 2.5 bar, lưu lượng tụt 20%, TDS tăng).
+   - Nếu tiêu đề về "Lắp đặt tại [Địa phương]": Phải phân tích nguồn nước tại địa phương đó và quy trình kỹ thuật viên Hoa Sen khảo sát tận nơi.
+
+QUY TẮC NÂNG TẦM TRÍ TUỆ & CHẤT LƯỢNG KỸ THUẬT:
+1. NGUYÊN TẮC VĂN PHONG & CHỐNG RẬP KHUÔN:
    - CẤM các câu mở đầu sáo rỗng: "Trong thời đại ngày nay...", "Nhu cầu ngày càng tăng...", "Nước là nguồn sống...", "Trong bối cảnh hiện nay...".
-   - BẮT BUỘC MỞ BÀI (SAPO) bằng một câu chuyện, tình huống hay cảm xúc đời thực phù hợp với hướng tiếp cận [${activeAngle.name}].
-   - TUYỆT ĐỐI KHÔNG DẬP KHUÔN các ví dụ của bài trước: Mỗi bài viết bạn PHẢI TỰ SÁNG TẠO RA ẩn dụ và ví dụ đời sống MỚI phù hợp với đề tài riêng biệt (ví dụ: nếu viết về nước cứng thì nói về ấm đun hay vách kính; nếu viết về lọc tổng thì nói về da tóc hay sen tắm; nếu viết về nước mặn thì nói về rễ cây táp lá hay mặn xâm nhập; nếu viết về nước giếng thì nói về mùi bùn rỉ sét hay tầng đất sâu...). Tuyệt đối không lặp lại cùng một ẩn dụ qua các bài khác nhau!
+   - BẮT BUỘC MỞ BÀI theo đúng phong cách [${activeBlueprint.name}], tự nhiên, lôi cuốn, không lặp lại motif người phụ nữ soi gương hay mỹ phẩm nếu không phù hợp.
+   - Sử dụng các thuật ngữ chuyên ngành một cách tự nhiên, mạch lạc, KHÔNG nhồi nhét cơ học hay bọc dấu hoa thị bất thường.
 
 2. CHIỀU SÂU KHOA HỌC TỪ BẢN CHẤT GỐC RỄ:
-   - Tùy vào bản chất của từ khóa "${keyword}", hãy giải thích tường tận nguyên nhân khoa học thích ứng:
-     + Nếu liên quan đến phèn/sắt: Cơ chế oxy hóa khử kỵ khí, sự chuyển hóa ion sắt hòa tan thành kết tủa khi tiếp xúc oxy.
-     + Nếu liên quan đến nước cứng/đá vôi: Cơ chế kết tinh cáu cặn của Canxi/Magie khi gia nhiệt và nguyên lý trao đổi ion làm mềm.
-     + Nếu liên quan đến nước tinh khiết/RO: Cơ chế phân tách kích thước phân tử siêu vi 0.0001 micron và chỉ số tổng chất rắn TDS.
+   - Tùy vào bản chất của từ khóa "${keyword}", giải thích tường tận nguyên nhân khoa học thích ứng:
+     + Nếu liên quan đến phèn/sắt: Cơ chế oxy hóa khử kỵ khí, sự chuyển hóa ion sắt hòa tan Fe2+ thành kết tủa Fe3+ khi tiếp xúc oxy, vai trò của cát Mangan, hạt Birm Clack USA, Pyrolox.
+     + Nếu liên quan đến nước cứng/đá vôi: Cơ chế kết tinh cáu cặn của Canxi/Magie khi gia nhiệt và nguyên lý trao đổi ion làm mềm bằng hạt cation Purolite/DOW tái sinh muối NaCl.
+     + Nếu liên quan đến nước tinh khiết/RO: Cơ chế phân tách kích thước phân tử siêu vi 0.0001 micron, chỉ số tổng chất rắn TDS, chênh áp màng DP, quy trình CIP tẩy rửa màng định kỳ.
      + Nếu liên quan đến nước máy sinh hoạt: Tác động của Clo dư khử trùng và nguy cơ thôi nhiễm rỉ sét từ đường ống đô thị cũ kỹ.
-   - Luôn đưa ra lời khuyên thực tế hoặc một mẹo nhận biết trực quan mà người đọc có thể tự kiểm chứng tại nhà phù hợp với chủ đề đó.
 
-3. ĐỘ DÀI & TỐI ƯU SEO VÀNG:
+3. LOCAL SEO THỰC CHIẾN TẠI ĐỊA PHƯƠNG (BẮT BUỘC TRONG NỘI DUNG):
+   - BẮT BUỘC có một phân mục H2 chuyên sâu về: Khảo sát hiện trường & Lắp đặt tận nơi tại TP.HCM và các tỉnh miền Nam của Lọc Nước Hoa Sen.
+   - Nhắc đến các địa bàn phục vụ cụ thể: TP.HCM (Quận 12, Hóc Môn, Củ Chi, Bình Chánh, Nhà Bè, TP. Thủ Đức...), Bình Dương (KCN VSIP, Sóng Thần, Mỹ Phước, Dĩ An, Thuận An...), Đồng Nai (Biên Hòa, Long Thành, Nhơn Trạch, KCN Amata...), Long An (Bến Lức, Đức Hòa...), Tây Nam Bộ (Bến Tre, Tiền Giang...).
+   - Cam kết kỹ thuật viên Hoa Sen mang vali đo chỉ số nước chuyên dụng (TDS, pH, độ cứng, nồng độ sắt) đến tận nơi khảo sát và xét nghiệm miễn phí trong 2 giờ.
+
+4. ĐỘ DÀI & TỐI ƯU SEO VÀNG:
    - Từ khóa chính bắt buộc: "${keyword}"
-   - ĐỘ DÀI BÀI VIẾT: Bắt buộc dài từ 1300 đến 1600 từ để đạt chiều sâu học thuật và điểm SEO tuyệt đối.
+   - ĐỘ DÀI BÀI VIẾT: Bắt buộc dài từ 1400 đến 1800 từ để đạt chiều sâu học thuật và điểm SEO tuyệt đối.
    - TIÊU ĐỀ H1: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài tiêu đề từ 50 đến 65 ký tự, hấp dẫn, kích thích tỷ lệ nhấp (CTR).
    - META DESCRIPTION: Phải chứa CHÍNH XÁC từ khóa "${keyword}", độ dài nghiêm ngặt từ 140 đến 158 ký tự.
    - ĐOẠN MỞ BÀI: Chèn từ khóa "${keyword}" tự nhiên ngay trong 100 từ đầu tiên.
-   - MẬT ĐỘ TỪ KHÓA: Từ khóa "${keyword}" xuất hiện tự nhiên từ 8 đến 12 lần rải đều trong các mục thân bài (mật độ 1.5% - 2.5%).
+   - MẬT ĐỘ TỪ KHÓA: Từ khóa "${keyword}" xuất hiện tự nhiên từ 8 đến 12 lần rải đều trong các mục thân bài.
    - CẤU TRÚC THẺ: Có từ 4-6 thẻ H2 mạch lạc, các phân mục H3 chuyên sâu, bảng biểu so sánh định lượng hóa lý thực tế trước/sau lọc và chuẩn Bộ Y Tế (QCVN 01-1:2018/BYT hoặc QCVN 6-1:2010/BYT).
-   - Phần FAQ thực chiến giải đáp 2-3 câu hỏi cốt lõi mà khách hàng hay thắc mắc nhất.
 
-4. HÌNH ẢNH MINH HỌA:
+5. HÌNH ẢNH MINH HỌA:
    - Dưới thẻ H2 đầu tiên, chèn ảnh: ![Hình ảnh mô tả ${keyword}](${img1})
    - Ở phần thân bài kỹ thuật, chèn ảnh: ![Cấu tạo chi tiết ${keyword}](${img2})
 
-5. LƯU Ý BẢN QUYỀN & THƯƠNG HIỆU:
-   - TUYỆT ĐỐI KHÔNG chèn danh sách link nguồn ngoài hay mục "Nguồn Tham Khảo" vào thân bài.
-${customTargetUrl ? `6. LINK ĐÍCH SẢN PHẨM: Cuối bài chèn liên kết điều hướng sản phẩm: 👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${customTargetUrl}) - *Giải pháp kỹ thuật chuyên sâu đạt chuẩn Bộ Y Tế.*` : ''}${avoidanceNotice}${researchBlock}
+6. LIÊN KẾT ĐÍCH & KHỐI LIÊN HỆ ĐỊA PHƯƠNG (LOCAL SEO):
+   - Cuối bài BẮT BUỘC chèn khối thông tin sau:
+${buildLocalSeoBox(targetBrandLink, keyword)}
+${avoidanceNotice}${industryKnowledgeBlock}
 
 Trở về JSON thuần túy (không bọc markdown block):
 {
@@ -2547,7 +3455,7 @@ Trở về JSON thuần túy (không bọc markdown block):
   "content": "...(Nội dung Markdown đầy đủ với #, ##, ###, bảng biểu và hình ảnh)..."
 }`;
 
-      const candidateModels = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.5-flash-lite', 'gemini-2.5-pro'];
+      const candidateModels = ['gemini-3.8-flash', 'gemini-flash-lite-latest', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
       let data = null;
 
       for (const model of candidateModels) {
@@ -2560,6 +3468,7 @@ Trở về JSON thuần túy (không bọc markdown block):
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
                   responseMimeType: "application/json",
+                  maxOutputTokens: 8192,
                   temperature: 0.85
                 }
               })
@@ -2587,21 +3496,18 @@ Trở về JSON thuần túy (không bọc markdown block):
 
       if (data && data.candidates && data.candidates[0]?.content?.parts) {
         const textPart = data.candidates[0].content.parts.find(p => p.text)?.text || data.candidates[0].content.parts[0]?.text || '';
-        let textResult = textPart.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-        let parsed = null;
-        try {
-          parsed = JSON.parse(textResult);
-        } catch (pErr) {
-          const jsonMatch = textResult.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            try { parsed = JSON.parse(jsonMatch[0]); } catch (e) {}
-          }
+        let parsed = robustParseGeminiResponse(textPart);
+        if (!parsed) {
+          console.error('[Gemini AI] ❌ parsed is null! textPart length:', textPart.length, 'sample:', textPart.substring(0, 300));
+        } else if (!parsed.title || !parsed.content) {
+          console.error('[Gemini AI] ❌ parsed is missing title/content! keys:', Object.keys(parsed));
+        } else {
+          console.log('[Gemini AI] 🎯 parsed title & content OK! Title:', parsed.title);
         }
-
         if (parsed && parsed.title && parsed.content) {
-          // Auto-Trim Title to optimal 50-65 chars if needed
+          // Auto-Trim Title to optimal 50-65 chars cleanly
           if (parsed.title.length > 65) {
-            parsed.title = parsed.title.substring(0, 62).trim() + '...';
+            parsed.title = fitTitleLength(parsed.title, keyword);
           }
           // Auto-Trim Meta Description to optimal 140-158 chars if needed
           if (parsed.metaDescription && parsed.metaDescription.length > 158) {
@@ -2609,14 +3515,16 @@ Trở về JSON thuần túy (không bọc markdown block):
           }
 
           // Anti-cannibalization check against live blog posts:
-          // If title has overlap, tweak title instead of throwing away the unique AI content!
           const dupCheck = checkDuplicateTitle(parsed.title);
           if (dupCheck.isDuplicate) {
             const matchedTitle = dupCheck.mostSimilarPost?.title || dupCheck.matchedLiveTitle || 'bài viết trên web';
-            console.log(`[Anti-Cannibalization] Tiêu đề Gemini "${parsed.title}" bị trùng ${Math.round(dupCheck.similarity * 100)}% với bài live: "${matchedTitle}". Tự động tinh chỉnh tiêu đề để đảm bảo tính độc bản 100%!`);
-            parsed.title = `${parsed.title.replace(/\s*2026\s*$/i, '')} Chuyên Sâu 2026`;
-            if (parsed.title.length > 65) {
-              parsed.title = parsed.title.substring(0, 62).trim() + '...';
+            console.log(`[Anti-Cannibalization] Tiêu đề Gemini "${parsed.title}" bị trùng ${Math.round(dupCheck.similarity * 100)}% với bài live: "${matchedTitle}". Tự động thay bằng tiêu đề độc bản mới!`);
+            if (topicStrategy && topicStrategy.selectedTitle && !checkDuplicateTitle(topicStrategy.selectedTitle).isDuplicate) {
+              parsed.title = topicStrategy.selectedTitle;
+            } else {
+              const liveTitles = (getLiveBlogPosts() || []).map(p => p.title);
+              const freshStrat = selectDynamicTopicStrategy(keyword, domainKey, liveTitles, Date.now() + Math.round(Math.random() * 1000));
+              parsed.title = fitTitleLength(freshStrat.selectedTitle, keyword);
             }
           }
 
@@ -2645,10 +3553,20 @@ Trở về JSON thuần túy (không bọc markdown block):
             parsed.content += `\n\n[![Chi tiết cấu tạo ${keyword}](${img2})](${targetBrandLink})\n\n`;
           }
 
-          // Attach sources strictly to post object for software UI inspection ONLY (never publish to WP)
-          if (researchData && researchData.sourcesList && researchData.sourcesList.length > 0) {
-            parsed.sources = researchData.sourcesList;
-          }
+          // Attach actual competitor sources + reference sources strictly for software UI inspection ONLY
+          const compSources = (competitorArticles || []).map(art => ({
+            title: art.title,
+            url: art.link || art.url || '#',
+            link: art.link || art.url || '#',
+            snippet: `[Tài liệu Google Top 1-5 (${art.source})]: ${art.sampleText || art.title}`,
+            region: 'VN',
+            regionName: `Google Top 1-5 (${art.source})`,
+            badge: '🇻🇳 Top 1-5'
+          }));
+
+          const extraSources = (researchData && researchData.sourcesList) ? researchData.sourcesList.slice(0, 6) : [];
+          parsed.sources = [...compSources, ...extraSources];
+
           // Strip reference section if Gemini generated it
           if (parsed.content && parsed.content.includes('## Nguồn Tham Khảo')) {
             const refIdx = parsed.content.indexOf('## Nguồn Tham Khảo');
@@ -2660,8 +3578,38 @@ Trở về JSON thuần túy (không bọc markdown block):
             }
           }
 
-          if (customTargetUrl && parsed.content && !parsed.content.includes(customTargetUrl)) {
-            parsed.content += `\n\n👉 **Sản Phẩm Đúng Chuyên Mục:** [Xem Sản Phẩm Tương Ứng](${customTargetUrl}) - *Giải pháp kỹ thuật chuyên sâu đạt chuẩn Bộ Y Tế.*`;
+          // Guaranteed Local SEO section IN THE BODY of the article
+          const bodyLower = (parsed.content || '').toLowerCase();
+          const hasDetailedLocalInBody = (
+            bodyLower.includes('124 khu dân cư phú nhuận') ||
+            bodyLower.includes('124 lê thị riêng') ||
+            bodyLower.includes('105 đường liên ấp 2-6') ||
+            (bodyLower.includes('quận 12') && bodyLower.includes('bình chánh'))
+          );
+
+          if (!hasDetailedLocalInBody) {
+            const localH2Section = `\n\n## Khảo Sát Hiện Trường & Lắp Đặt Tận Nơi Tại TP.HCM & Miền Nam
+
+Nhằm đảm bảo hệ sinh thái lọc nước vận hành chuẩn xác theo từng nguồn nước thực tế tại địa phương, **Lọc Nước Hoa Sen** cam kết quy trình khảo sát và xét nghiệm mẫu nước chuyên sâu tận nơi:
+
+* **Trụ Sở Điều Hành & Kỹ Thuật**: Đặt tại **124 Khu Dân Cư Phú Nhuận, Đường Lê Thị Riêng, Khu Phố 1, Phường Thới An, Quận 12, TP.HCM**.
+* **Xưởng Cơ Khí Chế Tạo & Tổng Kho**: Tọa lạc tại **105 Đường Liên Ấp 2-6, Xã Vĩnh Lộc A, Huyện Bình Chánh, TP.HCM**, đảm bảo sẵn sàng linh kiện màng RO, hạt trao đổi ion và vật liệu lọc nhập khẩu chính hãng.
+* **Chi Nhánh Tây Nguyên**: Hiện diện tại **69 Hà Huy Tập, Thị Trấn Di Linh, Tỉnh Lâm Đồng**, chuyên trách tư vấn và lắp đặt hệ thống lọc nước dân dụng và trang trại nông nghiệp.
+* **Quy trình xét nghiệm nước di động**: Kỹ thuật viên mang vali phân tích nước đa chỉ tiêu (TDS, độ pH, độ cứng, hàm lượng sắt tổng Fe) đến đo đạc trực tiếp trước mắt khách hàng hoàn toàn miễn phí.
+* **Cam kết tốc độ phục vụ**: Có mặt tận nơi trong vòng **2 giờ** tại toàn bộ 24 quận huyện TP.HCM, Bình Dương, Long An, Đồng Nai và các tỉnh miền Tây lân cận.`;
+
+            const lastH2Idx = parsed.content.lastIndexOf('## ');
+            if (lastH2Idx !== -1) {
+              parsed.content = parsed.content.substring(0, lastH2Idx) + localH2Section + '\n\n' + parsed.content.substring(lastH2Idx);
+            } else {
+              parsed.content += localH2Section;
+            }
+          }
+
+          // Guaranteed Full Local SEO Box injection at footer
+          const localBoxSignature = 'CÔNG TY CỔ PHẦN THIÊN NHIÊN VÀ MÔI TRƯỜNG HOA SEN';
+          if (parsed.content && !parsed.content.includes(localBoxSignature)) {
+            parsed.content += `\n\n${buildLocalSeoBox(targetBrandLink, keyword)}`;
           }
 
           // === LOP 3: Tu dong kiem tra similarity SAU khi generate ===
@@ -2681,12 +3629,12 @@ Trở về JSON thuần túy (không bọc markdown block):
             if (sim > maxDupSim) maxDupSim = sim;
           }
 
-          if (maxDupSim > 0.55) {
-            console.warn(`[Auto-DupGuard] Content moi tuong dong ${(maxDupSim*100).toFixed(0)}% voi bai hien co! Danh dau _needsRewrite de scheduler tu dong fix.`);
+          if (maxDupSim > 0.40) {
+            console.warn(`[Auto-DupGuard] ⚠️ Content mới tương đồng ${(maxDupSim*100).toFixed(0)}% (> 40%) với bài hiện có! Đánh dấu _needsRewrite để hệ thống tự động làm mới.`);
             parsed._needsRewrite = true;
             parsed._dupSimilarity = Math.round(maxDupSim * 100);
           } else {
-            console.log(`[Auto-DupGuard] Content OK - similarity max ${(maxDupSim*100).toFixed(0)}% (nguong an toan < 55%)`);
+            console.log(`[Auto-DupGuard] ✅ Content độc bản xuất sắc - similarity max ${(maxDupSim*100).toFixed(0)}% (ngưỡng an toàn tuyệt đối < 40%)`);
           }
 
           // Quality check: ensure valid score
@@ -2715,7 +3663,8 @@ app.post('/api/analyze-seo', (req, res) => {
 
 function calculateSeoScore(title = '', content = '', targetKw = '', metaDescription = '') {
   const keyword = targetKw.trim().toLowerCase();
-  const rawText = content.replace(/<[^>]*>?/gm, '');
+  // Safe HTML tag strip: only match actual tag names (<p>, <div>, etc.), not math operators like < 10 mg/L
+  const rawText = content.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/gi, '');
   const words = rawText.trim().split(/\s+/).filter(w => w.length > 0);
   const wordCount = words.length;
 
@@ -2791,12 +3740,12 @@ function calculateSeoScore(title = '', content = '', targetKw = '', metaDescript
     checks.push({ pass: false, label: `Thiếu thẻ H2 phụ (hiện có ${h2Matches} H2)`, weight: 10 });
   }
 
-  const first100Words = words.slice(0, 100).join(' ').toLowerCase();
-  if (keyword && first100Words.includes(keyword)) {
+  const first160Words = words.slice(0, 160).join(' ').toLowerCase();
+  if (keyword && first160Words.includes(keyword)) {
     totalScore += 10;
-    checks.push({ pass: true, label: 'Từ khóa xuất hiện trong 100 từ đầu tiên', weight: 10 });
+    checks.push({ pass: true, label: 'Từ khóa xuất hiện trong phần mở bài', weight: 10 });
   } else {
-    checks.push({ pass: false, label: 'Chưa có từ khóa ở 100 từ đầu mở bài', weight: 10 });
+    checks.push({ pass: false, label: 'Chưa có từ khóa ở phần mở bài', weight: 10 });
   }
 
   return {
@@ -2838,6 +3787,12 @@ app.post('/api/generate-ai', async (req, res) => {
         updatedAt: new Date().toISOString(),
         isAutoGenerated: true
       };
+
+      try {
+        await generateBannerForPost(savedPost, 'auto');
+      } catch (bErr) {
+        console.warn('Lỗi tạo banner tự động:', bErr.message);
+      }
 
       posts.unshift(savedPost);
       savePosts(posts);
@@ -3079,9 +4034,11 @@ async function checkAndRunAutoScheduler() {
     }
   }
 
-  // 2. Check Auto-Publishing cycle
+  // 2. Check Auto-Publishing cycle with Anti-Footprint Random Jitter (+- 1 đến 60 phút)
   const pubIntervalHours = parseFloat(config.publishIntervalHours || config.intervalHours || 4);
-  const pubIntervalMs = pubIntervalHours * 3600000;
+  const jitterEnabled = config.randomJitterEnabled !== false;
+  const currentJitterMin = jitterEnabled && typeof config.currentJitterMinutes === 'number' ? config.currentJitterMinutes : 0;
+  const pubIntervalMs = (pubIntervalHours * 3600000) + (currentJitterMin * 60 * 1000);
   const lastPubTime = config.lastPublishRun ? new Date(config.lastPublishRun).getTime() : (config.lastRun ? new Date(config.lastRun).getTime() : 0);
   if (!lastPubTime || (now - lastPubTime) >= pubIntervalMs) {
     let keywords = getKeywords();
@@ -3351,6 +4308,13 @@ setTimeout(async () => {
     await selfHealPublishedPosts();
   } catch (healErr) {
     console.warn('Lỗi self-heal khi khởi động:', healErr.message);
+  }
+  try {
+    console.log('📰 [TinTucArchive] Đồng bộ lưới bài viết trang Tin Tức (Page 3906)...');
+    const { syncTinTucArchivePage } = require('./lib/tin_tuc_archive_builder');
+    await syncTinTucArchivePage({ limit: 30 });
+  } catch (ttErr) {
+    console.warn('Lỗi đồng bộ Tin Tức khi khởi động:', ttErr.message);
   }
   checkAndRunAutoScheduler().catch(err => console.error('Error in initial auto-scheduler check:', err));
 }, 2000);
