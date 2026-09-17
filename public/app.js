@@ -6269,6 +6269,132 @@ async function openAuditManualFixModal(issue) {
         }
       });
     }
+  } else if (issue.category === 'duplicate_title') {
+    if (title) title.textContent = 'Xử Lý Trùng Lặp Tiêu Đề Bài Viết';
+    if (subtitle) subtitle.textContent = `Phát hiện mức độ tương đồng tiêu đề ${issue.similarity || 70}% giữa 2 bài viết. Tránh để 2 bài có tiêu đề quá giống nhau khiến Google phạt ăn thịt từ khóa (Cannibalization).`;
+    if (iconGlow) {
+      iconGlow.innerHTML = '<i class="fa-solid fa-heading"></i>';
+      iconGlow.style.background = 'rgba(251, 191, 36, 0.2)';
+      iconGlow.style.color = '#fbbf24';
+    }
+
+    const p1 = issue.post1 || {};
+    const p2 = issue.post2 || {};
+
+    body.innerHTML = `
+      <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); padding: 14px 18px; border-radius: 8px; margin-bottom: 18px; font-size: 0.85rem; color: #fde68a;">
+        <div style="font-weight: 700; margin-bottom: 6px; font-size: 0.95rem;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Tương đồng tiêu đề: ${issue.similarity || 70}%
+        </div>
+        <div>${escapeHtml(issue.message || '')}</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+        <div style="background: #0f172a; padding: 14px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">
+            <i class="fa-solid fa-file-lines" style="color: #38bdf8;"></i> Bài viết 1 (WordPress ID: ${p1.wpPostId || 'N/A'})
+          </div>
+          <div style="font-weight: 600; font-size: 0.88rem; color: #f8fafc; margin-bottom: 8px;">
+            "${escapeHtml(p1.title || '')}"
+          </div>
+        </div>
+        <div style="background: #0f172a; padding: 14px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">
+            <i class="fa-solid fa-file-lines" style="color: #fbbf24;"></i> Bài viết 2 (WordPress ID: ${p2.wpPostId || 'N/A'})
+          </div>
+          <div style="font-weight: 600; font-size: 0.88rem; color: #f8fafc; margin-bottom: 8px;">
+            "${escapeHtml(p2.title || '')}"
+          </div>
+        </div>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;">
+        <label style="font-weight: 700; font-size: 0.88rem; color: #f8fafc; margin-bottom: 8px; display: block;">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: #c084fc;"></i> Đổi tiêu đề độc bản mới cho bài viết 2:
+        </label>
+        <input type="text" id="audit-manual-title-input" class="form-control" value="${escapeHtml(p2.title || '')}" style="width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; font-size: 0.88rem; margin-bottom: 12px;" />
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="btn-audit-save-manual-title" data-post-id="${p2.id}" style="font-weight: 600; padding: 9px 18px; background: linear-gradient(135deg, #0284c7, #2563eb); border: none; border-radius: 6px; font-size: 0.82rem; cursor: pointer;">
+            <i class="fa-solid fa-floppy-disk"></i> Lưu Tiêu Đề Mới Lên WordPress
+          </button>
+          <button class="btn" id="btn-audit-delete-duplicate-post" data-post-id="${p2.id}" data-wp-id="${p2.wpPostId || ''}" style="font-weight: 600; padding: 9px 18px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; border-radius: 6px; font-size: 0.82rem; cursor: pointer;">
+            <i class="fa-solid fa-trash-can"></i> Xóa Bài Trùng Lặp Này
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Bind save new title
+    const btnSaveTitle = document.getElementById('btn-audit-save-manual-title');
+    if (btnSaveTitle) {
+      btnSaveTitle.addEventListener('click', async () => {
+        const newTitle = document.getElementById('audit-manual-title-input').value.trim();
+        if (!newTitle || newTitle.length < 10) {
+          return showToast('Tiêu đề mới quá ngắn, vui lòng nhập ít nhất 10 ký tự.', 'error');
+        }
+        btnSaveTitle.disabled = true;
+        const origText = btnSaveTitle.innerHTML;
+        btnSaveTitle.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang Cập Nhật...';
+        try {
+          const res = await fetch('/api/posts/update-title', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: p2.id, wpPostId: p2.wpPostId, title: newTitle })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Đã đổi tiêu đề mới và cập nhật WordPress thành công!', 'success');
+            modal.style.display = 'none';
+            const auditRes = await fetch('/api/audit/run', { method: 'POST' });
+            const auditData = await auditRes.json();
+            if (auditData.report) renderStartupAuditUI(auditData.report);
+            if (typeof loadPostsList === 'function') loadPostsList();
+          } else {
+            showToast(data.message || 'Lỗi khi cập nhật tiêu đề', 'error');
+            btnSaveTitle.disabled = false;
+            btnSaveTitle.innerHTML = origText;
+          }
+        } catch (err) {
+          showToast('Lỗi kết nối khi cập nhật tiêu đề', 'error');
+          btnSaveTitle.disabled = false;
+          btnSaveTitle.innerHTML = origText;
+        }
+      });
+    }
+
+    // Bind delete duplicate post
+    const btnDelete = document.getElementById('btn-audit-delete-duplicate-post');
+    if (btnDelete) {
+      btnDelete.addEventListener('click', async () => {
+        if (!confirm(`Anh có chắc chắn muốn xóa bài viết trùng lặp này không?`)) return;
+        btnDelete.disabled = true;
+        const origText = btnDelete.innerHTML;
+        btnDelete.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang Xóa...';
+        try {
+          const res = await fetch('/api/posts/' + encodeURIComponent(p2.id) + '?deleteWp=true', {
+            method: 'DELETE'
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Đã xóa bài viết trùng lặp thành công!', 'success');
+            modal.style.display = 'none';
+            const auditRes = await fetch('/api/audit/run', { method: 'POST' });
+            const auditData = await auditRes.json();
+            if (auditData.report) renderStartupAuditUI(auditData.report);
+            if (typeof loadPostsList === 'function') loadPostsList();
+          } else {
+            showToast(data.message || 'Lỗi khi xóa bài viết', 'error');
+            btnDelete.disabled = false;
+            btnDelete.innerHTML = origText;
+          }
+        } catch (err) {
+          showToast('Lỗi kết nối khi xóa', 'error');
+          btnDelete.disabled = false;
+          btnDelete.innerHTML = origText;
+        }
+      });
+    }
   }
 }
 

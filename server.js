@@ -2159,12 +2159,96 @@ app.post('/api/posts', (req, res) => {
   res.json({ success: true, data: newPost });
 });
 
-app.delete('/api/posts/:id', (req, res) => {
+app.delete('/api/posts/:id', async (req, res) => {
   const { id } = req.params;
+  const deleteWp = req.query.deleteWp === 'true';
   let posts = getPosts();
+  const post = posts.find(p => p.id === id);
+  const targetWpId = post ? post.wpPostId : (id.startsWith('post_live_') ? id.replace('post_live_', '') : null);
+
   posts = posts.filter(p => p.id !== id);
   savePosts(posts);
-  res.json({ success: true, message: 'Đã xóa bài viết' });
+
+  // Remove from live_blog_posts.json if present
+  const livePath = path.join(DATA_DIR, 'live_blog_posts.json');
+  if (fs.existsSync(livePath)) {
+    try {
+      const liveData = JSON.parse(fs.readFileSync(livePath, 'utf8'));
+      if (liveData.posts && targetWpId) {
+        liveData.posts = liveData.posts.filter(p => p.id != targetWpId);
+        liveData.count = liveData.posts.length;
+        fs.writeFileSync(livePath, JSON.stringify(liveData, null, 2), 'utf8');
+      }
+    } catch (e) {}
+  }
+
+  // Delete on WordPress if requested
+  if (deleteWp && targetWpId) {
+    try {
+      const wpConfig = getWordpressConfig();
+      if (wpConfig && wpConfig.siteUrl && wpConfig.username && wpConfig.appPassword) {
+        const authHeader = 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword.replace(/\s+/g, '')}`).toString('base64');
+        await fetch(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${targetWpId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': authHeader }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to delete on WP:', e);
+    }
+  }
+
+  res.json({ success: true, message: 'Đã xóa bài viết thành công' });
+});
+
+app.post('/api/posts/update-title', async (req, res) => {
+  try {
+    const { postId, wpPostId, title } = req.body;
+    if (!title || !title.trim()) {
+      return res.status(400).json({ success: false, message: 'Tiêu đề không được để trống' });
+    }
+    const newTitle = title.trim();
+    let posts = getPosts();
+    const post = posts.find(p => p.id === postId || (wpPostId && p.wpPostId == wpPostId));
+    if (post) {
+      post.title = newTitle;
+    }
+
+    const livePath = path.join(DATA_DIR, 'live_blog_posts.json');
+    if (fs.existsSync(livePath)) {
+      try {
+        const liveData = JSON.parse(fs.readFileSync(livePath, 'utf8'));
+        if (liveData.posts) {
+          const lp = liveData.posts.find(p => (wpPostId && p.id == wpPostId) || (post && post.wpPostId && p.id == post.wpPostId));
+          if (lp) lp.title = newTitle;
+          fs.writeFileSync(livePath, JSON.stringify(liveData, null, 2), 'utf8');
+        }
+      } catch (e) {}
+    }
+
+    savePosts(posts);
+
+    const targetWpId = wpPostId || (post ? post.wpPostId : null);
+    if (targetWpId) {
+      const wpConfig = getWordpressConfig();
+      if (wpConfig && wpConfig.siteUrl && wpConfig.username && wpConfig.appPassword) {
+        const authHeader = 'Basic ' + Buffer.from(`${wpConfig.username}:${wpConfig.appPassword.replace(/\s+/g, '')}`).toString('base64');
+        await fetch(`${wpConfig.siteUrl}/wp-json/wp/v2/posts/${targetWpId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title: newTitle })
+        });
+      }
+    }
+
+    const report = await runSystemAudit();
+    res.json({ success: true, message: 'Đã cập nhật tiêu đề thành công!', report });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 app.post('/api/posts/clear-all', (req, res) => {
