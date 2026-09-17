@@ -1,11 +1,28 @@
 [
   {
+    "keyword": "Môi Trường Hoa Sen",
+    "position": 4,
+    "previousPosition": 6,
+    "searchVolume": 900,
+    "trend": "up",
+    "lastChecked": "2026-09-17T16:55:43.907Z",
+    "targetUrl": "https://xulynuochoasen.com/",
+    "isLive": true,
+    "history": [
+      {
+        "date": "2026-09-17",
+        "position": 4,
+        "isLive": true
+      }
+    ]
+  },
+  {
     "keyword": "Xử Lý Nước Hoa Sen",
     "position": 1,
     "previousPosition": 1,
     "searchVolume": 1500,
     "trend": "same",
-    "lastChecked": "2026-09-15T15:50:01.007Z",
+    "lastChecked": "2026-09-17T16:55:43.907Z",
     "targetUrl": "https://xulynuochoasen.com/",
     "isLive": true,
     "history": [
@@ -18,16 +35,21 @@
         "date": "2026-09-15",
         "position": 1,
         "isLive": true
+      },
+      {
+        "date": "2026-09-17",
+        "position": 1,
+        "isLive": true
       }
     ]
   },
   {
     "keyword": "Lọc Nước Hoa Sen",
-    "position": 3,
-    "previousPosition": 2,
+    "position": 2,
+    "previousPosition": 3,
     "searchVolume": 1200,
-    "trend": "down",
-    "lastChecked": "2026-09-15T15:50:01.007Z",
+    "trend": "up",
+    "lastChecked": "2026-09-17T16:55:43.907Z",
     "targetUrl": "https://xulynuochoasen.com/",
     "isLive": true,
     "history": [
@@ -40,6 +62,11 @@
         "date": "2026-09-15",
         "position": 3,
         "isLive": true
+      },
+      {
+        "date": "2026-09-17",
+        "position": 2,
+        "isLive": true
       }
     ]
   },
@@ -49,7 +76,7 @@
     "previousPosition": 1,
     "searchVolume": 850,
     "trend": "same",
-    "lastChecked": "2026-09-15T15:50:01.007Z",
+    "lastChecked": "2026-09-17T16:55:43.907Z",
     "targetUrl": "https://xulynuochoasen.com/loc-nuoc-nhiem-phen/",
     "isLive": true,
     "history": [
@@ -62,6 +89,11 @@
         "date": "2026-09-15",
         "position": 1,
         "isLive": true
+      },
+      {
+        "date": "2026-09-17",
+        "position": 1,
+        "isLive": true
       }
     ]
   },
@@ -71,7 +103,7 @@
     "previousPosition": 5,
     "searchVolume": 900,
     "trend": "same",
-    "lastChecked": "2026-09-15T15:50:01.007Z",
+    "lastChecked": "2026-09-17T16:55:43.907Z",
     "targetUrl": "https://xulynuochoasen.com/",
     "isLive": true,
     "history": [
@@ -84,16 +116,21 @@
         "date": "2026-09-15",
         "position": 5,
         "isLive": true
+      },
+      {
+        "date": "2026-09-17",
+        "position": 5,
+        "isLive": true
       }
     ]
   },
   {
     "keyword": "xulynuochoasen.com",
-    "position": 2,
-    "previousPosition": 1,
+    "position": 1,
+    "previousPosition": 2,
     "searchVolume": 3000,
-    "trend": "down",
-    "lastChecked": "2026-09-15T15:50:01.007Z",
+    "trend": "up",
+    "lastChecked": "2026-09-17T16:55:43.907Z",
     "targetUrl": "https://xulynuochoasen.com/",
     "isLive": true,
     "history": [
@@ -105,6 +142,11 @@
       {
         "date": "2026-09-15",
         "position": 2,
+        "isLive": true
+      },
+      {
+        "date": "2026-09-17",
+        "position": 1,
         "isLive": true
       }
     ]
@@ -138,7 +180,7 @@
     "searchVolume": 2400,
     "trend": "same",
     "lastChecked": "2026-09-15T15:50:01.007Z",
-    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet-mang-ro-tach-loc-phan-tu-sieu-vi-2026/",
+    "targetUrl": "https://xulynuochoasen.com/cam-nang-van-hanh-he-thong-loc-nuoc-tinh-khiet-dat-chuan-byt-2026/",
     "isLive": true,
     "history": [
       {
@@ -160,7 +202,7 @@
     "searchVolume": 1800,
     "trend": "same",
     "lastChecked": "2026-09-15T15:50:01.007Z",
-    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-cong-nghiep-cong-suat-lon-cho-nha-may-2026/",
+    "targetUrl": "https://xulynuochoasen.com/?p=14101",
     "isLive": true,
     "history": [
       {
@@ -182,7 +224,7 @@
     "searchVolume": 3100,
     "trend": "same",
     "lastChecked": "2026-09-15T15:50:01.007Z",
-    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat-dau-nguon-toan-dien-moi-nhat-2026/",
+    "targetUrl": "https://xulynuochoasen.com/giai-phap-loc-nuoc-sinh-hoat-danh-cho-gia-dinh-chuan-y-te/",
     "isLive": true,
     "history": [
       {
@@ -1409,7 +1451,7 @@
     "previousPosition": 3,
     "searchVolume": 2400,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/quy-trinh-thi-cong-loc-nuoc-gieng-khoan-chuan-bo-y-te-2026/",
+    "targetUrl": "https://xulynuochoasen.com/he-thong-loc-nuoc-nhiem-phen/",
     "lastChecked": "2026-09-15T15:50:01.007Z",
     "isLive": true,
     "history": [
@@ -1426,7 +1468,7 @@
     "previousPosition": 8,
     "searchVolume": 1200,
     "trend": "down",
-    "targetUrl": "https://xulynuochoasen.com/?p=14187",
+    "targetUrl": "https://xulynuochoasen.com/?p=14381",
     "lastChecked": "2026-09-15T15:50:01.007Z",
     "isLive": true,
     "history": [
@@ -1535,5 +1577,23 @@
     "trend": "up",
     "targetUrl": "https://xulynuochoasen.com/ban-giao-he-thong-loc-nuoc-tinh-khiet-ro-cong-nghiep-1-000l-h-cho-xuong-thuc-pham-tai-kcn-tan-thoi-hiep-quan-12/",
     "lastChecked": "2026-09-17T13:59:36.892Z"
+  },
+  {
+    "keyword": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Bộ Y Tế 2026",
+    "position": 1,
+    "previousPosition": 3,
+    "searchVolume": 2000,
+    "trend": "up",
+    "targetUrl": "https://xulynuochoasen.com/cam-nang-ky-thuat-loc-nuoc-tinh-khiet-chuan-bo-y-te-2026-2/",
+    "lastChecked": "2026-09-17T16:33:30.771Z"
+  },
+  {
+    "keyword": "dây chuyền chiết rót nước đóng bình 20l",
+    "position": 8,
+    "previousPosition": 9,
+    "searchVolume": 2300,
+    "trend": "up",
+    "targetUrl": "https://xulynuochoasen.com/cam-nang-ky-thuat-loc-nuoc-tinh-khiet-chuan-bo-y-te-2026-2/",
+    "lastChecked": "2026-09-17T16:53:11.948Z"
   }
 ]
