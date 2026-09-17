@@ -1,83 +1,23 @@
 {
-  "timestamp": "2026-09-17T16:29:30.583Z",
-  "durationMs": 1815,
-  "healthScore": 80,
-  "totalIssues": 2,
+  "timestamp": "2026-09-17T16:52:43.256Z",
+  "durationMs": 1693,
+  "healthScore": 100,
+  "totalIssues": 0,
   "summary": {
-    "totalPostsAudited": 68,
+    "totalPostsAudited": 64,
     "totalLiveBlogPosts": 100,
     "totalKeywordsInQueue": 24,
     "duplicateContentCount": 0,
-    "duplicateTitleCount": 2,
+    "duplicateTitleCount": 0,
     "duplicateImageCount": 0,
     "localDuplicateImageCount": 0,
     "invalidLandingCount": 0,
     "lowSeoScoreCount": 0,
-    "totalIssues": 2,
-    "healthScore": 80
+    "totalIssues": 0,
+    "healthScore": 100
   },
   "duplicateContentPairs": [],
-  "duplicateTitlePairs": [
-    {
-      "post1": {
-        "id": "post_live_14481",
-        "wpPostId": 14481,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Bộ Y Tế 2026"
-      },
-      "post2": {
-        "id": "post_auto_1789483460455_b45h",
-        "wpPostId": 13990,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Kỹ Thuật QCVN 2026"
-      },
-      "similarity": 77
-    },
-    {
-      "post1": {
-        "id": "post_live_14481",
-        "wpPostId": 14481,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Bộ Y Tế 2026"
-      },
-      "post2": {
-        "id": "post_auto_1789468934971_j0tx",
-        "wpPostId": 13990,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Kỹ Thuật QCVN 2026"
-      },
-      "similarity": 77
-    }
-  ],
+  "duplicateTitlePairs": [],
   "duplicateImages": {},
-  "issues": [
-    {
-      "level": "warning",
-      "category": "duplicate_title",
-      "message": "Tiêu đề bài viết \"Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Bộ Y Tế 2026\" trùng 77% với bài \"Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Kỹ Thuật QCVN 2026\".",
-      "post1": {
-        "id": "post_live_14481",
-        "wpPostId": 14481,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Bộ Y Tế 2026"
-      },
-      "post2": {
-        "id": "post_auto_1789483460455_b45h",
-        "wpPostId": 13990,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Kỹ Thuật QCVN 2026"
-      },
-      "similarity": 77
-    },
-    {
-      "level": "warning",
-      "category": "duplicate_title",
-      "message": "Tiêu đề bài viết \"Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Bộ Y Tế 2026\" trùng 77% với bài \"Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Kỹ Thuật QCVN 2026\".",
-      "post1": {
-        "id": "post_live_14481",
-        "wpPostId": 14481,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Bộ Y Tế 2026"
-      },
-      "post2": {
-        "id": "post_auto_1789468934971_j0tx",
-        "wpPostId": 13990,
-        "title": "Cẩm Nang Kỹ Thuật Lọc Nước Tinh Khiết Chuẩn Kỹ Thuật QCVN 2026"
-      },
-      "similarity": 77
-    }
-  ]
+  "issues": []
 }
