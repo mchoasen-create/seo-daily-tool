@@ -1569,18 +1569,23 @@ function getSchedulerConfig() {
     const cfg = JSON.parse(fs.readFileSync(SCHEDULER_FILE, 'utf-8') || '{}');
     return {
       enabled: cfg.enabled !== undefined ? cfg.enabled : false,
+      mode: cfg.mode || 'golden_slots',
       intervalHours: cfg.intervalHours || 4,
       publishIntervalHours: cfg.publishIntervalHours || cfg.intervalHours || 4,
       generateIntervalHours: cfg.generateIntervalHours || 2,
       currentKeywordIndex: typeof cfg.currentKeywordIndex === 'number' ? cfg.currentKeywordIndex : 0,
-      maxPostsPerDay: cfg.maxPostsPerDay !== undefined ? parseInt(cfg.maxPostsPerDay) : 4,
+      maxPostsPerDay: cfg.maxPostsPerDay !== undefined ? parseInt(cfg.maxPostsPerDay) : 6,
+      randomJitterEnabled: cfg.randomJitterEnabled !== false,
+      randomJitterMaxMinutes: cfg.randomJitterMaxMinutes !== undefined ? parseInt(cfg.randomJitterMaxMinutes) : 15,
+      currentJitterMinutes: cfg.currentJitterMinutes,
+      goldenSlotsState: cfg.goldenSlotsState || { date: '', executedSlots: [] },
       lastPublishRun: cfg.lastPublishRun || cfg.lastRun || null,
       lastGenerateRun: cfg.lastGenerateRun || cfg.lastRun || null,
       lastDedupRun: cfg.lastDedupRun || null,
       lastRun: cfg.lastRun || null
     };
   } catch (e) {
-    return { enabled: false, intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, currentKeywordIndex: 0, maxPostsPerDay: 4, lastPublishRun: null, lastGenerateRun: null, lastDedupRun: null, lastRun: null };
+    return { enabled: false, mode: 'golden_slots', intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, currentKeywordIndex: 0, maxPostsPerDay: 6, randomJitterEnabled: true, randomJitterMaxMinutes: 15, goldenSlotsState: { date: '', executedSlots: [] }, lastPublishRun: null, lastGenerateRun: null, lastDedupRun: null, lastRun: null };
   }
 }
 function saveSchedulerConfig(config) {
@@ -2622,23 +2627,85 @@ app.get('/api/scheduler/status', (req, res) => {
   const pregeneratedCount = pendingKeywords.filter(k => k.generatedPostId).length;
   const now = Date.now();
 
-  // 1. Publish countdown calculation with Anti-Footprint Random Jitter (+- 1 to 60 minutes)
-  const pubIntervalHours = parseFloat(config.publishIntervalHours || config.intervalHours || 4);
+  const isGoldenMode = (config.mode || 'golden_slots') === 'golden_slots';
+  let nextPubTimeMs = now;
+  let publishRemainingSec = 0;
+  let currentSlotInfo = null;
+  let goldenSlotsToday = [];
+  let isTomorrow = false;
+  let timeline = [];
+
   const jitterEnabled = config.randomJitterEnabled !== false;
-  const maxJitter = parseInt(config.randomJitterMaxMinutes) || 60;
+  const maxJitter = parseInt(config.randomJitterMaxMinutes) || 15;
 
-  if (config.currentJitterMinutes === undefined || typeof config.currentJitterMinutes !== 'number') {
-    const sign = Math.random() < 0.5 ? -1 : 1;
-    config.currentJitterMinutes = sign * (Math.floor(Math.random() * maxJitter) + 1);
-    saveSchedulerConfig(config);
+  if (isGoldenMode) {
+    const { getNextUpcomingSlot, getNextUpcomingSlotsTimeline } = require('./lib/golden_scheduler');
+    const upcoming = getNextUpcomingSlot(config, new Date());
+    currentSlotInfo = upcoming.slot;
+    goldenSlotsToday = upcoming.slotsToday;
+    isTomorrow = upcoming.isTomorrow;
+    nextPubTimeMs = upcoming.slot.triggerTimeMs;
+    publishRemainingSec = upcoming.remainingSec;
+
+    const goldenTimeline = getNextUpcomingSlotsTimeline(config, pendingKeywords.length, new Date());
+    timeline = pendingKeywords.map((item, idx) => {
+      const tlSlot = goldenTimeline[idx];
+      const itemRemainingSec = tlSlot ? tlSlot.remainingSec : (publishRemainingSec + idx * 4 * 3600);
+      const estTime = tlSlot ? tlSlot.estimatedPublishTime : new Date(now + itemRemainingSec * 1000).toISOString();
+      const targetPost = item.generatedPostId ? posts.find(p => p.id === item.generatedPostId) : null;
+      return {
+        order: idx + 1,
+        id: item.id,
+        keyword: item.keyword,
+        topic: item.topic || item.keyword,
+        targetUrl: item.targetUrl || '',
+        generatedPostId: item.generatedPostId || null,
+        title: targetPost ? targetPost.title : (item.topic || item.keyword),
+        hasPost: !!item.generatedPostId,
+        score: targetPost ? (targetPost.score || 0) : null,
+        wordCount: targetPost && targetPost.content ? targetPost.content.trim().split(/\s+/).filter(Boolean).length : 0,
+        imageUrl: targetPost ? targetPost.imageUrl : null,
+        remainingSec: Math.round(itemRemainingSec),
+        estimatedPublishTime: estTime,
+        slotLabel: tlSlot?.slot?.label || '',
+        slotTime: tlSlot?.slot?.actualTimeStr || ''
+      };
+    });
+  } else {
+    const pubIntervalHours = parseFloat(config.publishIntervalHours || config.intervalHours || 4);
+    if (config.currentJitterMinutes === undefined || typeof config.currentJitterMinutes !== 'number') {
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      config.currentJitterMinutes = sign * (Math.floor(Math.random() * maxJitter) + 1);
+      saveSchedulerConfig(config);
+    }
+    const currentJitterMin = jitterEnabled ? config.currentJitterMinutes : 0;
+    const currentJitterMs = currentJitterMin * 60 * 1000;
+    const pubIntervalMs = (pubIntervalHours * 3600000) + currentJitterMs;
+    const lastPubTime = config.lastPublishRun ? new Date(config.lastPublishRun).getTime() : 0;
+    nextPubTimeMs = lastPubTime ? lastPubTime + pubIntervalMs : now;
+    publishRemainingSec = Math.max(0, Math.round((nextPubTimeMs - now) / 1000));
+
+    timeline = pendingKeywords.map((item, idx) => {
+      const itemRemainingSec = publishRemainingSec + (idx * pubIntervalMs / 1000);
+      const estTime = new Date(now + itemRemainingSec * 1000).toISOString();
+      const targetPost = item.generatedPostId ? posts.find(p => p.id === item.generatedPostId) : null;
+      return {
+        order: idx + 1,
+        id: item.id,
+        keyword: item.keyword,
+        topic: item.topic || item.keyword,
+        targetUrl: item.targetUrl || '',
+        generatedPostId: item.generatedPostId || null,
+        title: targetPost ? targetPost.title : (item.topic || item.keyword),
+        hasPost: !!item.generatedPostId,
+        score: targetPost ? (targetPost.score || 0) : null,
+        wordCount: targetPost && targetPost.content ? targetPost.content.trim().split(/\s+/).filter(Boolean).length : 0,
+        imageUrl: targetPost ? targetPost.imageUrl : null,
+        remainingSec: Math.round(itemRemainingSec),
+        estimatedPublishTime: estTime
+      };
+    });
   }
-
-  const currentJitterMin = jitterEnabled ? config.currentJitterMinutes : 0;
-  const currentJitterMs = currentJitterMin * 60 * 1000;
-  const pubIntervalMs = (pubIntervalHours * 3600000) + currentJitterMs;
-  const lastPubTime = config.lastPublishRun ? new Date(config.lastPublishRun).getTime() : 0;
-  const nextPubTimeMs = lastPubTime ? lastPubTime + pubIntervalMs : now;
-  const publishRemainingSec = Math.max(0, Math.round((nextPubTimeMs - now) / 1000));
 
   // Next item to publish (first pending keyword)
   const nextPublishItem = pendingKeywords.length > 0 ? pendingKeywords[0] : null;
@@ -2696,32 +2763,12 @@ app.get('/api/scheduler/status', (req, res) => {
     };
   }
 
-  const timeline = pendingKeywords.map((item, idx) => {
-    const itemRemainingSec = publishRemainingSec + (idx * pubIntervalMs / 1000);
-    const estTime = new Date(now + itemRemainingSec * 1000).toISOString();
-    const targetPost = item.generatedPostId ? posts.find(p => p.id === item.generatedPostId) : null;
-    return {
-      order: idx + 1,
-      id: item.id,
-      keyword: item.keyword,
-      topic: item.topic || item.keyword,
-      targetUrl: item.targetUrl || '',
-      generatedPostId: item.generatedPostId || null,
-      title: targetPost ? targetPost.title : (item.topic || item.keyword),
-      hasPost: !!item.generatedPostId,
-      score: targetPost ? (targetPost.score || 0) : null,
-      wordCount: targetPost && targetPost.content ? targetPost.content.trim().split(/\s+/).filter(Boolean).length : 0,
-      imageUrl: targetPost ? targetPost.imageUrl : null,
-      remainingSec: Math.round(itemRemainingSec),
-      estimatedPublishTime: estTime
-    };
-  });
-
   res.json({
     success: true,
     data: {
       enabled: !!config.enabled,
-      publishIntervalHours: pubIntervalHours,
+      mode: config.mode || 'golden_slots',
+      publishIntervalHours: parseFloat(config.publishIntervalHours || config.intervalHours || 4),
       generateIntervalHours: genIntervalHours,
       lastPublishRun: config.lastPublishRun,
       nextPublishTime: new Date(nextPubTimeMs).toISOString(),
@@ -2731,6 +2778,10 @@ app.get('/api/scheduler/status', (req, res) => {
       generateRemainingSec,
       allPregenerated,
       ungeneratedCount,
+      currentSlot: currentSlotInfo,
+      isTomorrow,
+      goldenSlotsToday,
+      goldenSlotsState: config.goldenSlotsState || null,
       nextPublishItem: nextPublishItem ? {
         id: nextPublishItem.id,
         keyword: nextPublishItem.keyword,
@@ -2747,18 +2798,18 @@ app.get('/api/scheduler/status', (req, res) => {
       pregeneratedCount,
       randomJitterEnabled: jitterEnabled,
       randomJitterMaxMinutes: maxJitter,
-      currentJitterMinutes: currentJitterMin,
-      maxPostsPerDay: config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 4,
+      currentJitterMinutes: config.currentJitterMinutes || 0,
+      maxPostsPerDay: config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 6,
       publishedTodayCount: posts.filter(p => p.wpPublished && (
         (p.date && p.date.startsWith(new Date().toISOString().split('T')[0])) ||
         (p.updatedAt && p.updatedAt.startsWith(new Date().toISOString().split('T')[0])) ||
         (p.wpUpdatedAt && p.wpUpdatedAt.startsWith(new Date().toISOString().split('T')[0]))
       )).length,
-      isDailyLimitReached: (config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 4) > 0 && posts.filter(p => p.wpPublished && (
+      isDailyLimitReached: (config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 6) > 0 && posts.filter(p => p.wpPublished && (
         (p.date && p.date.startsWith(new Date().toISOString().split('T')[0])) ||
         (p.updatedAt && p.updatedAt.startsWith(new Date().toISOString().split('T')[0])) ||
         (p.wpUpdatedAt && p.wpUpdatedAt.startsWith(new Date().toISOString().split('T')[0]))
-      )).length >= (config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 4),
+      )).length >= (config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 6),
 
       timeline,
       wpStatus: {
@@ -2862,6 +2913,7 @@ app.post('/api/google-index/batch-push', async (req, res) => {
 app.post('/api/scheduler/config', (req, res) => {
   const { 
     enabled, 
+    mode,
     intervalHours, 
     publishIntervalHours, 
     generateIntervalHours, 
@@ -2872,6 +2924,7 @@ app.post('/api/scheduler/config', (req, res) => {
   } = req.body;
   const config = getSchedulerConfig();
   if (enabled !== undefined) config.enabled = !!enabled;
+  if (mode !== undefined) config.mode = mode;
   if (publishIntervalHours !== undefined) {
     config.publishIntervalHours = parseFloat(publishIntervalHours) || 4;
     config.intervalHours = config.publishIntervalHours;
@@ -4247,13 +4300,31 @@ async function checkAndRunAutoScheduler() {
     }
   }
 
-  // 2. Check Auto-Publishing cycle with Anti-Footprint Random Jitter (+- 1 đến 60 phút)
-  const pubIntervalHours = parseFloat(config.publishIntervalHours || config.intervalHours || 4);
-  const jitterEnabled = config.randomJitterEnabled !== false;
-  const currentJitterMin = jitterEnabled && typeof config.currentJitterMinutes === 'number' ? config.currentJitterMinutes : 0;
-  const pubIntervalMs = (pubIntervalHours * 3600000) + (currentJitterMin * 60 * 1000);
-  const lastPubTime = config.lastPublishRun ? new Date(config.lastPublishRun).getTime() : (config.lastRun ? new Date(config.lastRun).getTime() : 0);
-  if (!lastPubTime || (now - lastPubTime) >= pubIntervalMs) {
+  // 2. Check Auto-Publishing cycle (Chế độ 6 Khung Giờ Vàng + Anti-Footprint Jitter hoặc Khoảng cách cố định)
+  const mode = config.mode || 'golden_slots';
+  let shouldPublishNow = false;
+  let activeGoldenSlot = null;
+
+  if (mode === 'golden_slots') {
+    const { checkGoldenSlotTrigger } = require('./lib/golden_scheduler');
+    const triggerCheck = checkGoldenSlotTrigger(config, new Date());
+    if (triggerCheck.shouldPublish) {
+      shouldPublishNow = true;
+      activeGoldenSlot = triggerCheck.slot;
+      console.log(`[Auto-Scheduler] ⏰ [Khung Giờ Vàng] Đã đến giờ kích hoạt: ${activeGoldenSlot.label} (Giờ thực tế: ${activeGoldenSlot.actualTimeStr})`);
+    }
+  } else {
+    const pubIntervalHours = parseFloat(config.publishIntervalHours || config.intervalHours || 4);
+    const jitterEnabled = config.randomJitterEnabled !== false;
+    const currentJitterMin = jitterEnabled && typeof config.currentJitterMinutes === 'number' ? config.currentJitterMinutes : 0;
+    const pubIntervalMs = (pubIntervalHours * 3600000) + (currentJitterMin * 60 * 1000);
+    const lastPubTime = config.lastPublishRun ? new Date(config.lastPublishRun).getTime() : (config.lastRun ? new Date(config.lastRun).getTime() : 0);
+    if (!lastPubTime || (now - lastPubTime) >= pubIntervalMs) {
+      shouldPublishNow = true;
+    }
+  }
+
+  if (shouldPublishNow) {
     let keywords = getKeywords();
 
     // Auto-heal: gỡ kẹt các từ khóa bị processing quá 15 phút về pending
@@ -4274,7 +4345,7 @@ async function checkAndRunAutoScheduler() {
     const hasCompleted = keywords.some(k => k.status === 'completed');
     if ((hasPending || hasCompleted) && wpConfig.enabled && wpConfig.autoPublish) {
       // 🛡️ Kiểm tra trần số bài đăng tối đa trong ngày (Tránh bắn bài ồ ạt)
-      const maxDaily = parseInt(config.maxPostsPerDay !== undefined ? config.maxPostsPerDay : 4);
+      const maxDaily = parseInt(config.maxPostsPerDay !== undefined ? config.maxPostsPerDay : 6);
       if (maxDaily > 0) {
         const todayStr = new Date().toISOString().split('T')[0];
         const allPosts = getPosts();
@@ -4285,6 +4356,15 @@ async function checkAndRunAutoScheduler() {
 
         if (publishedToday >= maxDaily) {
           console.log(`[Auto-Scheduler] 🛑 Đã đạt trần ${publishedToday}/${maxDaily} bài xuất bản tự động trong ngày hôm nay (${todayStr}). Tạm dừng xuất bản tự động để giữ an toàn SEO.`);
+          if (activeGoldenSlot) {
+            if (!config.goldenSlotsState || config.goldenSlotsState.date !== todayStr) {
+              config.goldenSlotsState = { date: todayStr, executedSlots: [] };
+            }
+            if (!config.goldenSlotsState.executedSlots.includes(activeGoldenSlot.id)) {
+              config.goldenSlotsState.executedSlots.push(activeGoldenSlot.id);
+            }
+            saveSchedulerConfig(config);
+          }
           return;
         }
       }
@@ -4306,6 +4386,17 @@ async function checkAndRunAutoScheduler() {
       try {
         const res = await processNextKeywordInQueue();
         console.log('Auto-Scheduler result:', res.message);
+        if (activeGoldenSlot) {
+          const todayStr = new Date().toISOString().split('T')[0];
+          if (!config.goldenSlotsState || config.goldenSlotsState.date !== todayStr) {
+            config.goldenSlotsState = { date: todayStr, executedSlots: [] };
+          }
+          if (!config.goldenSlotsState.executedSlots.includes(activeGoldenSlot.id)) {
+            config.goldenSlotsState.executedSlots.push(activeGoldenSlot.id);
+          }
+          saveSchedulerConfig(config);
+          console.log(`[Auto-Scheduler] 🎯 Đã lưu vết hoàn thành khung giờ vàng: ${activeGoldenSlot.id} (${activeGoldenSlot.label})`);
+        }
       } catch (err) {
         console.error('Error in auto-publishing cycle:', err.message);
       }

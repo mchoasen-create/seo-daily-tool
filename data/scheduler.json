@@ -2,10 +2,11 @@
   "enabled": true,
   "intervalHours": 4,
   "publishIntervalHours": 4,
-  "generateIntervalHours": 4,
+  "generateIntervalHours": 2,
   "currentKeywordIndex": 3,
-  "lastPublishRun": "2026-09-17T14:55:14.504Z",
-  "lastGenerateRun": "2026-09-17T13:09:29.241Z",
-  "lastDedupRun": "2026-09-17T16:10:05.868Z",
-  "lastRun": "2026-09-17T14:55:14.504Z"
+  "maxPostsPerDay": 6,
+  "lastPublishRun": "2026-09-19T12:06:59.672Z",
+  "lastGenerateRun": "2026-09-19T14:53:19.635Z",
+  "lastDedupRun": "2026-09-19T14:05:40.404Z",
+  "lastRun": "2026-09-19T12:06:59.672Z"
 }

@@ -597,13 +597,22 @@ function setupAutoPilotEvents() {
   const selectPubIntervalDual = document.getElementById('select-publish-interval-dual');
   if (selectPubIntervalDual) {
     selectPubIntervalDual.addEventListener('change', async () => {
-      const hours = parseFloat(selectPubIntervalDual.value);
-      await fetch('/api/scheduler/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publishIntervalHours: hours })
-      });
-      showToast(`Đã lưu thời gian chờ đăng: Mỗi ${hours} giờ!`, 'success');
+      if (selectPubIntervalDual.value === 'golden') {
+        await fetch('/api/scheduler/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'golden_slots', maxPostsPerDay: 6 })
+        });
+        showToast('Đã kích hoạt 6 Khung Giờ Vàng (07:30 - 20:45) ± 15p!', 'success');
+      } else {
+        const hours = parseFloat(selectPubIntervalDual.value);
+        await fetch('/api/scheduler/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'fixed_interval', publishIntervalHours: hours })
+        });
+        showToast(`Đã lưu thời gian chờ đăng: Mỗi ${hours} giờ!`, 'success');
+      }
       loadSchedulerStatus();
     });
   }
@@ -916,9 +925,15 @@ async function loadSchedulerStatus() {
       }
     }
     if (dispNextPubTime) {
-      dispNextPubTime.textContent = schedulerStatusData.nextPublishItem 
-        ? formatDisplayDateTime(schedulerStatusData.nextPublishTime) 
-        : 'Đang đợi từ khóa mới';
+      if (schedulerStatusData.currentSlot) {
+        const slot = schedulerStatusData.currentSlot;
+        const tomorrowTag = schedulerStatusData.isTomorrow ? ' (Ngày mai)' : ' (Hôm nay)';
+        dispNextPubTime.innerHTML = `<span style="color:#f59e0b;font-weight:600;"><i class="fa-solid fa-clock"></i> ${escapeHtml(slot.label)}${tomorrowTag}</span> &bull; Bắn lúc: <strong style="color:var(--text-color);">${slot.actualTimeStr}</strong> (±${Math.abs(slot.jitterMinutes || 0)}m)`;
+      } else {
+        dispNextPubTime.textContent = schedulerStatusData.nextPublishItem 
+          ? formatDisplayDateTime(schedulerStatusData.nextPublishTime) 
+          : 'Đang đợi từ khóa mới';
+      }
     }
 
     // 4. Next Keyword To Generate Info (Gối đầu tự động)
@@ -957,7 +972,11 @@ async function loadSchedulerStatus() {
     // 5. Sync Interval Dropdowns
     const pubIntervalSelect = document.getElementById('select-publish-interval-dual');
     if (pubIntervalSelect) {
-      pubIntervalSelect.value = String(schedulerStatusData.publishIntervalHours || 4);
+      if (schedulerStatusData.mode === 'golden_slots') {
+        pubIntervalSelect.value = 'golden';
+      } else {
+        pubIntervalSelect.value = String(schedulerStatusData.publishIntervalHours || 4);
+      }
     }
     const maxPostsSelect = document.getElementById('select-max-posts-per-day');
     if (maxPostsSelect && schedulerStatusData.maxPostsPerDay !== undefined) {
@@ -1001,7 +1020,11 @@ async function loadSchedulerStatus() {
     renderPublishingTimeline(schedulerStatusData.timeline || []);
     const timelineBadge = document.getElementById('timeline-queue-info-badge');
     if (timelineBadge) {
-      timelineBadge.textContent = `Chu kỳ: ${schedulerStatusData.publishIntervalHours || 4} giờ / bài (${schedulerStatusData.pendingCount} bài trong hàng chờ)`;
+      if (schedulerStatusData.mode === 'golden_slots') {
+        timelineBadge.textContent = `6 Khung Giờ Vàng (07:30 - 20:45) ± 15p (${schedulerStatusData.pendingCount} bài trong hàng chờ)`;
+      } else {
+        timelineBadge.textContent = `Chu kỳ: ${schedulerStatusData.publishIntervalHours || 4} giờ / bài (${schedulerStatusData.pendingCount} bài trong hàng chờ)`;
+      }
     }
 
     // 7. Update Cluster Leader / Standby Status
@@ -1186,7 +1209,7 @@ function renderPublishingTimeline(timeline = []) {
 
         <div class="timeline-meta-time">
           <i class="fa-regular fa-calendar-check" style="color: #38bdf8;"></i>
-          <span>Dự kiến: <strong style="color: #e2e8f0;">${estTimeStr}</strong></span>
+          <span>${item.slotLabel ? `<strong style="color: #f59e0b;">${escapeHtml(item.slotLabel)}</strong> &bull; ` : ''}Dự kiến: <strong style="color: #e2e8f0;">${estTimeStr}</strong></span>
         </div>
 
         <div class="timeline-actions">
