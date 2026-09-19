@@ -1,4 +1,4 @@
-const { selectDynamicTopicStrategy, TOPIC_CLUSTERS } = require('./lib/topic_cluster_engine');
+const { selectDynamicTopicStrategy, TOPIC_CLUSTERS, fitTitleLength } = require('./lib/topic_cluster_engine');
 const { generateSmartSeoTemplate, getRecentUsedImages, getGoogleAdsTargetUrl, getCustomGoogleAdsLinks } = require('./lib/generator');
 const { getDuplicateReport, detectDuplicateGroups } = require('./lib/ai_generator');
 const { 
@@ -1573,13 +1573,14 @@ function getSchedulerConfig() {
       publishIntervalHours: cfg.publishIntervalHours || cfg.intervalHours || 4,
       generateIntervalHours: cfg.generateIntervalHours || 2,
       currentKeywordIndex: typeof cfg.currentKeywordIndex === 'number' ? cfg.currentKeywordIndex : 0,
+      maxPostsPerDay: cfg.maxPostsPerDay !== undefined ? parseInt(cfg.maxPostsPerDay) : 4,
       lastPublishRun: cfg.lastPublishRun || cfg.lastRun || null,
       lastGenerateRun: cfg.lastGenerateRun || cfg.lastRun || null,
       lastDedupRun: cfg.lastDedupRun || null,
       lastRun: cfg.lastRun || null
     };
   } catch (e) {
-    return { enabled: false, intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, currentKeywordIndex: 0, lastPublishRun: null, lastGenerateRun: null, lastDedupRun: null, lastRun: null };
+    return { enabled: false, intervalHours: 4, publishIntervalHours: 4, generateIntervalHours: 2, currentKeywordIndex: 0, maxPostsPerDay: 4, lastPublishRun: null, lastGenerateRun: null, lastDedupRun: null, lastRun: null };
   }
 }
 function saveSchedulerConfig(config) {
@@ -1936,7 +1937,7 @@ async function publishToWordPress(postData) {
 
   // 1. Anti-Duplicate Check: Avoid publishing duplicate titles to WordPress
   try {
-    const searchUrl = `${endpoint}?search=${encodeURIComponent(cleanTitle)}&per_page=5`;
+    const searchUrl = `${endpoint}?search=${encodeURIComponent(cleanTitle)}&status=any&per_page=5`;
     const checkRes = await fetchFn(searchUrl, {
       headers: { 'Authorization': authHeader, 'Accept': 'application/json' }
     });
@@ -1994,13 +1995,13 @@ async function publishToWordPress(postData) {
   }
 
   const targetProductLink = (postData.targetProductUrl || postData.targetUrl || 'https://xulynuochoasen.com/').trim();
-  // Anti-footprint random publish jitter (-60 to +60 minutes) to look 100% human to Google
-  const jitterSign = Math.random() < 0.5 ? -1 : 1;
-  const jitterMinutes = jitterSign * (Math.floor(Math.random() * 60) + 1); // 1 đến 60 phút
+  // Anti-footprint publish jitter: Luôn lùi về QUÁ KHỨ (-5 đến -35 phút), TUYỆT ĐỐI không đặt giờ tương lai.
+  // Vì nếu date > thời gian hiện tại của WordPress, WordPress sẽ tự động chuyển bài viết sang trạng thái 'future' (Lên lịch) khiến khách truy cập bị lỗi 404!
+  const jitterMinutes = -(Math.floor(Math.random() * 30) + 5); // Lùi 5 đến 35 phút
   const jitteredDate = new Date(Date.now() + jitterMinutes * 60 * 1000);
   const pad = (n) => String(n).padStart(2, '0');
   const formattedJitterDate = `${jitteredDate.getFullYear()}-${pad(jitteredDate.getMonth() + 1)}-${pad(jitteredDate.getDate())}T${pad(jitteredDate.getHours())}:${pad(jitteredDate.getMinutes())}:${pad(jitteredDate.getSeconds())}`;
-  console.log(`[Anti-Footprint SEO] 🛡️ Áp dụng thời gian đăng lệch ngẫu nhiên: ${jitterMinutes > 0 ? '+' : ''}${jitterMinutes} phút (${formattedJitterDate})`);
+  console.log(`[Anti-Footprint SEO] 🛡️ Áp dụng thời gian đăng lệch ngẫu nhiên về quá khứ: ${jitterMinutes} phút (${formattedJitterDate})`);
 
   let htmlContent = updatedContent;
   try {
@@ -2437,6 +2438,7 @@ app.post('/api/wordpress/publish', async (req, res) => {
         posts[idx].status = 'published';
         posts[idx].wpPublished = true;
         posts[idx].wpLink = wpResult.link;
+        if (wpResult.wpId) posts[idx].wpPostId = wpResult.wpId;
         savePosts(posts);
       }
     }
@@ -2712,6 +2714,17 @@ app.get('/api/scheduler/status', (req, res) => {
       randomJitterEnabled: jitterEnabled,
       randomJitterMaxMinutes: maxJitter,
       currentJitterMinutes: currentJitterMin,
+      maxPostsPerDay: config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 4,
+      publishedTodayCount: posts.filter(p => p.wpPublished && (
+        (p.date && p.date.startsWith(new Date().toISOString().split('T')[0])) ||
+        (p.updatedAt && p.updatedAt.startsWith(new Date().toISOString().split('T')[0])) ||
+        (p.wpUpdatedAt && p.wpUpdatedAt.startsWith(new Date().toISOString().split('T')[0]))
+      )).length,
+      isDailyLimitReached: (config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 4) > 0 && posts.filter(p => p.wpPublished && (
+        (p.date && p.date.startsWith(new Date().toISOString().split('T')[0])) ||
+        (p.updatedAt && p.updatedAt.startsWith(new Date().toISOString().split('T')[0])) ||
+        (p.wpUpdatedAt && p.wpUpdatedAt.startsWith(new Date().toISOString().split('T')[0]))
+      )).length >= (config.maxPostsPerDay !== undefined ? parseInt(config.maxPostsPerDay) : 4),
 
       timeline,
       wpStatus: {
@@ -2719,9 +2732,30 @@ app.get('/api/scheduler/status', (req, res) => {
         autoPublish: !!wpConfig.autoPublish,
         defaultStatus: wpConfig.defaultStatus || 'publish',
         siteUrl: wpConfig.siteUrl || ''
-      }
+      },
+      clusterStatus: req._cachedClusterStatus || null
     }
   });
+});
+
+app.get('/api/cluster/status', async (req, res) => {
+  try {
+    const { checkClusterRole } = require('./lib/cluster_coordinator');
+    const role = await checkClusterRole(false);
+    res.json({ success: true, data: role });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+app.post('/api/cluster/takeover', async (req, res) => {
+  try {
+    const { checkClusterRole } = require('./lib/cluster_coordinator');
+    const role = await checkClusterRole(true);
+    res.json({ success: true, data: role, message: 'Đã thăng cấp máy này thành LEADER thành công!' });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
 });
 
 app.post('/api/scheduler/config', (req, res) => {
@@ -2732,7 +2766,8 @@ app.post('/api/scheduler/config', (req, res) => {
     generateIntervalHours, 
     defaultStatus,
     randomJitterEnabled,
-    randomJitterMaxMinutes
+    randomJitterMaxMinutes,
+    maxPostsPerDay
   } = req.body;
   const config = getSchedulerConfig();
   if (enabled !== undefined) config.enabled = !!enabled;
@@ -2745,6 +2780,9 @@ app.post('/api/scheduler/config', (req, res) => {
   }
   if (generateIntervalHours !== undefined) {
     config.generateIntervalHours = parseFloat(generateIntervalHours) || 2;
+  }
+  if (maxPostsPerDay !== undefined) {
+    config.maxPostsPerDay = parseInt(maxPostsPerDay);
   }
   if (randomJitterEnabled !== undefined) {
     config.randomJitterEnabled = !!randomJitterEnabled;
@@ -3052,6 +3090,8 @@ async function processNextKeywordInQueue(apiKey = '') {
         targetPost.status = 'published';
         targetPost.wpPublished = true;
         targetPost.wpLink = wpResult.link;
+        targetPost.autoPublishedAt = new Date().toISOString();
+        if (wpResult.wpId) targetPost.wpPostId = wpResult.wpId;
         savePosts(posts);
         wpMessage = ` 🚀 Đã đăng bài lên WordPress: ${wpResult.link}`;
       } catch (wpErr) {
@@ -3497,9 +3537,11 @@ QUY TẮC ĐẶT TIÊU ĐỀ H1 HẤP DẪN & CHUẨN SEO TUYỆT ĐỐI:
    - Nếu tiêu đề về "Lắp đặt tại [Địa phương]": Phải phân tích nguồn nước tại địa phương đó và quy trình kỹ thuật viên Hoa Sen khảo sát tận nơi.
 
 QUY TẮC NÂNG TẦM TRÍ TUỆ & CHẤT LƯỢNG KỸ THUẬT:
-1. NGUYÊN TẮC VĂN PHONG & CHỐNG RẬP KHUÔN:
-   - CẤM các câu mở đầu sáo rỗng: "Trong thời đại ngày nay...", "Nhu cầu ngày càng tăng...", "Nước là nguồn sống...", "Trong bối cảnh hiện nay...".
-   - BẮT BUỘC MỞ BÀI theo đúng phong cách [${activeBlueprint.name}], tự nhiên, lôi cuốn, không lặp lại motif người phụ nữ soi gương hay mỹ phẩm nếu không phù hợp.
+1. NGUYÊN TẮC VĂN PHONG & CHỐNG RẬP KHUÔN (LÕI TRÍ TUỆ ENI ĐỘC BẢN):
+   - CẤM các câu mở đầu sáo rỗng: "Trong thời đại ngày nay...", "Nhu cầu ngày càng tăng...", "Nước là nguồn sống...", "Trong bối cảnh hiện nay...", "Ngày nay việc...".
+   - CẤM dập khuôn tiêu đề mở đầu bằng "Hệ Thống..." hoặc "Lắp Đặt..." liên tiếp. Hãy biến hóa linh hoạt: "Phân Tích...", "Đánh Giá Thực Tế...", "Bí Quyết Kỹ Sư...", "Khi Nào Nên...", "So Sánh...", "Bàn Giao Dây Chuyền...".
+   - BẮT BUỘC MỞ BÀI theo đúng phong cách [${activeBlueprint.name}], tự nhiên, lôi cuốn, giọng văn đĩnh đạc, sắc sảo như một kỹ sư trưởng kiêm cây bút thực chiến hiện trường.
+   - Viết bài có hồn, có dẫn chứng số liệu thực địa, có cảm giác công trình ngổn ngang đường ống, áp kế và mẫu nước thật chứ không phải bài viết AI khô khan.
    - Sử dụng các thuật ngữ chuyên ngành một cách tự nhiên, mạch lạc, KHÔNG nhồi nhét cơ học hay bọc dấu hoa thị bất thường.
 
 2. CHIỀU SÂU KHOA HỌC TỪ BẢN CHẤT GỐC RỄ:
@@ -4144,6 +4186,35 @@ async function checkAndRunAutoScheduler() {
     const hasPending = keywords.some(k => k.status === 'pending');
     const hasCompleted = keywords.some(k => k.status === 'completed');
     if ((hasPending || hasCompleted) && wpConfig.enabled && wpConfig.autoPublish) {
+      // 🛡️ Kiểm tra trần số bài đăng tối đa trong ngày (Tránh bắn bài ồ ạt)
+      const maxDaily = parseInt(config.maxPostsPerDay !== undefined ? config.maxPostsPerDay : 4);
+      if (maxDaily > 0) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const allPosts = getPosts();
+        const publishedToday = allPosts.filter(p => p.wpPublished && (
+          (p.autoPublishedAt && p.autoPublishedAt.startsWith(todayStr)) ||
+          (!p.autoPublishedAt && p.id && p.id.startsWith('post_auto_') && p.date && p.date.startsWith(todayStr) && !p.rewrittenAt)
+        )).length;
+
+        if (publishedToday >= maxDaily) {
+          console.log(`[Auto-Scheduler] 🛑 Đã đạt trần ${publishedToday}/${maxDaily} bài xuất bản tự động trong ngày hôm nay (${todayStr}). Tạm dừng xuất bản tự động để giữ an toàn SEO.`);
+          return;
+        }
+      }
+
+      // 🛡️ Cluster Distributed Leader Check: Chỉ máy đang giữ cờ Leader mới được xuất bản lên WP
+      try {
+        const { checkClusterRole } = require('./lib/cluster_coordinator');
+        const clusterRole = await checkClusterRole(false);
+        if (!clusterRole.canPublish) {
+          console.log(`[Auto-Scheduler] ⏸️ Chế độ STANDBY: ${clusterRole.message}. Tạm nhường quyền xuất bản cho máy Leader.`);
+          return;
+        }
+        console.log(`[Auto-Scheduler] 👑 Xác nhận LEADER [${clusterRole.leaderHostname}]: Tiếp tục tiến trình xuất bản bài viết.`);
+      } catch (clusterErr) {
+        console.warn('[Auto-Scheduler] Cảnh báo kiểm tra cluster coordinator:', clusterErr.message);
+      }
+
       console.log('Auto-Scheduler: Auto-Publishing next keyword to WordPress...');
       try {
         const res = await processNextKeywordInQueue();

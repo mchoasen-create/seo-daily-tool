@@ -280,7 +280,16 @@
                 <p class="text-muted" style="margin-top: 4px; font-size: 0.88rem;">Theo dõi thời gian thực đồng hồ đếm ngược của bài cần đăng lên WordPress và chu kỳ AI tự động sinh bài mới.</p>
               </div>
             </div>
-            <div class="header-right">
+            <div class="header-right" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <!-- Cluster Role Badge (Active Leader vs Standby) -->
+              <div class="cluster-role-badge" id="cluster-role-badge" title="Tình trạng phân bổ vai trò đăng bài giữa 2 máy" style="display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; cursor: pointer;">
+                <i class="fa-solid fa-server" id="cluster-role-icon"></i>
+                <span id="cluster-role-text">Đang kết nối...</span>
+              </div>
+              <!-- Force Leader Takeover Button -->
+              <button class="btn btn-sm btn-secondary" id="btn-cluster-takeover" title="Chuyển quyền đăng bài sang máy này ngay lập tức" style="display: none; font-size: 0.8rem; padding: 5px 12px; border-color: rgba(234, 179, 8, 0.4); color: #facc15;">
+                <i class="fa-solid fa-crown"></i> <span>Ép Làm Máy Chính</span>
+              </button>
               <!-- Live Status Pill -->
               <div class="status-live-pill" id="scheduler-live-pill">
                 <span class="pulse-dot"></span>
@@ -348,9 +357,9 @@
 
               <!-- Interval Selector & Run Now Button -->
               <div class="clock-action-bar" style="flex-direction: column; gap: 10px;">
-                <div style="display: flex; gap: 10px; width: 100%;">
-                  <div class="interval-field" style="flex: 1;">
-                    <label for="select-publish-interval-dual"><i class="fa-solid fa-hourglass-half"></i> Thời gian chờ đăng:</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; width: 100%; align-items: flex-end;">
+                  <div class="interval-field">
+                    <label for="select-publish-interval-dual"><i class="fa-solid fa-hourglass-half"></i> Chu kỳ đăng bài:</label>
                     <select id="select-publish-interval-dual" class="form-control form-control-sm">
                       <option value="1">Mỗi 1 Giờ (24 Bài/Ngày)</option>
                       <option value="2">Mỗi 2 Giờ (12 Bài/Ngày)</option>
@@ -361,7 +370,18 @@
                       <option value="24">Mỗi 24 Giờ (1 Bài/Ngày)</option>
                     </select>
                   </div>
-                  <button class="btn btn-accent btn-sm" id="btn-run-publish-now" style="white-space: nowrap; align-self: flex-end; height: 32px;">
+                  <div class="interval-field">
+                    <label for="select-max-posts-per-day"><i class="fa-solid fa-shield-halved"></i> Giới hạn / ngày:</label>
+                    <select id="select-max-posts-per-day" class="form-control form-control-sm">
+                      <option value="2">Tối đa 2 bài/ngày</option>
+                      <option value="3">Tối đa 3 bài/ngày</option>
+                      <option value="4" selected>Tối đa 4 bài/ngày (Khuyên dùng)</option>
+                      <option value="6">Tối đa 6 bài/ngày</option>
+                      <option value="10">Tối đa 10 bài/ngày</option>
+                      <option value="0">Không giới hạn</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-accent btn-sm" id="btn-run-publish-now" style="white-space: nowrap; height: 32px;">
                     <i class="fa-solid fa-paper-plane"></i> 🚀 Đăng Ngay
                   </button>
                 </div>
@@ -620,13 +640,24 @@
             </div>
           </div>
 
-          <!-- Queue Filter Tabs -->
-          <div class="queue-filter-bar" id="queue-filter-bar">
-            <button class="filter-btn active" data-filter="all">Tất Cả (<span id="filter-all-count">0</span>)</button>
-            <button class="filter-btn" data-filter="pending">Đang Chờ (<span id="filter-pending-count">0</span>)</button>
-            <button class="filter-btn" data-filter="pregenerated">Đã Soạn Xong Bài (<span id="filter-pregen-count">0</span>)</button>
-            <button class="filter-btn" data-filter="waiting">Chờ AI Viết (<span id="filter-waiting-count">0</span>)</button>
-            <button class="filter-btn" data-filter="completed">Đã Xuất Bản (<span id="filter-completed-count">0</span>)</button>
+          <!-- Queue Filter Tabs & Sort Controls -->
+          <div class="queue-filter-bar" id="queue-filter-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+              <button class="filter-btn active" data-filter="all">Tất Cả (<span id="filter-all-count">0</span>)</button>
+              <button class="filter-btn" data-filter="pending">Đang Chờ (<span id="filter-pending-count">0</span>)</button>
+              <button class="filter-btn" data-filter="pregenerated">Đã Soạn Xong Bài (<span id="filter-pregen-count">0</span>)</button>
+              <button class="filter-btn" data-filter="waiting">Chờ AI Viết (<span id="filter-waiting-count">0</span>)</button>
+              <button class="filter-btn" data-filter="completed">Đã Xuất Bản (<span id="filter-completed-count">0</span>)</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label for="select-queue-sort" style="margin: 0; font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-arrow-down-short-wide"></i> Sắp xếp:
+              </label>
+              <select id="select-queue-sort" class="form-control form-control-sm" style="width: auto; font-size: 0.78rem; padding: 4px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.85); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); cursor: pointer;">
+                <option value="time_desc" selected>⏱️ Mới nhất lên đầu</option>
+                <option value="time_asc">⏱️ Cũ nhất lên đầu</option>
+              </select>
+            </div>
           </div>
 
           <table class="data-table">
@@ -644,6 +675,9 @@
               <!-- Rendered dynamically -->
             </tbody>
           </table>
+
+          <!-- Thanh Phân Trang Hàng Chờ Tự Động (Chống Cuộn Chuột Dài) -->
+          <div id="queue-pagination-container" style="margin-top: 16px;"></div>
         </div>
       </section>
 

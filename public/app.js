@@ -608,6 +608,20 @@ function setupAutoPilotEvents() {
     });
   }
 
+  const selectMaxPostsPerDay = document.getElementById('select-max-posts-per-day');
+  if (selectMaxPostsPerDay) {
+    selectMaxPostsPerDay.addEventListener('change', async () => {
+      const maxDaily = parseInt(selectMaxPostsPerDay.value) || 0;
+      await fetch('/api/scheduler/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maxPostsPerDay: maxDaily })
+      });
+      showToast(`Đã lưu giới hạn xuất bản: ${maxDaily > 0 ? 'Tối đa ' + maxDaily + ' bài/ngày' : 'Không giới hạn'}!`, 'success');
+      loadSchedulerStatus();
+    });
+  }
+
   const selectGenIntervalDual = document.getElementById('select-generate-interval-dual');
   if (selectGenIntervalDual) {
     selectGenIntervalDual.addEventListener('change', async () => {
@@ -726,9 +740,20 @@ function setupAutoPilotEvents() {
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentQueueFilter = btn.getAttribute('data-filter') || 'all';
+      queuePage = 1;
       renderKeywordQueueTable(currentKeywordsData);
     });
   });
+
+  // Queue Sort Listener
+  const selectQueueSort = document.getElementById('select-queue-sort');
+  if (selectQueueSort) {
+    selectQueueSort.addEventListener('change', () => {
+      queueSortOrder = selectQueueSort.value || 'time_desc';
+      queuePage = 1;
+      renderKeywordQueueTable(currentKeywordsData);
+    });
+  }
 
   // Refresh Queue Button Listener
   const btnRefreshQueue = document.getElementById('btn-refresh-queue');
@@ -934,6 +959,10 @@ async function loadSchedulerStatus() {
     if (pubIntervalSelect) {
       pubIntervalSelect.value = String(schedulerStatusData.publishIntervalHours || 4);
     }
+    const maxPostsSelect = document.getElementById('select-max-posts-per-day');
+    if (maxPostsSelect && schedulerStatusData.maxPostsPerDay !== undefined) {
+      maxPostsSelect.value = String(schedulerStatusData.maxPostsPerDay);
+    }
     const genIntervalSelect = document.getElementById('select-generate-interval-dual');
     if (genIntervalSelect) {
       genIntervalSelect.value = String(schedulerStatusData.generateIntervalHours || 2);
@@ -975,12 +1004,77 @@ async function loadSchedulerStatus() {
       timelineBadge.textContent = `Chu kỳ: ${schedulerStatusData.publishIntervalHours || 4} giờ / bài (${schedulerStatusData.pendingCount} bài trong hàng chờ)`;
     }
 
+    // 7. Update Cluster Leader / Standby Status
+    updateClusterRoleUI();
+
     // Render immediately on load
     updateCountdownDOM();
   } catch (err) {
     console.error('Error loading scheduler status:', err);
   }
 }
+
+async function updateClusterRoleUI() {
+  const roleBadge = document.getElementById('cluster-role-badge');
+  const roleText = document.getElementById('cluster-role-text');
+  const roleIcon = document.getElementById('cluster-role-icon');
+  const takeoverBtn = document.getElementById('btn-cluster-takeover');
+  if (!roleBadge || !roleText) return;
+
+  try {
+    const res = await fetch('/api/cluster/status');
+    const data = await res.json();
+    if (!data.success || !data.data) return;
+
+    const info = data.data;
+    if (info.isLeader) {
+      roleBadge.style.background = 'rgba(16, 185, 129, 0.18)';
+      roleBadge.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+      roleBadge.style.color = '#34d399';
+      roleIcon.className = 'fa-solid fa-crown';
+      roleText.textContent = `👑 Máy Chính (Leader: ${info.leaderHostname})`;
+      roleBadge.title = info.message;
+      if (takeoverBtn) takeoverBtn.style.display = 'none';
+    } else {
+      roleBadge.style.background = 'rgba(234, 179, 8, 0.15)';
+      roleBadge.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+      roleBadge.style.color = '#facc15';
+      roleIcon.className = 'fa-solid fa-shield-halved';
+      roleText.textContent = `🛡️ Máy Phụ Dự Phòng (Standby)`;
+      roleBadge.title = info.message + ' (Sẽ tự động thay thế nếu máy chính gặp sự cố)';
+      if (takeoverBtn) takeoverBtn.style.display = 'inline-flex';
+    }
+  } catch (e) {
+    console.warn('Lỗi cập nhật trạng thái cluster:', e.message);
+  }
+}
+
+// Event listener cho nút ép làm máy chính
+document.addEventListener('DOMContentLoaded', () => {
+  const takeoverBtn = document.getElementById('btn-cluster-takeover');
+  if (takeoverBtn) {
+    takeoverBtn.addEventListener('click', async () => {
+      if (!confirm('Anh có chắc muốn chuyển quyền máy này thành MÁY CHÍNH xuất bản ngay không? Máy kia sẽ tự động chuyển sang chế độ dự phòng.')) return;
+      try {
+        takeoverBtn.disabled = true;
+        takeoverBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang thăng cấp...';
+        const res = await fetch('/api/cluster/takeover', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Đã thăng cấp thành công!', 'success');
+          await updateClusterRoleUI();
+        } else {
+          showToast(data.message || 'Không thể thăng cấp.', 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi khi thăng cấp máy chính: ' + err.message, 'error');
+      } finally {
+        takeoverBtn.disabled = false;
+        takeoverBtn.innerHTML = '<i class="fa-solid fa-crown"></i> <span>Ép Làm Máy Chính</span>';
+      }
+    });
+  }
+});
 
 function updateCountdownDOM() {
   const pubTime = formatSecToHMS(localPublishRemainingSec);
@@ -1242,11 +1336,16 @@ async function loadSchedulerConfig() {
 }
 
 let currentQueueFilter = 'all';
+let queuePage = 1;
+let queuePageSize = 10;
+let queueSortOrder = 'time_desc';
 
 function renderKeywordQueueTable(keywords = []) {
   const tbody = document.getElementById('keyword-queue-tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
+  const paginContainer = document.getElementById('queue-pagination-container');
+  if (paginContainer) paginContainer.innerHTML = '';
 
   const pending = keywords.filter(k => k.status === 'pending');
   const pregenerated = keywords.filter(k => k.status === 'pending' && k.generatedPostId);
@@ -1269,18 +1368,43 @@ function renderKeywordQueueTable(keywords = []) {
   const fComp = document.getElementById('filter-completed-count');
   if (fComp) fComp.textContent = completed.length;
 
-  let displayItems = keywords;
-  if (currentQueueFilter === 'pending') displayItems = pending;
-  else if (currentQueueFilter === 'pregenerated') displayItems = pregenerated;
-  else if (currentQueueFilter === 'waiting') displayItems = waiting;
-  else if (currentQueueFilter === 'completed') displayItems = completed;
+  // 1. Sắp xếp danh sách bài đã đăng (completed) theo thời gian chuẩn xác
+  const sortedCompleted = [...completed].sort((a, b) => {
+    const timeA = new Date(a.completedAt || a.updatedAt || a.createdAt || 0).getTime();
+    const timeB = new Date(b.completedAt || b.updatedAt || b.createdAt || 0).getTime();
+    return queueSortOrder === 'time_asc' ? (timeA - timeB) : (timeB - timeA);
+  });
+
+  let displayItems = [];
+  if (currentQueueFilter === 'pending') {
+    displayItems = [...pending];
+  } else if (currentQueueFilter === 'pregenerated') {
+    displayItems = [...pregenerated];
+  } else if (currentQueueFilter === 'waiting') {
+    displayItems = [...waiting];
+  } else if (currentQueueFilter === 'completed') {
+    displayItems = sortedCompleted;
+  } else {
+    // 'all': Ưu tiên các bài đang chờ (pending) theo thứ tự hàng đợi #1, #2..., tiếp theo là bài đã xuất bản sắp xếp mới nhất lên đầu
+    displayItems = [...pending, ...sortedCompleted];
+  }
 
   if (displayItems.length === 0) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 28px; color: var(--text-muted);"><i class="fa-solid fa-inbox" style="font-size: 1.6rem; display: block; margin-bottom: 8px; opacity: 0.6;"></i> Không có từ khóa nào trong danh mục này.</td></tr>`;
     return;
   }
 
-  displayItems.forEach(item => {
+  // 2. Tính toán phân trang mượt mà (Chống lag & chống cuộn chuột dài)
+  const total = displayItems.length;
+  const totalPages = Math.ceil(total / queuePageSize);
+  if (queuePage > totalPages) queuePage = totalPages;
+  if (queuePage < 1) queuePage = 1;
+
+  const startIndex = (queuePage - 1) * queuePageSize;
+  const endIndex = Math.min(startIndex + queuePageSize, total);
+  const pagedItems = displayItems.slice(startIndex, endIndex);
+
+  pagedItems.forEach(item => {
     const tr = document.createElement('tr');
     let targetPost = item.generatedPostId ? currentPostsData.find(p => p.id === item.generatedPostId) : null;
     if (!targetPost && item.wpPostId) {
@@ -1622,6 +1746,52 @@ function renderKeywordQueueTable(keywords = []) {
 
     tbody.appendChild(tr);
   });
+
+  // 3. Render Thanh Phân Trang Hàng Chờ Tự Động Siêu Mượt
+  if (paginContainer && totalPages > 1) {
+    paginContainer.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 12px 18px; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: 10px;">
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Đang hiển thị <strong style="color: #fff;">${startIndex + 1} - ${endIndex}</strong> trên tổng số <strong style="color: var(--accent-primary);">${total}</strong> bài
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button class="btn btn-sm btn-secondary btn-queue-pagin-nav" data-page="1" ${queuePage === 1 ? 'disabled' : ''} title="Trang đầu">&laquo;&laquo;</button>
+          <button class="btn btn-sm btn-secondary btn-queue-pagin-nav" data-page="${queuePage - 1}" ${queuePage <= 1 ? 'disabled' : ''}>&laquo; Trước</button>
+          <span style="font-size: 0.85rem; font-weight: 700; color: #fff; padding: 4px 12px; background: rgba(255,255,255,0.08); border-radius: 6px;">Trang ${queuePage} / ${totalPages}</span>
+          <button class="btn btn-sm btn-secondary btn-queue-pagin-nav" data-page="${queuePage + 1}" ${queuePage >= totalPages ? 'disabled' : ''}>Sau &raquo;</button>
+          <button class="btn btn-sm btn-secondary btn-queue-pagin-nav" data-page="${totalPages}" ${queuePage === totalPages ? 'disabled' : ''} title="Trang cuối">&raquo;&raquo;</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Mỗi trang:</span>
+          <select id="select-queue-page-size" style="background: rgba(30, 41, 59, 0.9); border: 1px solid var(--border-color); color: #fff; font-size: 0.8rem; border-radius: 6px; padding: 4px 8px; cursor: pointer;">
+            <option value="10" ${queuePageSize === 10 ? 'selected' : ''}>10 bài</option>
+            <option value="20" ${queuePageSize === 20 ? 'selected' : ''}>20 bài</option>
+            <option value="50" ${queuePageSize === 50 ? 'selected' : ''}>50 bài</option>
+          </select>
+        </div>
+      </div>
+    `;
+
+    paginContainer.querySelectorAll('.btn-queue-pagin-nav').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetPage = parseInt(e.currentTarget.getAttribute('data-page'));
+        if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= totalPages) {
+          queuePage = targetPage;
+          renderKeywordQueueTable(currentKeywordsData);
+          document.querySelector('.table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    const pageSizeSelect = document.getElementById('select-queue-page-size');
+    if (pageSizeSelect) {
+      pageSizeSelect.addEventListener('change', (e) => {
+        queuePageSize = parseInt(e.currentTarget.value) || 10;
+        queuePage = 1;
+        renderKeywordQueueTable(currentKeywordsData);
+      });
+    }
+  }
 }
 
 function getPostImages(post) {
