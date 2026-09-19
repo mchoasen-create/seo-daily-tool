@@ -2466,7 +2466,18 @@ app.post('/api/wordpress/publish', async (req, res) => {
       }
     }
 
-    res.json({ success: true, message: 'Đăng bài lên WordPress thành công!', data: wpResult });
+    if (wpResult.link) {
+      try {
+        const { notifyGoogleIndex } = require('./lib/google_indexer');
+        notifyGoogleIndex(wpResult.link).then(idxRes => {
+          if (idxRes && idxRes.success) {
+            console.log(`[GoogleIndexer] ⚡ Đã bắn Google Indexing API thành công cho: ${wpResult.link}`);
+          }
+        }).catch(e => console.warn('[GoogleIndexer] Err:', e.message));
+      } catch (e) {}
+    }
+
+    res.json({ success: true, message: 'Đăng bài lên WordPress thành công! (Đã tự động gửi yêu cầu index lên Google)', data: wpResult });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi đăng bài WordPress: ' + err.message });
   }
@@ -2776,6 +2787,73 @@ app.post('/api/cluster/takeover', async (req, res) => {
     const { checkClusterRole } = require('./lib/cluster_coordinator');
     const role = await checkClusterRole(true);
     res.json({ success: true, data: role, message: 'Đã thăng cấp máy này thành LEADER thành công!' });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+/* ==========================================================================
+   GOOGLE INDEXING API ENDPOINTS (TỰ ĐỘNG BẮN TÍN HIỆU INDEX TỨC THÌ)
+   ========================================================================== */
+app.get('/api/google-index/status', (req, res) => {
+  try {
+    const { getIndexStatus } = require('./lib/google_indexer');
+    res.json({ success: true, data: getIndexStatus() });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+app.post('/api/google-index/push-single', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ success: false, message: 'Thiếu URL cần index.' });
+  try {
+    const { notifyGoogleIndex } = require('./lib/google_indexer');
+    const result = await notifyGoogleIndex(url, 'URL_UPDATED');
+    res.json({ success: result.success, data: result, message: result.success ? `Đã gửi tín hiệu index URL "${url}" tới Google thành công!` : `Thất bại: ${result.error || 'Lỗi không xác định'}` });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+app.post('/api/google-index/batch-push', async (req, res) => {
+  try {
+    const { notifyGoogleIndex } = require('./lib/google_indexer');
+    const liveDataFile = path.join(DATA_DIR, 'live_blog_posts.json');
+    let posts = [];
+    if (fs.existsSync(liveDataFile)) {
+      const live = JSON.parse(fs.readFileSync(liveDataFile, 'utf8'));
+      posts = live.posts || [];
+    }
+
+    const coreUrls = [
+      'https://xulynuochoasen.com/',
+      'https://xulynuochoasen.com/loc-nuoc-gieng/',
+      'https://xulynuochoasen.com/he-thong-loc-nuoc-cong-nghiep/',
+      'https://xulynuochoasen.com/he-thong-loc-nuoc-nhiem-phen/',
+      'https://xulynuochoasen.com/he-thong-loc-nuoc-sinh-hoat/',
+      'https://xulynuochoasen.com/he-thong-loc-nuoc-tinh-khiet/',
+      'https://xulynuochoasen.com/he-thong-loc-tong-sinh-hoat-biet-thu/',
+      'https://xulynuochoasen.com/he-thong-loc-nuoc-man/'
+    ];
+
+    const allUrls = [...new Set([...coreUrls, ...posts.map(p => p.url)])];
+    
+    // Asynchronous batch runner in background to not block HTTP response
+    (async () => {
+      console.log(`[GoogleIndexer] Bắt đầu đẩy nền ${allUrls.length} URLs lên Google Indexing API...`);
+      for (const u of allUrls) {
+        await notifyGoogleIndex(u, 'URL_UPDATED');
+        await new Promise(r => setTimeout(r, 250));
+      }
+      console.log(`[GoogleIndexer] Hoàn tất đẩy ${allUrls.length} URLs.`);
+    })().catch(err => console.error('[GoogleIndexer] Lỗi batch background:', err.message));
+
+    res.json({ 
+      success: true, 
+      message: `Đang tiến hành đẩy toàn bộ ${allUrls.length} bài viết và trang đích lên Google Indexing API trong nền!`, 
+      count: allUrls.length 
+    });
   } catch(e) {
     res.status(500).json({ success: false, message: e.message });
   }
@@ -3117,6 +3195,18 @@ async function processNextKeywordInQueue(apiKey = '') {
         if (wpResult.wpId) targetPost.wpPostId = wpResult.wpId;
         savePosts(posts);
         wpMessage = ` 🚀 Đã đăng bài lên WordPress: ${wpResult.link}`;
+
+        // ⚡ TỰ ĐỘNG BẮN GOOGLE INDEXING API NGAY TẠI CHỖ
+        if (wpResult.link) {
+          try {
+            const { notifyGoogleIndex } = require('./lib/google_indexer');
+            notifyGoogleIndex(wpResult.link).then(idxRes => {
+              if (idxRes && idxRes.success) {
+                console.log(`[GoogleIndexer] ⚡ Đã tự động bắn Google Indexing API thành công cho bài mới: ${wpResult.link}`);
+              }
+            }).catch(e => console.warn('[GoogleIndexer] Err:', e.message));
+          } catch (e) {}
+        }
       } catch (wpErr) {
         console.error('WP Auto-Publish Error:', wpErr);
         wpMessage = ` (Lỗi tự động đăng WP: ${wpErr.message})`;
