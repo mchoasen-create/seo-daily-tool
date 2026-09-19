@@ -2950,33 +2950,73 @@ function setupSchemaEvents() {
 function setupSettingsEvents() {
   const keyInput = document.getElementById('setting-gemini-key');
   const btnSave = document.getElementById('btn-save-settings');
+  const countBadge = document.getElementById('badge-gemini-keys-count');
+  const poolContainer = document.getElementById('gemini-keys-pool-status');
 
-  keyInput.value = localStorage.getItem('gemini_api_key') || '';
+  function renderPoolStatus(poolReport = []) {
+    if (!poolContainer) return;
+    if (countBadge) {
+      countBadge.textContent = `${poolReport.length} Khóa Đang Dùng`;
+      countBadge.style.background = poolReport.length > 1 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(56, 189, 248, 0.2)';
+      countBadge.style.color = poolReport.length > 1 ? '#34d399' : '#38bdf8';
+    }
 
-  // Also load from server if available
+    if (poolReport.length === 0) {
+      poolContainer.innerHTML = '';
+      return;
+    }
+
+    poolContainer.innerHTML = poolReport.map(item => {
+      const isReady = item.status === 'ready';
+      const statusPill = isReady 
+        ? `<span style="color: #34d399; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Sẵn sàng (Hoạt động tốt)</span>`
+        : `<span style="color: #facc15; font-weight: bold;"><i class="fa-solid fa-hourglass-half"></i> Giãn cách (${item.remainingSec}s còn lại)</span>`;
+      const primaryTag = item.isPrimary ? `<span style="background: #0284c7; color: #fff; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: bold;">Chính</span>` : '';
+
+      return `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; font-size: 0.8rem;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${primaryTag}
+            <span style="font-family: monospace; color: #e2e8f0; font-weight: 600;">Key #${item.index}: ${item.maskedKey}</span>
+          </div>
+          <div>${statusPill}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Load from server if available
   fetch('/api/settings/gemini-key')
     .then(res => res.json())
     .then(data => {
-      if (data.success && data.apiKey) {
-        keyInput.value = data.apiKey;
-        localStorage.setItem('gemini_api_key', data.apiKey);
+      if (data.success) {
+        if (Array.isArray(data.apiKeys) && data.apiKeys.length > 0) {
+          keyInput.value = data.apiKeys.join('\n');
+        } else if (data.apiKey) {
+          keyInput.value = data.apiKey;
+        }
+        renderPoolStatus(data.poolReport || []);
       }
     })
     .catch(() => {});
 
   btnSave.addEventListener('click', async () => {
-    const key = keyInput.value.trim();
-    localStorage.setItem('gemini_api_key', key);
+    const rawText = keyInput.value.trim();
+    const keys = rawText.split('\n').map(k => k.trim()).filter(Boolean);
 
     try {
-      await fetch('/api/settings/gemini-key', {
+      const res = await fetch('/api/settings/gemini-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey: key })
+        body: JSON.stringify({ apiKeys: keys, apiKey: keys[0] || '' })
       });
-      showToast('Đã lưu Gemini API Key lên máy chủ!', 'success');
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'Đã lưu cụm Gemini API Key!', 'success');
+        renderPoolStatus(data.poolReport || []);
+      }
     } catch (err) {
-      showToast('Đã lưu Gemini API Key!', 'success');
+      showToast('Lỗi lưu Gemini API Key.', 'error');
     }
   });
 }

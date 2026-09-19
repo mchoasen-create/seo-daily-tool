@@ -2116,21 +2116,44 @@ app.get('/api/posts/:id/sources', async (req, res) => {
 });
 
 app.get('/api/settings/gemini-key', (req, res) => {
-  const GEMINI_FILE = path.join(DATA_DIR, 'gemini.json');
-  let key = '';
-  try {
-    const data = JSON.parse(fs.readFileSync(GEMINI_FILE, 'utf-8') || '{}');
-    key = data.apiKey || '';
-  } catch (e) {}
-  if (!key) key = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY || '';
-  res.json({ success: true, apiKey: key });
+  const { getAllGeminiKeys, getKeysStatusReport } = require('./lib/gemini_manager');
+  const keys = getAllGeminiKeys();
+  const primaryKey = keys.length > 0 ? keys[0] : '';
+  res.json({ 
+    success: true, 
+    apiKey: primaryKey, 
+    apiKeys: keys,
+    poolReport: getKeysStatusReport() 
+  });
 });
 
 app.post('/api/settings/gemini-key', (req, res) => {
-  const { apiKey } = req.body;
-  const GEMINI_FILE = path.join(DATA_DIR, 'gemini.json');
-  fs.writeFileSync(GEMINI_FILE, JSON.stringify({ apiKey: apiKey || '' }, null, 2), 'utf-8');
-  res.json({ success: true, message: 'Đã lưu Gemini API Key!' });
+  const { apiKey, apiKeys } = req.body;
+  const { saveGeminiKeys, getKeysStatusReport } = require('./lib/gemini_manager');
+  
+  let keyList = [];
+  if (Array.isArray(apiKeys) && apiKeys.length > 0) {
+    keyList = apiKeys;
+  } else if (typeof apiKey === 'string' && apiKey.includes('\n')) {
+    keyList = apiKey.split('\n').map(k => k.trim()).filter(Boolean);
+  } else if (typeof apiKey === 'string' && apiKey.includes(',')) {
+    keyList = apiKey.split(',').map(k => k.trim()).filter(Boolean);
+  } else if (apiKey) {
+    keyList = [apiKey.trim()];
+  }
+
+  const saved = saveGeminiKeys(keyList);
+  res.json({ 
+    success: true, 
+    message: `Đã lưu thành công ${saved.length} khóa Gemini API (Tự động xoay vòng)!`,
+    apiKeys: saved,
+    poolReport: getKeysStatusReport()
+  });
+});
+
+app.get('/api/settings/gemini-pool', (req, res) => {
+  const { getKeysStatusReport } = require('./lib/gemini_manager');
+  res.json({ success: true, data: getKeysStatusReport() });
 });
 
 app.post('/api/posts', (req, res) => {
@@ -3581,47 +3604,21 @@ Trở về JSON thuần túy (không bọc markdown block):
   "content": "...(Nội dung Markdown đầy đủ với #, ##, ###, bảng biểu và hình ảnh)..."
 }`;
 
-      const candidateModels = ['gemini-3.8-flash', 'gemini-flash-lite-latest', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
-      let data = null;
-
-      for (const model of candidateModels) {
-        for (let attempt = 1; attempt <= 2; attempt++) {
-          try {
-            const res = await fetchFn(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                  responseMimeType: "application/json",
-                  maxOutputTokens: 8192,
-                  temperature: 0.85
-                }
-              })
-            });
-            if (res.ok) {
-              data = await res.json();
-              if (data.candidates && data.candidates[0]?.content?.parts) {
-                console.log(`[Gemini AI] Soạn bài viết thành công bằng model: ${model}`);
-                break;
-              }
-            } else if (res.status === 503 && attempt === 1) {
-              console.warn(`[Gemini AI] Model ${model} 503 quá tải, chờ 2s thử lại...`);
-              await new Promise(r => setTimeout(r, 2000));
-            } else {
-              console.warn(`[Gemini AI] Model ${model} trả về status ${res.status}`);
-              break;
-            }
-          } catch (mErr) {
-            console.warn(`[Gemini AI] Lỗi kết nối model ${model}:`, mErr.message);
-            break;
-          }
-        }
-        if (data && data.candidates && data.candidates[0]?.content?.parts) break;
+      let textPart = '';
+      try {
+        const { generateWithFailover } = require('./lib/gemini_manager');
+        const failoverRes = await generateWithFailover(prompt, {
+          responseMimeType: "application/json",
+          maxOutputTokens: 8192,
+          temperature: 0.85
+        });
+        textPart = failoverRes.text;
+        console.log(`[Gemini AI] Soạn bài viết thành công bằng model: ${failoverRes.model}`);
+      } catch (genErr) {
+        console.warn('[Gemini AI] Cụm model gặp sự cố:', genErr.message);
       }
 
-      if (data && data.candidates && data.candidates[0]?.content?.parts) {
-        const textPart = data.candidates[0].content.parts.find(p => p.text)?.text || data.candidates[0].content.parts[0]?.text || '';
+      if (textPart) {
         let parsed = robustParseGeminiResponse(textPart);
         if (!parsed) {
           console.error('[Gemini AI] ❌ parsed is null! textPart length:', textPart.length, 'sample:', textPart.substring(0, 300));

@@ -1180,21 +1180,27 @@
       <section id="tab-settings" class="tab-page">
         <div class="generator-grid">
           
-          <!-- Gemini Config -->
+          <!-- Gemini Config with Multi-Key Rotation -->
           <div class="settings-card glass">
             <div class="card-header">
-              <h3><i class="fa-solid fa-key"></i> Cấu Hình Gemini AI API Key</h3>
-              <p class="text-muted">Nhập API Key Gemini để dùng AI tạo bài viết thông minh hoàn toàn miễn phí.</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <h3 style="margin: 0;"><i class="fa-solid fa-key" style="color: #38bdf8;"></i> Cấu Hình Cụm Khóa Gemini AI (Multi-Key Rotation)</h3>
+                <span class="badge" id="badge-gemini-keys-count" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 700;">1 Khóa Đang Dùng</span>
+              </div>
+              <p class="text-muted" style="margin-top: 6px;">Hỗ trợ nhập <strong>nhiều API Key</strong> (mỗi key 1 dòng hoặc cách nhau dấu phẩy). Hệ thống sẽ <strong>tự động xoay vòng thông minh</strong>: Nếu key 1 chạm hạn ngạch (429/quota), tool lập tức chuyển sang key 2, 3 trong 0.1s!</p>
             </div>
             <div class="form-group">
-              <label for="setting-gemini-key">Gemini API Key</label>
-              <input type="password" id="setting-gemini-key" class="form-control" placeholder="AIzaSy...">
+              <label for="setting-gemini-key">Danh Sách Gemini API Keys (Mỗi dòng 1 key):</label>
+              <textarea id="setting-gemini-key" class="form-control" rows="3" placeholder="AQ.Ab8RN6KIL5...&#10;AIzaSyB3...&#10;AIzaSyD7..." style="font-family: monospace; font-size: 0.85rem; line-height: 1.5;"></textarea>
+              <div id="gemini-keys-pool-status" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                <!-- Rendered dynamically -->
+              </div>
               <small class="text-muted" style="display: block; margin-top: 8px;">
-                Chưa có API Key? <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">Lấy Gemini API Key miễn phí tại Google AI Studio 🔗</a>
+                💡 <strong style="color: #34d399;">Mẹo:</strong> Anh có thể lấy nhiều API Key từ các tài khoản Google khác nhau để không bao giờ sợ bị hết quota: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">Lấy Gemini API Key tại Google AI Studio 🔗</a>
               </small>
             </div>
             <button class="btn btn-primary" id="btn-save-settings">
-              <i class="fa-solid fa-floppy-disk"></i> Lưu API Key
+              <i class="fa-solid fa-floppy-disk"></i> Lưu Cụm API Key (Tự Động Xoay Vòng)
             </button>
           </div>
 
