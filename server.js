@@ -112,8 +112,8 @@ const MASTER_7_KEYWORDS = [
   },
   {
     keyword: "Lọc nước phèn",
-    topic: "Hệ Thống Xử Lý Nước Nhiễm Phèn Sắt Mangan Khử Mùi Triệt Để",
-    targetUrl: "https://xulynuochoasen.com/he-thong-loc-nuoc-nhiem-phen/"
+    topic: "Bộ Cột Lọc Nước Phèn Giếng Khoan Composite & Inox 304 Cao Cấp",
+    targetUrl: "https://xulynuochoasen.com/san-pham/cot-loc-nuoc-phen-va-kim-loai-nang-vo-composite/"
   },
   {
     keyword: "Lọc Nước Sinh Hoạt",
